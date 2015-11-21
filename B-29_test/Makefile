@@ -152,3 +152,6 @@ timeofday_unittest : timeofday_unittest.o \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+test: timeofday_unittest
+	timeofday_unittest
