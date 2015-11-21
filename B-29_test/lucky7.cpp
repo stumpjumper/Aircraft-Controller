@@ -9,8 +9,9 @@
 TimeOfDay::TimeOfDay(uint16_t initialValueMin, uint16_t initialValueMax,
                      uint8_t nightDayThresholdPercentageValue )
 {
-  update30secTimeout = millis() + LUCKY7_TIME30SEC;
-  update5minTimeout  = millis() + LUCKY7_TIME5MIN;
+  uint32_t now = millis();
+  update30secTimeout = now + LUCKY7_TIME30SEC;
+  update5minTimeout  = now + LUCKY7_TIME5MIN;
   eveningLength      = LUCKY7_TIME4HOUR;
   morningLength      = LUCKY7_TIME2HOUR;
   photocellValuesIndex = 0;

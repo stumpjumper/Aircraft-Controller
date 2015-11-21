@@ -96,6 +96,8 @@ public:
   uint32_t getEveningLength() {return eveningLength;};
   uint32_t getMorningLength() {return morningLength;};
   uint32_t getPredawnLength() {return predawnLength;};
+  uint8_t  getPhotocellValuesIndex() {return photocellValuesIndex;};
+
 
 private:
   uint32_t photocellAvgValueCurrent;
