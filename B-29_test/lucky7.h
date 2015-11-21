@@ -2,6 +2,7 @@
 #define LUCKY7_H
 #include "Arduino.h"
 #include "Serial.h"
+#include "gtest/gtest_prod.h"
 
 #define OFF 0
 #define ON  255
@@ -68,6 +69,8 @@ class TimeOfDay
 {
 public:
 
+  FRIEND_TEST(TimeOfDayTest, UpdateValuesAndTimeOfDay);
+
  enum DayPart {
    EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
    NIGHT      = 'N', // Light level below threshhold and EVENING timed out
@@ -80,8 +83,8 @@ public:
             uint8_t nightDayThresholdPercentageValue);
 
   DayPart updateAverage(const uint16_t lightLevel);
-
   DayPart getDayPart();
+  uint16_t getNightDayThreshold();
 
   // Primarily used to get access to private variables for testing
   uint32_t getPhotocellAvgValueCurrent() {return photocellAvgValueCurrent;};
@@ -97,6 +100,21 @@ public:
   uint32_t getMorningLength() {return morningLength;};
   uint32_t getPredawnLength() {return predawnLength;};
   uint8_t  getPhotocellValuesIndex() {return photocellValuesIndex;};
+
+  void setPhotocellAvgValueCurrent(uint32_t val) {photocellAvgValueCurrent = val;};
+  void setPhotocellAvgValueMin(uint32_t val) {photocellAvgValueMin = val;};
+  void setPhotocellAvgValueMax(uint32_t val) {photocellAvgValueMax = val;};
+  void setNightDayThresholdPercentage(uint8_t val) {nightDayThresholdPercentage = val;};
+  void setLenghtOfNight(uint32_t val) {lenghtOfNight = val;};
+  void setNightStart(uint32_t val) {nightStart = val;};
+  void setDayStart(uint32_t val) {dayStart = val;};
+  void setUpdate30secTimeout(uint32_t val) {update30secTimeout = val;};
+  void setUpdate5minTimeout(uint32_t val) {update5minTimeout = val;};
+  void setEveningLength(uint32_t val) {eveningLength = val;};
+  void setMorningLength(uint32_t val) {morningLength = val;};
+  void setPredawnLength(uint32_t val) {predawnLength = val;};
+  void setPhotocellValuesIndex(uint8_t val) {photocellValuesIndex = val;};
+  void setCurrentDayPart(DayPart val) {currentDayPart = val;};
 
 
 private:
@@ -114,16 +132,12 @@ private:
   uint32_t predawnLength;
   
 
-  uint16_t photocellMin();
-  uint16_t photocellMax();
-
 #define PHOTOCELLVALUESSIZE LUCKY7_TIME5MIN/LUCKY7_TIME30SEC
   uint16_t photocellValues[PHOTOCELLVALUESSIZE];
   uint8_t  photocellValuesIndex;
 
   TimeOfDay();
   void updateValuesAndTimeOfDay(uint16_t photocellAvgValue);
-  uint16_t getNightDayThreshold();
   DayPart currentDayPart;
   
 };
