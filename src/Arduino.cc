@@ -1,4 +1,3 @@
-
 #include "arduino-mock/Arduino.h"
 
 
@@ -54,8 +53,10 @@ void analogWrite(uint8_t a, int b) {
 }
 
 unsigned long millis(void) {
+  if (NULL == arduinoMock) {
+    return 0;
+  }
   return arduinoMock->getMillis();
-    //return arduinoMock->millis();
 }
 
 unsigned long micros(void) {

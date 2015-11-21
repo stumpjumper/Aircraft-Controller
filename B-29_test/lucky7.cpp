@@ -9,9 +9,8 @@
 TimeOfDay::TimeOfDay(uint16_t initialValueMin, uint16_t initialValueMax,
                      uint8_t nightDayThresholdPercentageValue )
 {
-  uint32_t now = millis();
-  update30secTimeout = now + LUCKY7_TIME30SEC;
-  update5minTimeout  = now + LUCKY7_TIME5MIN;
+  update30secTimeout = LUCKY7_TIME30SEC;
+  update5minTimeout  = LUCKY7_TIME5MIN;
   eveningLength      = LUCKY7_TIME4HOUR;
   morningLength      = LUCKY7_TIME2HOUR;
   photocellValuesIndex = 0;
@@ -69,7 +68,8 @@ TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
     }
     // Average
     const uint16_t avg = (uint16_t)(sum/numValues);
-    updateValuesAndTimeOfDay(avg);
+    updatePhotocellAvgValues(avg);
+    updateTimeOfDay();
     // Reset index and counter
     photocellValuesIndex = 0;
     update5minTimeout = millis() + LUCKY7_TIME5MIN;
@@ -78,7 +78,7 @@ TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
   return getDayPart();
 }
 
-void TimeOfDay::updateValuesAndTimeOfDay(uint16_t photocellAvgValue)
+void TimeOfDay::updatePhotocellAvgValues(uint16_t photocellAvgValue)
 {
   photocellAvgValueCurrent = photocellAvgValue;
   
@@ -89,7 +89,10 @@ void TimeOfDay::updateValuesAndTimeOfDay(uint16_t photocellAvgValue)
   if (photocellAvgValue < photocellAvgValueMin) {
     photocellAvgValueMin = photocellAvgValue;
   }
+}
 
+void TimeOfDay::updateTimeOfDay()
+{
   const uint16_t nightDayThreshold = getNightDayThreshold();
 
   switch (currentDayPart) {

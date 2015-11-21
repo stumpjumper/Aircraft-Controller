@@ -51,7 +51,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-TESTS = timeofday_unittest
+TESTS = timeofday_unittest B29_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -148,6 +148,16 @@ timeofday_unittest.o : $(TEST_DIR)/timeofday_unittest.cpp \
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/timeofday_unittest.cpp
 
 timeofday_unittest : timeofday_unittest.o \
+				B-29.a \
+				gmock_main.a  \
+				arduino_mock_all.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+B29_unittest.o : $(TEST_DIR)/B29_unittest.cpp \
+				$(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/B29_unittest.cpp
+
+B29_unittest : B29_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a

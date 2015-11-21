@@ -2,7 +2,6 @@
 #define LUCKY7_H
 #include "Arduino.h"
 #include "Serial.h"
-#include "gtest/gtest_prod.h"
 
 #define OFF 0
 #define ON  255
@@ -69,8 +68,6 @@ class TimeOfDay
 {
 public:
 
-  FRIEND_TEST(TimeOfDayTest, UpdateValuesAndTimeOfDay);
-
  enum DayPart {
    EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
    NIGHT      = 'N', // Light level below threshhold and EVENING timed out
@@ -86,41 +83,22 @@ public:
   DayPart getDayPart();
   uint16_t getNightDayThreshold();
 
-  // Primarily used to get access to private variables for testing
-  uint32_t getPhotocellAvgValueCurrent() {return photocellAvgValueCurrent;};
-  uint32_t getPhotocellAvgValueMin() {return photocellAvgValueMin;};
-  uint32_t getPhotocellAvgValueMax() {return photocellAvgValueMax;};
-  uint8_t  getNightDayThresholdPercentage() {return nightDayThresholdPercentage;};
-  uint32_t getLenghtOfNight() {return lenghtOfNight;};
-  uint32_t getNightStart() {return nightStart;};
-  uint32_t getDayStart() {return dayStart;};
-  uint32_t getUpdate30secTimeout() {return update30secTimeout;};
-  uint32_t getUpdate5minTimeout() {return update5minTimeout;};
-  uint32_t getEveningLength() {return eveningLength;};
-  uint32_t getMorningLength() {return morningLength;};
-  uint32_t getPredawnLength() {return predawnLength;};
-  uint8_t  getPhotocellValuesIndex() {return photocellValuesIndex;};
+  uint16_t getPhotocellAvgValueMin() {return photocellAvgValueMin;};
+  uint16_t getPhotocellAvgValueMax() {return photocellAvgValueMax;};
+  uint16_t getPhotocellAvgValueCurrent() {return photocellAvgValueCurrent;};
 
-  void setPhotocellAvgValueCurrent(uint32_t val) {photocellAvgValueCurrent = val;};
-  void setPhotocellAvgValueMin(uint32_t val) {photocellAvgValueMin = val;};
-  void setPhotocellAvgValueMax(uint32_t val) {photocellAvgValueMax = val;};
-  void setNightDayThresholdPercentage(uint8_t val) {nightDayThresholdPercentage = val;};
-  void setLenghtOfNight(uint32_t val) {lenghtOfNight = val;};
-  void setNightStart(uint32_t val) {nightStart = val;};
-  void setDayStart(uint32_t val) {dayStart = val;};
-  void setUpdate30secTimeout(uint32_t val) {update30secTimeout = val;};
-  void setUpdate5minTimeout(uint32_t val) {update5minTimeout = val;};
-  void setEveningLength(uint32_t val) {eveningLength = val;};
-  void setMorningLength(uint32_t val) {morningLength = val;};
-  void setPredawnLength(uint32_t val) {predawnLength = val;};
-  void setPhotocellValuesIndex(uint8_t val) {photocellValuesIndex = val;};
-  void setCurrentDayPart(DayPart val) {currentDayPart = val;};
+  // Primarily used to get access to private variables for testing
 
 
 private:
-  uint32_t photocellAvgValueCurrent;
-  uint32_t photocellAvgValueMin;
-  uint32_t photocellAvgValueMax;
+  FRIEND_TEST(TimeOfDayTest, Constructor);
+  FRIEND_TEST(TimeOfDayTest, getNightDayThreshold);
+  FRIEND_TEST(TimeOfDayTest, UpdatePhotocellAvgValues);
+  FRIEND_TEST(TimeOfDayTest, UpdateTimeOfDay);
+
+  uint16_t photocellAvgValueCurrent;
+  uint16_t photocellAvgValueMin;
+  uint16_t photocellAvgValueMax;
   uint8_t  nightDayThresholdPercentage;
   uint32_t lenghtOfNight;
   uint32_t nightStart;
@@ -137,7 +115,8 @@ private:
   uint8_t  photocellValuesIndex;
 
   TimeOfDay();
-  void updateValuesAndTimeOfDay(uint16_t photocellAvgValue);
+  void updatePhotocellAvgValues(uint16_t photocellAvgValue);
+  void updateTimeOfDay();
   DayPart currentDayPart;
   
 };
@@ -173,7 +152,7 @@ public:
 
   void motorUpdate();
 
-  void motorStop() {motorUpStop();motorDownStop();}
+  void motorStop() {motorUpStop(); motorDownStop();}
 };
 
 class Lucky7

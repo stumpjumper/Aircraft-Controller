@@ -1,7 +1,7 @@
 #include "lucky7.h"
 #include "RC65X.h"
 #include "RMYD065.h"
-#include "IRremote.h"
+//#include "IRremote.h"
 #include <EEPROM.h>
 
 // There's an interrupt collision with the IR routines and the PWM
@@ -88,18 +88,17 @@ uint32_t timeoutOverride;
 uint8_t  mode;
 uint16_t photocellLevel;
 
-
 Lucky7 hw = Lucky7();
 UpDownMotor upDownMotor(hw.o3, hw.o7); // Initialize with (up, down) outputs
-TimeOfDay   timeOfDay(0,1000,10); // photocell value min, max and night/day threshhold %
+TimeOfDay   timeOfDay(500,500,10); // photocell value min, max and night/day threshhold %
+
+void resetTimeoutBatteryLow() {
+  timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
+}
 
 bool overrideBatteryLow() {
   // If either of these is on, battery may read as low, so don't check battery voltage.
   return hw.o3 || hw.o7;
-}
-
-void resetTimeoutBatteryLow() {
-  timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
 }
 
 void resetTimeoutOverride() {
@@ -131,11 +130,11 @@ void allLightsOn() {
 }
 
 void allLightsOff() {
-  idenOn();
-  landOn();
-  illuOn();
-  posiOn();
-  formOn();
+  idenOff();
+  landOff();
+  illuOff();
+  posiOff();
+  formOff();
 }
 
 void allOff() {
@@ -410,5 +409,6 @@ void loop() {
                     //    2b) Maybe initiallize some levels and times.
     updateLights(); // Set the software output levels (0-255) on the outputs.
     status();       // Print to serial port, reset board if running for 30 days.
+
 }
 
