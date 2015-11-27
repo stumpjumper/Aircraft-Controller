@@ -85,14 +85,14 @@ public:
   unsigned long getMillis() {return currentMillis;};
 
   void addMillisRaw (unsigned long milliseconds) {currentMillis += milliseconds;};
-  void setMillisSecs(unsigned long seconds) {setMillisRaw(seconds*  1000);};
-  void setMillisMins(unsigned long minutes) {setMillisRaw(minutes* 60000);};
-  void setMillisHrs (unsigned long hours)   {setMillisRaw(hours  *360000);};
+  void setMillisSecs(unsigned long seconds) {setMillisRaw(seconds*      1000);};
+  void setMillisMins(unsigned long minutes) {setMillisRaw(minutes*   60*1000);};
+  void setMillisHrs (unsigned long hours)   {setMillisRaw(hours  *60*60*1000);};
 
   void setMillisRaw (unsigned long milliseconds) {currentMillis = milliseconds;};
-  void addMillisSecs(unsigned long seconds) {addMillisRaw(seconds*  1000);};
-  void addMillisMins(unsigned long minutes) {addMillisRaw(minutes* 60000);};
-  void addMillisHrs (unsigned long hours)   {addMillisRaw(hours  *360000);};
+  void addMillisSecs(unsigned long seconds) {addMillisRaw(seconds*      1000);};
+  void addMillisMins(unsigned long minutes) {addMillisRaw(minutes*   60*1000);};
+  void addMillisHrs (unsigned long hours)   {addMillisRaw(hours  *60*60*1000);};
 
   
   MOCK_METHOD2(pinMode, void (uint8_t, uint8_t));
