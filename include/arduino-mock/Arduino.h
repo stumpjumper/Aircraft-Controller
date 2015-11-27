@@ -78,14 +78,22 @@ void loop(void);
 
 class ArduinoMock {
 private:
-  unsigned long * millisArray;
-  uint16_t millisIndex;
+  unsigned long  currentMillis;
   
 public:
   ArduinoMock();
-  void setMillis(unsigned long * millisInitArray);
-  unsigned long getMillis();
-  
+  unsigned long getMillis() {return currentMillis;};
+
+  void addMillisRaw (unsigned long milliseconds) {currentMillis += milliseconds;};
+  void setMillisSecs(unsigned long seconds) {setMillisRaw(seconds*  1000);};
+  void setMillisMins(unsigned long minutes) {setMillisRaw(minutes* 60000);};
+  void setMillisHrs (unsigned long hours)   {setMillisRaw(hours  *360000);};
+
+  void setMillisRaw (unsigned long milliseconds) {currentMillis = milliseconds;};
+  void addMillisSecs(unsigned long seconds) {addMillisRaw(seconds*  1000);};
+  void addMillisMins(unsigned long minutes) {addMillisRaw(minutes* 60000);};
+  void addMillisHrs (unsigned long hours)   {addMillisRaw(hours  *360000);};
+
   
   MOCK_METHOD2(pinMode, void (uint8_t, uint8_t));
   MOCK_METHOD2(analogWrite, void (uint8_t, int));

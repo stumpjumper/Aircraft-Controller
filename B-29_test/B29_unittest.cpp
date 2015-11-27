@@ -4,18 +4,23 @@
 TEST(B29Test, ResetTimeoutBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  unsigned long millisTimesArray[] = {0,10,20,30};
-  arduinoMock->setMillis(millisTimesArray);
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
 
+  arduinoMock->setMillisRaw(0);
   resetTimeoutBatteryLow();
   EXPECT_EQ(0+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
+  arduinoMock->setMillisRaw(10);
   resetTimeoutBatteryLow();
   EXPECT_EQ(10+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
+  arduinoMock->setMillisRaw(20);
   resetTimeoutBatteryLow();
   EXPECT_EQ(20+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
+  arduinoMock->setMillisRaw(30);
   resetTimeoutBatteryLow();
   EXPECT_EQ(30+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
@@ -48,7 +53,7 @@ TEST(B29Test, OverrideBatteryLow) {
 
   EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
     .Times(testing::AtLeast(1));
-  
+
   hw.setup();
 
   hw.o3 = ON;
@@ -73,18 +78,23 @@ TEST(B29Test, OverrideBatteryLow) {
 TEST(B29Test, ResetTimeoutOverride) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  unsigned long millisTimesArray[] = {0,10,20,30};
-  arduinoMock->setMillis(millisTimesArray);
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
 
+  arduinoMock->setMillisRaw(0);
   resetTimeoutOverride();
   EXPECT_EQ(0+TIMEOUTOVERRIDE, timeoutOverride);
 
+  arduinoMock->setMillisRaw(10);
   resetTimeoutOverride();
   EXPECT_EQ(10+TIMEOUTOVERRIDE, timeoutOverride);
 
+  arduinoMock->setMillisRaw(20);
   resetTimeoutOverride();
   EXPECT_EQ(20+TIMEOUTOVERRIDE, timeoutOverride);
 
+  arduinoMock->setMillisRaw(30);
   resetTimeoutOverride();
   EXPECT_EQ(30+TIMEOUTOVERRIDE, timeoutOverride);
 

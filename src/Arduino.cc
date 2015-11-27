@@ -2,17 +2,7 @@
 
 
 ArduinoMock::ArduinoMock() {
-  millisArray = NULL;
-}
-
-void ArduinoMock::setMillis(unsigned long * millisInitArray) {
-  millisIndex = 0;
-  millisArray = millisInitArray;
-}
-
-unsigned long ArduinoMock::getMillis() {
-  assert (NULL != millisArray);
-  return millisArray[millisIndex++];
+  currentMillis = 0;
 }
 
 static ArduinoMock* arduinoMock = NULL;
@@ -34,14 +24,17 @@ void pinMode(uint8_t a, uint8_t b) {
   arduinoMock->pinMode(a, b);
 }
 void digitalWrite(uint8_t a, uint8_t b) {
+  assert (arduinoMock != NULL);
   arduinoMock->digitalWrite(a, b);
 }
 
 int digitalRead(uint8_t a) {
+  assert (arduinoMock != NULL);
   return arduinoMock->digitalRead(a);
 }
 
 int analogRead(uint8_t a) {
+  assert (arduinoMock != NULL);
   return arduinoMock->analogRead(a);
 }
 void analogReference(uint8_t mode) {
@@ -49,20 +42,20 @@ void analogReference(uint8_t mode) {
 }
 
 void analogWrite(uint8_t a, int b) {
+  assert (arduinoMock != NULL);
   arduinoMock->analogWrite(a, b);
 }
 
 unsigned long millis(void) {
-  if (NULL == arduinoMock) {
-    return 0;
-  }
-  return arduinoMock->getMillis();
+  assert (arduinoMock != NULL);
+  return arduinoMock->millis();
 }
 
 unsigned long micros(void) {
   return 0;
 }
 void delay(unsigned long a) {
+  assert (arduinoMock != NULL);
   arduinoMock->delay(a);
 }
 void delayMicroseconds(unsigned int us) {

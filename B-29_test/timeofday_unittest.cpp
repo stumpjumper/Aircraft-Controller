@@ -4,11 +4,11 @@
 TEST(TimeOfDayTest, setup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  //  EXPECT_CALL(*arduinoMock, millis())
-  //    .Times(testing::Exactly(1));
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
 
-  unsigned long millisTimesArray[] = {0};
-  arduinoMock->setMillis(millisTimesArray);
+  arduinoMock->setMillisRaw(0);
 
   TimeOfDay tod = TimeOfDay();
   tod.setup(0,1000,10);
@@ -36,11 +36,11 @@ TEST(TimeOfDayTest, setup) {
 TEST(TimeOfDayTest, getNightDayThreshold) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  //  EXPECT_CALL(*arduinoMock, millis())
-  //    .Times(testing::Exactly(1));
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
 
-  unsigned long millisTimesArray[] = {0};
-  arduinoMock->setMillis(millisTimesArray);
+  arduinoMock->setMillisRaw(0);
 
   TimeOfDay tod = TimeOfDay();
   tod.setup(0,1000,10);
@@ -66,11 +66,11 @@ TEST(TimeOfDayTest, getNightDayThreshold) {
 TEST(TimeOfDayTest, UpdatePhotocellAvgValues) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  //  EXPECT_CALL(*arduinoMock, millis())
-  //    .Times(testing::Exactly(1));
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
 
-  unsigned long millisTimesArray[] = {0};
-  arduinoMock->setMillis(millisTimesArray);
+  arduinoMock->setMillisRaw(0);
 
   TimeOfDay tod = TimeOfDay();
   tod.setup(500,501,10);
@@ -95,8 +95,11 @@ TEST(TimeOfDayTest, UpdatePhotocellAvgValues) {
 TEST(TimeOfDayTest, UpdateTimeOfDay) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  unsigned long millisTimesArray[] = {0};
-  arduinoMock->setMillis(millisTimesArray);
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
+
+  arduinoMock->setMillisRaw(0);
 
   TimeOfDay tod = TimeOfDay();
   tod.setup(500,501,10);
