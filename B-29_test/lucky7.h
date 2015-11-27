@@ -76,8 +76,8 @@ public:
    DAY        = 'D', // Light level above threshhold and MORNING timed out
   } ;
   
-  TimeOfDay(uint16_t initialValueMin, uint16_t initialValueMax,
-            uint8_t nightDayThresholdPercentageValue);
+  void setup(uint16_t initialValueMin, uint16_t initialValueMax,
+        uint8_t nightDayThresholdPercentageValue);
 
   DayPart updateAverage(const uint16_t lightLevel);
   DayPart getDayPart();
@@ -91,6 +91,7 @@ public:
 
 
 private:
+  FRIEND_TEST(TimeOfDayTest, setup);
   FRIEND_TEST(TimeOfDayTest, Constructor);
   FRIEND_TEST(TimeOfDayTest, getNightDayThreshold);
   FRIEND_TEST(TimeOfDayTest, UpdatePhotocellAvgValues);
@@ -114,7 +115,6 @@ private:
   uint16_t photocellValues[PHOTOCELLVALUESSIZE];
   uint8_t  photocellValuesIndex;
 
-  TimeOfDay();
   void updatePhotocellAvgValues(uint16_t photocellAvgValue);
   void updateTimeOfDay();
   DayPart currentDayPart;
@@ -125,8 +125,8 @@ class UpDownMotor
 {
 private:
 
-  uint8_t & outputUp;
-  uint8_t & outputDown;
+  uint8_t * p_outputUp;
+  uint8_t * p_outputDown;
 
   bool inMotorUpMode;
   bool inMotorDownMode;
@@ -141,18 +141,17 @@ private:
 
 
 public:
-  UpDownMotor();
-  UpDownMotor(uint8_t & oUp, uint8_t & oDown);
+  void setup(uint8_t * p_oUp, uint8_t * p_oDown);
 
   void motorUpStart();
   void motorDownStart();
 
-  uint8_t getMotorUpPower()   {return outputUp;}
-  uint8_t getMotorDownPower() {return outputDown;}
+  uint8_t getMotorUpPower()   {return *p_outputUp;};
+  uint8_t getMotorDownPower() {return *p_outputDown;};
 
   void motorUpdate();
 
-  void motorStop() {motorUpStop(); motorDownStop();}
+  void motorStop() {motorUpStop(); motorDownStop();};
 };
 
 class Lucky7

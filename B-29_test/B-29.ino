@@ -88,9 +88,9 @@ uint32_t timeoutOverride;
 uint8_t  mode;
 uint16_t photocellLevel;
 
-Lucky7 hw = Lucky7();
-UpDownMotor upDownMotor(hw.o3, hw.o7); // Initialize with (up, down) outputs
-TimeOfDay   timeOfDay(500,500,10); // photocell value min, max and night/day threshhold %
+Lucky7      hw          = Lucky7();
+UpDownMotor upDownMotor = UpDownMotor();
+TimeOfDay   timeOfDay   = TimeOfDay(); 
 
 void resetTimeoutBatteryLow() {
   timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
@@ -379,7 +379,11 @@ void input() {
 void setup() {
     Serial.begin(115200);
     Serial.println("NMNSH B-29 Lighting Controller setup");
+
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
+    upDownMotor.setup(&hw.o3, &hw.o7); // Initialize with (up, down) outputs
+    timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
+      
     lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
     lightThreshold = 100;
 

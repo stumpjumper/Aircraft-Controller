@@ -6,11 +6,12 @@
 //decode_results results;
 
 
-TimeOfDay::TimeOfDay(uint16_t initialValueMin, uint16_t initialValueMax,
-                     uint8_t nightDayThresholdPercentageValue )
+void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
+                 uint8_t nightDayThresholdPercentageValue )
 {
-  update30secTimeout = LUCKY7_TIME30SEC;
-  update5minTimeout  = LUCKY7_TIME5MIN;
+  uint32_t now = millis();
+  update30secTimeout = now + LUCKY7_TIME30SEC;
+  update5minTimeout  = now + LUCKY7_TIME5MIN;
   eveningLength      = LUCKY7_TIME4HOUR;
   morningLength      = LUCKY7_TIME2HOUR;
   photocellValuesIndex = 0;
@@ -138,10 +139,10 @@ TimeOfDay::DayPart TimeOfDay::getDayPart()
   return currentDayPart;
 }
 
-UpDownMotor::UpDownMotor(uint8_t & oUp, uint8_t & oDown)
-  : outputUp(oUp), outputDown(oDown)
+void UpDownMotor::setup(uint8_t * p_oUp, uint8_t * p_oDown)
 {
-
+  p_outputUp = p_oUp;
+  p_outputDown = p_oDown;
   inMotorUpMode = false;
   inMotorDownMode = false;
 
@@ -167,19 +168,19 @@ void UpDownMotor::motorDownStart() {
 }
 
 void UpDownMotor::motorUpStop() {
-    outputUp = OFF;
+    *p_outputUp = OFF;
     inMotorUpMode = false;
 }
 
 void UpDownMotor::motorDownStop() {
-    outputDown = OFF;
+    *p_outputDown = OFF;
     inMotorDownMode = false;
 }
 
 void UpDownMotor::motorUpdate() {
-    if ((inMotorUpMode && inMotorDownMode) || (outputUp && outputDown) )
+    if ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown) )
     {
-      Serial.print("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (outputUp && outputDown))\n");
+      Serial.print("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n");
       Serial.print("       Calling motorUpStop() and  motorDownStop()\n");
       motorUpStop();
       motorDownStop();
@@ -196,7 +197,7 @@ void UpDownMotor::motorUpUpdate() {
     }
 
     if (millis() > motorUpStartTime + LUCKY7_TIMEMOTORDELAY) {
-      outputUp = ON;
+      *p_outputUp = ON;
     }
       
     if (millis() > motorUpStartTime + LUCKY7_TIMEOUTMOTORUPDOWN) {
@@ -210,7 +211,7 @@ void UpDownMotor::motorDownUpdate() {
     }
 
     if (millis() > motorDownStartTime + LUCKY7_TIMEMOTORDELAY) {
-      outputDown = ON;
+      *p_outputDown = ON;
     }
       
     if (millis() > motorDownStartTime + LUCKY7_TIMEOUTMOTORUPDOWN) {

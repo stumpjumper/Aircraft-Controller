@@ -1,9 +1,19 @@
 #include "lucky7.h"
 #include <gtest/gtest.h>
 
-TEST(TimeOfDayTest, Constructor) {
-  TimeOfDay tod = TimeOfDay(0,1000,10);
-  // Test the TimeOfDay class's constructor
+TEST(TimeOfDayTest, setup) {
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  //  EXPECT_CALL(*arduinoMock, millis())
+  //    .Times(testing::Exactly(1));
+
+  unsigned long millisTimesArray[] = {0};
+  arduinoMock->setMillis(millisTimesArray);
+
+  TimeOfDay tod = TimeOfDay();
+  tod.setup(0,1000,10);
+
+  // Test TimeOfDay.setup()
   EXPECT_EQ(10, tod.nightDayThresholdPercentage);
   EXPECT_EQ(0, tod.photocellAvgValueMin);
   EXPECT_EQ(1000, tod.getPhotocellAvgValueMax());
@@ -19,10 +29,21 @@ TEST(TimeOfDayTest, Constructor) {
   EXPECT_EQ(0, tod.nightStart);
   EXPECT_EQ(0, tod.dayStart);
   EXPECT_EQ(TimeOfDay::DAY, tod.getDayPart());
+
+  releaseArduinoMock();
 }
 
 TEST(TimeOfDayTest, getNightDayThreshold) {
-  TimeOfDay tod = TimeOfDay(0,1000,10);
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  //  EXPECT_CALL(*arduinoMock, millis())
+  //    .Times(testing::Exactly(1));
+
+  unsigned long millisTimesArray[] = {0};
+  arduinoMock->setMillis(millisTimesArray);
+
+  TimeOfDay tod = TimeOfDay();
+  tod.setup(0,1000,10);
 
   tod.photocellAvgValueMin = 0;
   tod.photocellAvgValueMax = 1000;
@@ -38,10 +59,21 @@ TEST(TimeOfDayTest, getNightDayThreshold) {
   tod.photocellAvgValueMax = 1015;
   tod.nightDayThresholdPercentage = 22;
   EXPECT_EQ(231, tod.getNightDayThreshold());
+
+  releaseArduinoMock();
 }
 
 TEST(TimeOfDayTest, UpdatePhotocellAvgValues) {
-  TimeOfDay tod = TimeOfDay(500,501,10);
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  //  EXPECT_CALL(*arduinoMock, millis())
+  //    .Times(testing::Exactly(1));
+
+  unsigned long millisTimesArray[] = {0};
+  arduinoMock->setMillis(millisTimesArray);
+
+  TimeOfDay tod = TimeOfDay();
+  tod.setup(500,501,10);
 
   tod.updatePhotocellAvgValues(898);
   tod.updatePhotocellAvgValues(900);
@@ -56,6 +88,8 @@ TEST(TimeOfDayTest, UpdatePhotocellAvgValues) {
   EXPECT_EQ(13, tod.getPhotocellAvgValueMin());
   EXPECT_EQ(999, tod.getPhotocellAvgValueMax());
   EXPECT_EQ(824, tod.getPhotocellAvgValueCurrent());
+
+  releaseArduinoMock();
 }
 
 TEST(TimeOfDayTest, UpdateTimeOfDay) {
@@ -64,7 +98,8 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
   unsigned long millisTimesArray[] = {0};
   arduinoMock->setMillis(millisTimesArray);
 
-  TimeOfDay tod = TimeOfDay(500,501,10);
+  TimeOfDay tod = TimeOfDay();
+  tod.setup(500,501,10);
 
   releaseArduinoMock();
 }
