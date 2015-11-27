@@ -33,22 +33,23 @@ void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
 TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
 {
   // Take reading every 30 seconds and record
-  if (millis() > update30secTimeout) {
+  if (millis() >= update30secTimeout) {
     photocellValues[photocellValuesIndex] = lightLevel;
     photocellValuesIndex++;
     update30secTimeout = millis() + LUCKY7_TIME30SEC;
   }
 
+  const uint8_t photocellValuesCount = photocellValuesIndex;
 
   // At five minutes
-  if (millis() > update5minTimeout) {
+  if (millis() >= update5minTimeout) {
     // Throw out high and low
     uint8_t minIndex = 0;
     uint8_t maxIndex = 0;
     uint16_t min = photocellValues[0];
     uint16_t max = photocellValues[0];
     uint8_t i;    
-    for (i = 1; i < PHOTOCELLVALUESSIZE; i++) {
+    for (i = 1; i < photocellValuesCount; i++) {
       if (photocellValues[i] < min) {
         min = photocellValues[i];
         minIndex = i;
@@ -60,7 +61,7 @@ TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
     }
     uint32_t sum = 0;
     uint8_t  numValues = 0;
-    for (i = 0; i < PHOTOCELLVALUESSIZE; i++)
+    for (i = 0; i < photocellValuesCount; i++)
     {
       if (i != minIndex && i != maxIndex) {
         sum = sum + photocellValues[i];
