@@ -13,10 +13,11 @@ void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
   update30secTimeout = now + LUCKY7_TIME30SEC;
   update5minTimeout  = now + LUCKY7_TIME5MIN;
   eveningLength      = LUCKY7_TIME4HOUR;
+  predawnLength      = LUCKY7_TIME2HOUR;
   morningLength      = LUCKY7_TIME2HOUR;
   photocellValuesIndex = 0;
 
-  lenghtOfNight = LUCKY7_TIME12HOUR;
+  lengthOfNight = LUCKY7_TIME12HOUR;
   nightStart = 0;
   dayStart = 0;
   currentDayPart = DAY;
@@ -104,14 +105,14 @@ void TimeOfDay::updateTimeOfDay()
     }
     break;
   case NIGHT:
-    if (millis() > nightStart + lenghtOfNight - predawnLength) {
+    if (millis() > nightStart + lengthOfNight - predawnLength) {
       currentDayPart = PREDAWN;
     }
     // Yes, there is no break here.
   case PREDAWN:
     if (photocellAvgValueCurrent > nightDayThreshold) {
       dayStart = millis();
-      lenghtOfNight = dayStart - nightStart;
+      lengthOfNight = dayStart - nightStart;
       currentDayPart = MORNING;
     }
     break;

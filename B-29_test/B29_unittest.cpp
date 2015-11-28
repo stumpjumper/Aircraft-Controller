@@ -49,10 +49,25 @@ TEST(B29Test, ArduinoMockMillis) {
 
   addValue = 31;
   currentValue += addValue*60*60*1000;
-  
   arduinoMock->addMillisHrs(addValue);
   EXPECT_EQ(currentValue, millis());
-  
+
+  //----------- Test when hours is a float
+  float addHrs = 4.5;
+  currentValue += 4*60*60*1000 + 30*60*1000;
+  arduinoMock->addMillisHrs(addHrs);
+  EXPECT_EQ(currentValue, millis());
+
+  addHrs = .25;
+  currentValue += 60*60*250;
+  arduinoMock->addMillisHrs(addHrs);
+  EXPECT_EQ(currentValue, millis());
+
+  addHrs = .1;
+  currentValue += 60*60*100;
+  arduinoMock->addMillisHrs(addHrs);
+  EXPECT_EQ(currentValue, millis());
+
   releaseArduinoMock();
 }
 

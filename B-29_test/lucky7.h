@@ -33,7 +33,7 @@
 #define LUCKY7_TIME5MIN             300000  // 300 sec = 5 min
 #define LUCKY7_TIME2HOUR           7200000U // 2 hours
 #define LUCKY7_TIME4HOUR          14400000U // 4 hours
-#define LUCKY7_TIME12HOUR         43200000U // 24 hours
+#define LUCKY7_TIME12HOUR         43200000U // 12 hours
 
 class Lucky7;
 
@@ -71,7 +71,7 @@ public:
  enum DayPart {
    EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
    NIGHT      = 'N', // Light level below threshhold and EVENING timed out
-   PREDAWN    = 'P', // Starts at (nightStart + lenghtOfNight - predawnLength)
+   PREDAWN    = 'P', // Starts at (nightStart + lengthOfNight - predawnLength)
    MORNING    = 'M', // Light level above threshhold, MORNING timer started, dayStart set
    DAY        = 'D', // Light level above threshhold and MORNING timed out
   } ;
@@ -101,7 +101,7 @@ private:
   uint16_t photocellAvgValueMin;
   uint16_t photocellAvgValueMax;
   uint8_t  nightDayThresholdPercentage;
-  uint32_t lenghtOfNight;
+  uint32_t lengthOfNight;
   uint32_t nightStart;
   uint32_t dayStart;
   uint32_t update30secTimeout;
