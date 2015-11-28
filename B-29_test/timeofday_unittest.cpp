@@ -139,13 +139,15 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
   const TimeOfDay::DayPart day     = TimeOfDay::DAY    ;
   const TimeOfDay::DayPart evening = TimeOfDay::EVENING;
   const TimeOfDay::DayPart night   = TimeOfDay::NIGHT  ;
-  //const TimeOfDay::DayPart predawn = TimeOfDay::PREDAWN;
+  const TimeOfDay::DayPart predawn = TimeOfDay::PREDAWN;
   const TimeOfDay::DayPart morning = TimeOfDay::MORNING;
 
-  const uint32_t hr12   = LUCKY7_TIME12HOUR;
-  const uint32_t min61  =  61*60*1000;
-  const uint32_t min482 = 482*60*1000;
-  const uint32_t min543 = 543*60*1000;
+  const uint32_t hr12     = LUCKY7_TIME12HOUR;
+  const uint32_t min61    =    61*60*1000;
+  const uint32_t min482   =   482*60*1000;
+  const uint32_t min543   =   543*60*1000;
+  const uint32_t min1505  =  1505*60*1000;
+  const uint32_t min1987  =  1987*60*1000;
 
 
   EXPECT_CALL(*arduinoMock, millis())
@@ -161,47 +163,91 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
 
   // D=68, E=69, M=77, N=78, P=80
 
-  uint8_t addMins[18] =
-    {60,            // day       60
-     1,60,60,60,60, // evening   61,121,181,241,301
-     1,60,60,60,60, // night    302,362,422,482,542
-     1,60,60,       // morning  543,603,663
-     1,60,60,60     // day      664,724,784,844
+  const uint8_t numData = 41;
+
+  uint16_t addMins[numData] =
+    {60,                // day      60
+     1,60,60,60,60,     // evening  61,121,181,241,301
+     1,60,60,60,60,     // night    302,362,422,482,542
+     1,60,60,           // morning  543,603,663
+     1,60,60,60,60,540, // day      664,724,784,844,904,1444
+     // --
+     60,                // day      1504
+     1,60,60,60,60,     // evening  1505,1565,1625,1685,1745,
+     1,60,60,           // night    1746,1806,1866,
+     2,58,60,           // predawn  1868,1926,1986,
+     1,60,60,           // morning  1987,2047,2107,
+     1,60,60,60,60,540  // day      2108,2168,2228,2288,2348,2888
     };  
-  uint16_t photocellValueArray[18] =
-    {850,                     //  0
-     150, 150, 150, 150, 150, //  1- 5
-     150, 150, 150, 150, 150, //  6-10
-     850, 850, 850,           // 11-13
-     850, 850, 850, 850       // 14-17
+  uint16_t photocellValueArray[numData] =
+    {850,                         //  0
+     150, 150, 150, 150, 150,     //  1- 5
+     150, 150, 150, 150, 150,     //  6-10
+     850, 850, 850,               // 11-13
+     850, 850, 850, 850, 850, 850,// 14-19
+     // --
+     850,                         // 20
+     150, 150, 150, 150, 150,     // 21-25
+     150, 150, 150,               // 26-28
+     150, 150, 150,               // 29-31
+     850, 850, 850,               // 32-34
+     850, 850, 850, 850, 850, 850 // 35-40
     };
-  TimeOfDay::DayPart dayPartArray [18] =
+  TimeOfDay::DayPart dayPartArray[numData] =
     {day,
-     evening, evening, evening, evening, evening, 
-     night, night, night, night, night, 
-     morning, morning, morning, 
-     day, day, day, day
+     evening, evening, evening, evening, evening,
+     night, night, night, night, night,
+     morning, morning, morning,
+     day, day, day, day, day, day,
+     // --
+     day,
+     evening, evening, evening, evening, evening,
+     night, night, night,
+     predawn, predawn, predawn,
+     morning, morning, morning,
+     day, day, day, day, day, day,
     };
-  uint32_t nightStartArray   [18] =
+  uint32_t nightStartArray[numData] =
     {0,
      min61, min61, min61, min61, min61,
      min61, min61, min61, min61, min61,
      min61, min61, min61,
-     min61, min61, min61, min61
+     min61, min61, min61, min61, min61, min61,
+     // --
+     min61  ,
+     min1505, min1505, min1505, min1505, min1505,
+     min1505, min1505, min1505,
+     min1505, min1505, min1505,
+     min1505, min1505, min1505,
+     min1505, min1505, min1505, min1505, min1505, min1505,
     };
-  uint32_t dayStartArray     [18] =
-    {0,
-     0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 
-     min543, min543, min543,
-     min543, min543, min543, min543, 
+  uint32_t dayStartArray[numData] =
+    {0,                                                    //  0   
+     0, 0, 0, 0, 0,                                        //  1- 5
+     0, 0, 0, 0, 0,                                        //  6-10
+     min543, min543, min543,                               // 11-13
+     min543, min543, min543, min543, min543, min543,       // 14-19
+     // --                                                         
+     min543 ,                                              // 20   
+     min543 , min543 , min543 , min543 , min543 ,          // 21-25
+     min543 , min543 , min543 ,                            // 26-28
+     min543 , min543 , min543 ,                            // 29-31
+     min1987, min1987, min1987,                            // 32-34
+     min1987, min1987, min1987, min1987, min1987, min1987, // 35-40
     };
-  uint32_t lengthOfNightArray[18] =
+  uint32_t lengthOfNightArray[numData] =
     {hr12  ,
      hr12  , hr12  , hr12  , hr12  , hr12,
      hr12  , hr12  , hr12  , hr12  , hr12,
      min482, min482, min482, 
-     min482, min482, min482, min482
+     min482, min482, min482, min482, min482, min482,
+     // --
+     min482,
+     min482, min482, min482, min482, min482, 
+     min482, min482, min482,
+     min482, min482, min482,
+     min482, min482, min482, 
+     min482, min482, min482, min482, min482, min482,
     };
   
   arduinoMock->setMillisRaw(0);
@@ -211,11 +257,11 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
 
   EXPECT_EQ(TimeOfDay::DAY, tod.getDayPart());
 
-  for (uint8_t i = 0; i < 18; i++) {
+  for (uint8_t i = 0; i < numData; i++) {
     arduinoMock->addMillisMins(addMins[i]);
     tod.updatePhotocellAvgValues(photocellValueArray[i]);
     tod.updateTimeOfDay();
-    EXPECT_EQ(dayPartArray      [i], tod.getDayPart())  << "i = " << int(i);
+    EXPECT_EQ(char(dayPartArray[i]), char(tod.getDayPart()))  << "i = " << int(i);
     EXPECT_EQ(nightStartArray   [i], tod.nightStart)    << "i = " << int(i);
     EXPECT_EQ(dayStartArray     [i], tod.dayStart)      << "i = " << int(i);
     EXPECT_EQ(lengthOfNightArray[i], tod.lengthOfNight) << "i = " << int(i);
