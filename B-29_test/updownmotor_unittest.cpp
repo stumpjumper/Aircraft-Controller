@@ -1,11 +1,8 @@
 #include "updownmotor_unittest.h"
 
-void UpDownMotorTest::SetUp() {
-  uint8_t p_oUpArrayStack  [4] = {ON , ON, OFF, OFF};
-  uint8_t p_oDownArrayStack[4] = {ON ,OFF,  ON, OFF};
 
-  p_oUpArray   = p_oUpArrayStack  ;
-  p_oDownArray = p_oDownArrayStack;
+void UpDownMotorTest::SetUp()
+{
   p_oUp   = NULL;
   p_oDown = NULL;
 
@@ -15,34 +12,53 @@ void UpDownMotorTest::SetUp() {
   p_off  = &off;
 }
 
-void UpDownMotorTest::TearDown() {
-}
-
-  
-
 TEST_F(UpDownMotorTest, Setup) {
   for (uint8_t i = 0; i < 4; i++) {
-    uint8_t * p_oUp   = &p_oUpArray[i];
-    uint8_t * p_oDown = &p_oDownArray[i];
+    uint8_t oUp   = p_oUpArray[i];
+    uint8_t oDown = p_oDownArray[i];
     
     UpDownMotor udm = UpDownMotor();
-    udm.setup(p_oUp, p_oDown);
+    udm.setup(&oUp, &oDown);
     
-    EXPECT_EQ(p_oUp  , udm.p_outputUp        );
-    EXPECT_EQ(p_oDown, udm.p_outputDown      );
-    EXPECT_EQ(false  , udm.inMotorUpMode     );
-    EXPECT_EQ(false  , udm.inMotorDownMode   );
-    EXPECT_EQ(0      , udm.motorUpStartTime  );
-    EXPECT_EQ(0      , udm.motorDownStartTime);
+    EXPECT_EQ(&oUp          , udm.p_outputUp        );
+    EXPECT_EQ(&oDown        , udm.p_outputDown      );
+    EXPECT_EQ(p_oUpArray[i]  , *udm.p_outputUp       ) << "oUp = " << int(oUp) << ",p_oUpArray[" << int(i) << "] = " << int(p_oUpArray[i]);
+    EXPECT_EQ(p_oDownArray[i], *udm.p_outputDown     ) << "oDown = " << int(oDown) << ", p_oDownArray[" << int(i) << "] = " << int(p_oDownArray[i]);
+    EXPECT_EQ(false          , udm.inMotorUpMode     );
+    EXPECT_EQ(false          , udm.inMotorDownMode   );
+    EXPECT_EQ(0              , udm.motorUpStartTime  );
+    EXPECT_EQ(0              , udm.motorDownStartTime);
   }
 }
 
-// TEST(UpDownMotorTest, MotorDownStop) {
+TEST_F(UpDownMotorTest, MotorUpStop) {
+  for (uint8_t i = 0; i < 4; i++) {
+    uint8_t oUp   = p_oUpArray[i];
+    uint8_t oDown = p_oDownArray[i];
+    
+    UpDownMotor udm = UpDownMotor();
+    udm.setup(&oUp, &oDown);
 
-//   uint8_t on  = ON ;
-//   uint8_t off = OFF;
-//   uint8_t * p_oUp   = &on;
-//   uint8_t * p_oDown = &off;
+    udm.motorUpStop();
+    EXPECT_EQ(OFF  , *udm.p_outputUp);
+    EXPECT_EQ(false, udm.inMotorUpMode );
+    EXPECT_EQ(false, udm.inMotorDownMode );
+  }
+}
 
-//   UpDownMotor udm = UpDownMotor();
-//   udm.setup(p_oUp, p_oDown);
+TEST_F(UpDownMotorTest, MotorDownStop) {
+  for (uint8_t i = 0; i < 4; i++) {
+    uint8_t oUp   = p_oUpArray[i];
+    uint8_t oDown = p_oDownArray[i];
+    
+    UpDownMotor udm = UpDownMotor();
+    udm.setup(&oUp, &oDown);
+
+    udm.motorDownStop();
+    EXPECT_EQ(OFF  , *udm.p_outputDown);
+    EXPECT_EQ(false, udm.inMotorUpMode );
+    EXPECT_EQ(false, udm.inMotorDownMode );
+  }
+}
+
+
