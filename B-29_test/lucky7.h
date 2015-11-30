@@ -124,6 +124,9 @@ private:
 class UpDownMotor
 {
 private:
+  FRIEND_TEST(UpDownMotorTest, Setup);
+  FRIEND_TEST(UpDownMotorTest, MotorUpStop);
+  FRIEND_TEST(UpDownMotorTest, MotorDownStop);
 
   uint8_t * p_outputUp;
   uint8_t * p_outputDown;
