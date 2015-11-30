@@ -51,7 +51,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-TESTS = timeofday_unittest B29_unittest
+TESTS = timeofday_unittest B29_unittest updownmotor_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -143,11 +143,7 @@ B-29.a : lucky7.o B-29.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-timeofday_unittest.o : $(TEST_DIR)/timeofday_unittest.cpp \
-				$(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/timeofday_unittest.cpp
-
-timeofday_unittest : timeofday_unittest.o \
+B29_unittest : B29_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a
@@ -156,9 +152,28 @@ timeofday_unittest : timeofday_unittest.o \
 B29_unittest.o : $(TEST_DIR)/B29_unittest.cpp \
 				$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/B29_unittest.cpp
-
-B29_unittest : B29_unittest.o \
+#----------
+timeofday_unittest : timeofday_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+
+timeofday_unittest.o : $(TEST_DIR)/timeofday_unittest.cpp \
+				$(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/timeofday_unittest.cpp
+#----------
+updownmotor_unittest : updownmotor_unittest.o \
+				B-29.a \
+				gmock_main.a  \
+				arduino_mock_all.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+updownmotor_unittest.o : $(TEST_DIR)/updownmotor_unittest.cpp $(TEST_DIR)/updownmotor_unittest.h \
+				$(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/updownmotor_unittest.cpp
+#----------
+
+
+
