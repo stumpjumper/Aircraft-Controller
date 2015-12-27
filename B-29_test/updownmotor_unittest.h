@@ -19,8 +19,6 @@ protected:
   uint8_t off;
   uint8_t * p_on ;
   uint8_t * p_off;
-
-
 };
 
 #endif

@@ -61,4 +61,71 @@ TEST_F(UpDownMotorTest, MotorDownStop) {
   }
 }
 
+TEST_F(UpDownMotorTest, MotorUpStart) {
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
+
+  uint32_t millisSet = 9283*60*60;
+  arduinoMock->setMillisRaw(millisSet);
+
+  bool inMotorUpModeArray[] = {false, true};
+
+  UpDownMotor udm = UpDownMotor();
+  uint8_t oUp   = ON;
+  uint8_t oDown = OFF;
+  udm.setup(&oUp, &oDown);
+  
+  for (uint8_t i = 0; i < 2; i++) {
+    udm.inMotorUpMode = inMotorUpModeArray[i];
+
+    udm.motorUpStart();
+    EXPECT_EQ(millisSet, udm.motorUpStartTime);
+    EXPECT_EQ(true, udm.inMotorUpMode);
+  }
+
+  releaseArduinoMock();
+}
+
+TEST_F(UpDownMotorTest, MotorDownStart) {
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillOnce(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
+
+  uint32_t millisSet = 9283*60*60;
+  arduinoMock->setMillisRaw(millisSet);
+
+  bool inMotorDownModeArray[] = {false, true};
+
+  UpDownMotor udm = UpDownMotor();
+  uint8_t oUp   = ON;
+  uint8_t oDown = OFF;
+  udm.setup(&oUp, &oDown);
+  
+  for (uint8_t i = 0; i < 2; i++) {
+    udm.inMotorDownMode = inMotorDownModeArray[i];
+
+    udm.motorDownStart();
+    EXPECT_EQ(millisSet, udm.motorDownStartTime);
+    EXPECT_EQ(true, udm.inMotorDownMode);
+  }
+
+  releaseArduinoMock();
+}
+
+
+// * void UpDownMotor::setup(uint8_t * p_oUp, uint8_t * p_oDown)
+// * void motorUpStop()
+// * void motorDownStop()
+// * void motorUpStart()
+// * void motorDownStart()
+// void motorUpdate()
+// void motorUpUpdate()
+// void motorDownUpdate()
+
+
 
