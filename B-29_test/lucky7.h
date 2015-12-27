@@ -127,6 +127,8 @@ private:
   FRIEND_TEST(UpDownMotorTest, Setup);
   FRIEND_TEST(UpDownMotorTest, MotorUpStop);
   FRIEND_TEST(UpDownMotorTest, MotorDownStop);
+  FRIEND_TEST(UpDownMotorTest, MotorUpStart);
+  FRIEND_TEST(UpDownMotorTest, MotorDownStart);
 
   uint8_t * p_outputUp;
   uint8_t * p_outputDown;
