@@ -101,9 +101,9 @@ TEST_F(UpDownMotorTest, MotorDownStart) {
 
   bool inMotorDownModeArray[] = {false, true};
 
-  UpDownMotor udm = UpDownMotor();
   uint8_t oUp   = ON;
   uint8_t oDown = OFF;
+  UpDownMotor udm = UpDownMotor();
   udm.setup(&oUp, &oDown);
   
   for (uint8_t i = 0; i < 2; i++) {
@@ -117,15 +117,131 @@ TEST_F(UpDownMotorTest, MotorDownStart) {
   releaseArduinoMock();
 }
 
+TEST_F(UpDownMotorTest, MotorUpUpdate) {
+
+  // States:
+  // 1) Not in motor up  mode
+  //    p_outputUp = OFF
+  // 2) In motor up mode
+  //    a) Before start deley
+  //       inMotorUpMode = true
+  //       p_outputUp = OFF
+  //    b) Before up/down timeout
+  //       inMotorUpMode = true
+  //       p_outputUp = ON
+  //    c) After up/down timeout
+  //       inMotorUpMode = false
+  //       p_outputUp = OFF
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
+
+
+  uint32_t startTime = 9283*60*60;
+  uint8_t oUp   = OFF;
+  uint8_t oDown = OFF;
+  UpDownMotor udm = UpDownMotor();
+  udm.setup(&oUp, &oDown);
+
+  udm.inMotorUpMode = false;
+  udm.motorUpStartTime = startTime;
+  
+  // State (1)
+  udm.motorUpUpdate();
+  EXPECT_EQ(oUp, *udm.p_outputUp);
+  EXPECT_EQ(OFF, oUp);
+  EXPECT_EQ(false, udm.inMotorUpMode);
+
+  // State (2a)
+  udm.inMotorUpMode = true;
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY/2);
+  udm.motorUpUpdate();
+  EXPECT_EQ(oUp, *udm.p_outputUp);
+  EXPECT_EQ(OFF, oUp);
+  EXPECT_EQ(true, udm.inMotorUpMode);
+
+  // State (2b)
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY + 1);
+  udm.motorUpUpdate();
+  EXPECT_EQ(oUp, *udm.p_outputUp);
+  EXPECT_EQ(ON, oUp);
+  EXPECT_EQ(true, udm.inMotorUpMode);
+
+  // State (2c)
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEOUTMOTORUPDOWN + 1);
+  udm.motorUpUpdate();
+  EXPECT_EQ(oUp, *udm.p_outputUp);
+  EXPECT_EQ(OFF, oUp);
+  EXPECT_EQ(false, udm.inMotorUpMode);
+
+  releaseArduinoMock();
+}
+
+TEST_F(UpDownMotorTest, MotorDownUpdate) {
+
+  // States:
+  // See MotorUpUpdate test
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                arduinoMock, &ArduinoMock::getMillis));
+
+
+  uint32_t startTime = 9283*60*60;
+  uint8_t oUp   = OFF;
+  uint8_t oDown = OFF;
+  UpDownMotor udm = UpDownMotor();
+  udm.setup(&oUp, &oDown);
+
+  udm.inMotorDownMode = false;
+  udm.motorDownStartTime = startTime;
+  
+  // State (1)
+  udm.motorDownUpdate();
+  EXPECT_EQ(oDown, *udm.p_outputDown);
+  EXPECT_EQ(OFF, oDown);
+  EXPECT_EQ(false, udm.inMotorDownMode);
+
+  // State (2a)
+  udm.inMotorDownMode = true;
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY/2);
+  udm.motorDownUpdate();
+  EXPECT_EQ(oDown, *udm.p_outputDown);
+  EXPECT_EQ(OFF, oDown);
+  EXPECT_EQ(true, udm.inMotorDownMode);
+
+  // State (2b)
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY + 1);
+  udm.motorDownUpdate();
+  EXPECT_EQ(oDown, *udm.p_outputDown);
+  EXPECT_EQ(ON, oDown);
+  EXPECT_EQ(true, udm.inMotorDownMode);
+
+  // State (2c)
+  arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEOUTMOTORUPDOWN + 1);
+  udm.motorDownUpdate();
+  EXPECT_EQ(oDown, *udm.p_outputDown);
+  EXPECT_EQ(OFF, oDown);
+  EXPECT_EQ(false, udm.inMotorDownMode);
+
+  releaseArduinoMock();
+}
+
+
 
 // * void UpDownMotor::setup(uint8_t * p_oUp, uint8_t * p_oDown)
 // * void motorUpStop()
 // * void motorDownStop()
 // * void motorUpStart()
 // * void motorDownStart()
+// * void motorUpUpdate()
+// * void motorDownUpdate()
 // void motorUpdate()
-// void motorUpUpdate()
-// void motorDownUpdate()
 
 
 
