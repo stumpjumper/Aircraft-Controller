@@ -21,6 +21,7 @@ void releaseArduinoMock() {
 }
 
 void pinMode(uint8_t a, uint8_t b) {
+  assert (arduinoMock != NULL);
   arduinoMock->pinMode(a, b);
 }
 void digitalWrite(uint8_t a, uint8_t b) {
