@@ -2,7 +2,10 @@
 #include "pins_arduino.h"
 #include <gtest/gtest.h>
 
+using ::testing::_;
 using ::testing::AnyOf;
+using ::testing::AtLeast;
+using ::testing::Invoke;
 
 TEST(Lucky7Test, Setup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -94,12 +97,75 @@ TEST(Lucky7Test, SetOutputStateFromSaved) {
 
   lucky7.setOutputStateFromSaved();
 
-  EXPECT_EQ(1, lucky7.o1 );
-  EXPECT_EQ(2, lucky7.o2 );
-  EXPECT_EQ(3, lucky7.o3 );
-  EXPECT_EQ(4, lucky7.o4 );
-  EXPECT_EQ(5, lucky7.o5 );
-  EXPECT_EQ(6, lucky7.o6 );
-  EXPECT_EQ(7, lucky7.o7 );
+  EXPECT_EQ(1, lucky7.o1);
+  EXPECT_EQ(2, lucky7.o2);
+  EXPECT_EQ(3, lucky7.o3);
+  EXPECT_EQ(4, lucky7.o4);
+  EXPECT_EQ(5, lucky7.o5);
+  EXPECT_EQ(6, lucky7.o6);
+  EXPECT_EQ(7, lucky7.o7);
 }
 
+int counterValue(int pin) {
+  static int a0Counter = 0;
+  static int a4Counter = 0;
+  static int a5Counter = 0;
+
+  switch (pin) {
+  case A0:
+    return a0Counter++;
+  case A4:
+    return a4Counter++;
+  case A5:
+    return a5Counter++;
+  default:
+    ADD_FAILURE() << "We should never get here.";
+    return 0;
+  }
+}
+
+TEST(Lucky7Test, Loop) {
+  uint32_t rv = 0;
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  const uint8_t loopTimes = 3*AVECNT;
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(loopTimes)
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                      arduinoMock, &ArduinoMock::getMillis));
+
+  EXPECT_CALL(*arduinoMock, analogWrite(AnyOf(O1,O2,O3,O5,O6,O7),_))
+    .Times(loopTimes*6);
+  EXPECT_CALL(*arduinoMock, digitalWrite(AnyOf(O4,O8,O13),_))
+    .Times(loopTimes*3);
+           
+  EXPECT_CALL(*arduinoMock, analogRead(A0))
+    .Times(loopTimes)
+    .WillRepeatedly(Invoke(counterValue));
+
+  EXPECT_CALL(*arduinoMock, analogRead(A4))
+    .Times(loopTimes)
+    .WillRepeatedly(Invoke(counterValue));
+
+  EXPECT_CALL(*arduinoMock, analogRead(A5))
+    .Times(loopTimes)
+    .WillRepeatedly(Invoke(counterValue));
+
+  Lucky7 lucky7 = Lucky7();
+
+  for (uint8_t j = 0; j < loopTimes; j++) {
+    uint8_t i = j % AVECNT;
+    rv = lucky7.loop();
+    
+    EXPECT_LT(i, AVECNT);
+    EXPECT_EQ(j, lucky7.pc1[i]);
+    EXPECT_EQ(j, lucky7.pc2[i]);
+    EXPECT_EQ(j, lucky7.bc[i]);
+
+    EXPECT_EQ(0, rv);
+  }
+
+  releaseArduinoMock();
+}
