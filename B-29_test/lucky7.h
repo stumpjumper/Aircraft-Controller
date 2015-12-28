@@ -165,6 +165,10 @@ public:
 class Lucky7
 {
 private:
+  FRIEND_TEST(Lucky7Test, Setup);
+  FRIEND_TEST(Lucky7Test, SaveOutputState);
+  FRIEND_TEST(Lucky7Test, SetOutputStateFromSaved);
+
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
   uint8_t aveptr;
