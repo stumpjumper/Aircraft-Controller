@@ -168,6 +168,7 @@ private:
   FRIEND_TEST(Lucky7Test, Setup);
   FRIEND_TEST(Lucky7Test, SaveOutputState);
   FRIEND_TEST(Lucky7Test, SetOutputStateFromSaved);
+  FRIEND_TEST(Lucky7Test, Loop);
 
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
