@@ -1,5 +1,5 @@
 #include "lucky7.h"
-//#include "IRremote.h"
+#include "IRremote.h"
 #include "pins_arduino.h"
 
 //IRrecv irrecv(IR);
@@ -222,7 +222,6 @@ void UpDownMotor::motorDownUpdate() {
 }
 
 void Lucky7::setup() {
-  
   o1 = 0;
   o2 = 0;
   o3 = 0;
@@ -275,7 +274,6 @@ void Lucky7::setOutputStateFromSaved()
    o6 = o6Saved; 
    o7 = o7Saved; 
 }
-
 
 
 uint32_t Lucky7::loop() {
