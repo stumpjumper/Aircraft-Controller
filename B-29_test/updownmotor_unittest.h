@@ -9,8 +9,8 @@ protected:
   virtual void SetUp();
   //virtual void TearDown();
 
-  uint8_t p_oUpArray  [4] = {ON , ON, OFF, OFF}; // C++11
-  uint8_t p_oDownArray[4] = {ON ,OFF,  ON, OFF}; // C++11
+  uint8_t p_oUpArray  [4]; // Set in SetUp
+  uint8_t p_oDownArray[4]; // Set in SetUp
 
   uint8_t * p_oUp  ;
   uint8_t * p_oDown;
