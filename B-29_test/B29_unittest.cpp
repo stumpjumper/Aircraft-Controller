@@ -1,7 +1,11 @@
+#include "B29_unittest.h"
 #include "B-29.ino"
 #include <gtest/gtest.h>
+#include "IRremoteMock.h"
 
-TEST(B29Test, ArduinoMockMillis) {
+using testing::AtLeast;
+
+TEST_F(B29Test, ArduinoMockMillis) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
@@ -71,7 +75,7 @@ TEST(B29Test, ArduinoMockMillis) {
   releaseArduinoMock();
 }
 
-TEST(B29Test, ResetTimeoutBatteryLow) {
+TEST_F(B29Test, ResetTimeoutBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
@@ -97,11 +101,15 @@ TEST(B29Test, ResetTimeoutBatteryLow) {
   releaseArduinoMock();
 }
 
-TEST(B29Test, HardWareSetup) {
+TEST_F(B29Test, HardWareSetup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
     .Times(testing::AtLeast(1));
+
+  IRrecvMock & irrecv = getIRrecv();
+  EXPECT_CALL(irrecv, enableIRIn())
+    .Times(AtLeast(1));
   
   hw.setup();
   EXPECT_EQ(OFF, hw.o1 );
@@ -118,11 +126,15 @@ TEST(B29Test, HardWareSetup) {
 }
 
 
-TEST(B29Test, OverrideBatteryLow) {
+TEST_F(B29Test, OverrideBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
     .Times(testing::AtLeast(1));
+
+  IRrecvMock & irrecv = getIRrecv();
+  EXPECT_CALL(irrecv, enableIRIn())
+    .Times(AtLeast(1));
 
   hw.setup();
 
@@ -145,7 +157,7 @@ TEST(B29Test, OverrideBatteryLow) {
   releaseArduinoMock();
 }
 
-TEST(B29Test, ResetTimeoutOverride) {
+TEST_F(B29Test, ResetTimeoutOverride) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
@@ -171,12 +183,16 @@ TEST(B29Test, ResetTimeoutOverride) {
   releaseArduinoMock();
 }
 
-TEST(B29Test, NameLightGroupsOnAndOff) {
+TEST_F(B29Test, NameLightGroupsOnAndOff) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
     .Times(testing::AtLeast(1));
   
+  IRrecvMock & irrecv = getIRrecv();
+  EXPECT_CALL(irrecv, enableIRIn())
+    .Times(AtLeast(1));
+
   hw.setup();
 
   EXPECT_EQ(OFF, hw.o1 );
@@ -228,12 +244,16 @@ TEST(B29Test, NameLightGroupsOnAndOff) {
   releaseArduinoMock();
 }
 
-TEST(B29Test, AllLightsOnAndOff) {
+TEST_F(B29Test, AllLightsOnAndOff) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
     .Times(testing::AtLeast(1));
   
+  IRrecvMock & irrecv = getIRrecv();
+  EXPECT_CALL(irrecv, enableIRIn())
+    .Times(AtLeast(1));
+
   hw.setup();
 
   EXPECT_EQ(OFF, hw.o1 );
