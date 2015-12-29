@@ -1,6 +1,5 @@
 #include "arduino-mock/Arduino.h"
 
-
 ArduinoMock::ArduinoMock() {
   currentMillis = 0;
 }
