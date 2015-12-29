@@ -169,11 +169,14 @@ private:
   FRIEND_TEST(Lucky7Test, SaveOutputState);
   FRIEND_TEST(Lucky7Test, SetOutputStateFromSaved);
   FRIEND_TEST(Lucky7Test, Loop);
+  FRIEND_TEST(Lucky7Test, Photocell1and2andBatteryVoltage);
+  FRIEND_TEST(Lucky7Test, OutputMoveTo);
 
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
   uint8_t aveptr;
-  uint8_t outputMoveTo(const uint8_t outputStart, uint8_t v, const uint16_t stepdelay);
+  void outputMoveTo(const uint8_t outputPin, uint8_t & currentValue,
+                    uint8_t targetValue, const uint16_t stepDelay);
 
   uint8_t o1Saved,o2Saved,o3Saved,o4Saved,o5Saved,o6Saved,o7Saved;
 
@@ -211,11 +214,11 @@ public:
   void o2MoveTo(uint8_t v, const uint16_t stepdelay);
   void o2Toggle()         {o2 = o2?OFF:ON;};       
 
-//void o3On()             {o3 = ON;}
-//void o3Set(uint8_t v)   {o3 = v;}
-//void o3Off()            {o3 = 0;}
-//void o3MoveTo(uint8_t v, const uint16_t stepdelay);
-//void o3Toggle()         {o3 = o3?OFF:ON;};       
+  void o3On()             {o3 = ON;}
+  void o3Set(uint8_t v)   {o3 = v;}
+  void o3Off()            {o3 = 0;}
+  void o3MoveTo(uint8_t v, const uint16_t stepdelay);
+  void o3Toggle()         {o3 = o3?OFF:ON;};       
 
   void o4On()             {o4 = ON;}
   void o4Set(uint8_t v)   {o4 = v;}
@@ -235,11 +238,11 @@ public:
   void o6MoveTo(uint8_t v, const uint16_t stepdelay);
   void o6Toggle()         {o6 = o6?OFF:ON;};       
 
-//void o7On()             {o7 = ON;}
-//void o7Set(uint8_t v)   {o7 = v;}
-//void o7Off()            {o7 = 0;}
-//void o7MoveTo(uint8_t v, const uint16_t stepdelay);
-//void o7Toggle()         {o7 = o7?OFF:ON;};       
+  void o7On()             {o7 = ON;}
+  void o7Set(uint8_t v)   {o7 = v;}
+  void o7Off()            {o7 = 0;}
+  void o7MoveTo(uint8_t v, const uint16_t stepdelay);
+  void o7Toggle()         {o7 = o7?OFF:ON;};       
 
   void o8On()             {o8 = ON;}
   void o8Set(uint8_t v)   {o8 = v;}

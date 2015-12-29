@@ -40,6 +40,12 @@ TEST(Lucky7Test, Setup) {
   EXPECT_EQ(0, lucky7.irTimeout);
 
   EXPECT_EQ(0, lucky7.aveptr);
+
+  for (uint8_t i = 0; i < AVECNT; i++) {
+    EXPECT_EQ(0, lucky7.pc1[i]);
+    EXPECT_EQ(0, lucky7.pc2[i]);
+    EXPECT_EQ(0, lucky7.bc [i]);
+  }
               
   releaseArduinoMock();
 }
@@ -168,4 +174,98 @@ TEST(Lucky7Test, Loop) {
   }
 
   releaseArduinoMock();
+}
+
+TEST(Lucky7Test, Photocell1and2andBatteryVoltage) {
+
+  Lucky7 lucky7 = Lucky7();
+
+  for (uint8_t i = 0; i < AVECNT; i++) {
+    lucky7.pc1[i] = i+1;
+    lucky7.pc2[i] = i+1;
+    lucky7.bc[i] = i+1;
+  }
+
+  const uint16_t sumPc1 = lucky7.photocell1();
+  const uint16_t sumPc2 = lucky7.photocell2();
+  float sumBc  = lucky7.batteryVoltage();
+  EXPECT_EQ(5, sumPc1);
+  EXPECT_EQ(5, sumPc2);
+  EXPECT_GT(1.0e-6, fabs(sumBc - 5.0*BVSCALE));
+}
+
+TEST(Lucky7Test, OutputMoveTo) {
+
+  
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, analogWrite(AnyOf(O1,O2),_))
+    .Times(44);
+  EXPECT_CALL(*arduinoMock, analogWrite(O3,_))
+    .Times(11);
+  EXPECT_CALL(*arduinoMock, analogWrite(O4,_))
+    .Times(2);
+  EXPECT_CALL(*arduinoMock, analogWrite(O5,_))
+    .Times(2);
+  EXPECT_CALL(*arduinoMock, analogWrite(O6,_))
+    .Times(2);
+  EXPECT_CALL(*arduinoMock, analogWrite(O7,_))
+    .Times(2);
+  EXPECT_CALL(*arduinoMock, analogWrite(O8,_))
+    .Times(2);
+  EXPECT_CALL(*arduinoMock, analogWrite(O13,_))
+    .Times(2);
+
+  Lucky7 lucky7 = Lucky7();
+
+  lucky7.o1 = 10;
+  lucky7.outputMoveTo(O1,lucky7.o1,20,999);
+  EXPECT_EQ(20, lucky7.o1);
+
+  lucky7.o2 = 20;
+  lucky7.outputMoveTo(O2,lucky7.o2,10,999);
+  EXPECT_EQ(10, lucky7.o2);
+
+  lucky7.o3 = 100;
+  lucky7.outputMoveTo(O3,lucky7.o3,100,999);
+  EXPECT_EQ(100, lucky7.o3);
+
+  lucky7.o1 = 0;
+  lucky7.o1MoveTo(10,999);
+  EXPECT_EQ(10, lucky7.o1);
+
+  lucky7.o2 = 10;
+  lucky7.o2MoveTo(0,999);
+  EXPECT_EQ(0, lucky7.o2);
+
+  lucky7.o3 = 0;
+  lucky7.o3MoveTo(10,999);
+  EXPECT_EQ(10, lucky7.o3);
+
+  lucky7.o4 = 0;
+  lucky7.o4MoveTo(1,999);
+  EXPECT_EQ(1, lucky7.o4);
+
+  lucky7.o5 = 1;
+  lucky7.o5MoveTo(2,999);
+  EXPECT_EQ(2, lucky7.o5);
+
+  lucky7.o6 = 2;
+  lucky7.o6MoveTo(3,999);
+  EXPECT_EQ(3, lucky7.o6);
+
+  lucky7.o7 = 3;
+  lucky7.o7MoveTo(4,999);
+  EXPECT_EQ(4, lucky7.o7);
+
+  lucky7.o8 = 4;
+  lucky7.o8MoveTo(5,999);
+  EXPECT_EQ(5, lucky7.o8);
+
+  lucky7.o13 = 5;
+  lucky7.o13MoveTo(6,999);
+  EXPECT_EQ(6, lucky7.o13);
+  
+  releaseArduinoMock();
+  
 }

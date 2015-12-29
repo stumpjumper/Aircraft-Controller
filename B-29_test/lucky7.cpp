@@ -250,6 +250,13 @@ void Lucky7::setup() {
   pinMode(A5,INPUT);
   aveptr = 0;
 
+  uint8_t i;
+  for (i = 0; i < AVECNT; i++) {
+    pc1[i] = 0;
+    pc2[i] = 0;
+    bc [i] = 0;
+  }
+
   //irrecv.enableIRIn(); // Start the receiver
 }
 
@@ -332,50 +339,55 @@ float Lucky7::batteryVoltage() {
     return (float)(sum/AVECNT)*BVSCALE;
 }
 
-void Lucky7::o1MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o1 = outputMoveTo(o1, v, stepdelay);
+void Lucky7::o1MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O1, o1, targetValue, stepDelay);
 }
-void Lucky7::o2MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o2 = outputMoveTo(o2, v, stepdelay);
+void Lucky7::o2MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O2, o2, targetValue, stepDelay);
 }
-//void Lucky7::o3MoveTo(uint8_t v, const uint16_t stepdelay) {
-//  o3 = outputMoveTo(o3, v, stepdelay);
-//}
-void Lucky7::o4MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o4 = outputMoveTo(o4, v, stepdelay);
+void Lucky7::o3MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O3, o3, targetValue, stepDelay);
 }
-void Lucky7::o5MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o5 = outputMoveTo(o5, v, stepdelay);
+void Lucky7::o4MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O4, o4, targetValue, stepDelay);
 }
-void Lucky7::o6MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o6 = outputMoveTo(o6, v, stepdelay);
+void Lucky7::o5MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O5, o5, targetValue, stepDelay);
 }
-//void Lucky7::o7MoveTo(uint8_t v, const uint16_t stepdelay) {
-//  o7 = outputMoveTo(o7, v, stepdelay);
-//}
-void Lucky7::o8MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o8 = outputMoveTo(o8, v, stepdelay);
+void Lucky7::o6MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O6, o6, targetValue, stepDelay);
 }
-void Lucky7::o13MoveTo(uint8_t v, const uint16_t stepdelay) {
-  o13 = outputMoveTo(o13, v, stepdelay);
+void Lucky7::o7MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O7, o7, targetValue, stepDelay);
+}
+void Lucky7::o8MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O8, o8, targetValue, stepDelay);
+}
+void Lucky7::o13MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
+  outputMoveTo(O13, o13, targetValue, stepDelay);
 }
 
-uint8_t Lucky7::outputMoveTo(const uint8_t outputStart, uint8_t v, const uint16_t stepdelay) {
-    int16_t i;
-    if (v > outputStart) {
-        for (i = outputStart; i < v; i++) {
-            //Serial.println(i);
-            analogWrite(outputStart,i);
-            delayMicroseconds(stepdelay);
-        }
-    } else if (v < outputStart) {
-        for (i = outputStart; i >= v; i--) {
-            //Serial.println(i);
-            analogWrite(outputStart,i);
-            delayMicroseconds(stepdelay);
-        }
+void Lucky7::outputMoveTo(const uint8_t outputPin, uint8_t & currentValue, uint8_t targetValue, const uint16_t stepDelay) {
+  int16_t i;
+  
+  if (targetValue == currentValue) {
+    return;
+  }
+  
+  if (targetValue > currentValue) {
+    for (i = currentValue; i <= targetValue; i++) {
+      //Serial.println(i);
+      analogWrite(outputPin,i);
+      delayMicroseconds(stepDelay);
     }
-    return v;
+  } else { // (currentValue > targetValue)
+    for (i = currentValue; i >= targetValue; i--) {
+      //Serial.println(i);
+      analogWrite(outputPin,i);
+      delayMicroseconds(stepDelay);
+    }
+  }
+  currentValue = targetValue;
 }
 
 void Lucky7::boardLight(BoardLightMode mode, void (lightOn)(), void (lightOff)()) {
