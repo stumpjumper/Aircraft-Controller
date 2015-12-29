@@ -127,7 +127,11 @@ arduino_mock_all.a : ArduinoMockAll.o
 ###	$(CXX) $(CPPFLAGS) -DARDUINO=100 -I../include/arduino-mock -I$(AVR_TOOLS_DIR) -I$(ARDUINO_VAR_PATH) $(CXXFLAGS) -c \
 ###		IRremote.cpp
 
-lucky7.o : lucky7.cpp lucky7.h
+IRremoteMock.o : IRremoteMock.cpp IRremoteMock.h IRremote.h
+	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
+		IRremoteMock.cpp
+
+lucky7.o : lucky7.cpp  lucky7.h
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
 		lucky7.cpp
 
@@ -135,8 +139,7 @@ B-29.o : B-29.cpp
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
 		B-29.cpp
 
-###B-29.a : lucky7.o B-29.o IRremote.o 
-B-29.a : lucky7.o B-29.o
+B-29.a : lucky7.o B-29.o IRremoteMock.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
@@ -149,7 +152,7 @@ B29_unittest : B29_unittest.o \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-B29_unittest.o : $(TEST_DIR)/B29_unittest.cpp lucky7.h \
+B29_unittest.o : $(TEST_DIR)/B29_unittest.cpp $(TEST_DIR)/B29_unittest.h  $(TEST_DIR)/lucky7.h \
 				$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/B29_unittest.cpp
 #----------
@@ -160,7 +163,7 @@ timeofday_unittest : timeofday_unittest.o \
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
-timeofday_unittest.o : $(TEST_DIR)/timeofday_unittest.cpp lucky7.h \
+timeofday_unittest.o : $(TEST_DIR)/timeofday_unittest.cpp  $(TEST_DIR)/lucky7.h \
 				$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/timeofday_unittest.cpp
 #----------
@@ -170,7 +173,7 @@ updownmotor_unittest : updownmotor_unittest.o \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-updownmotor_unittest.o : $(TEST_DIR)/updownmotor_unittest.cpp $(TEST_DIR)/updownmotor_unittest.h lucky7.h \
+updownmotor_unittest.o : $(TEST_DIR)/updownmotor_unittest.cpp $(TEST_DIR)/updownmotor_unittest.h  $(TEST_DIR)/lucky7.h \
 				$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/updownmotor_unittest.cpp
 #----------
@@ -180,7 +183,7 @@ lucky7_unittest : lucky7_unittest.o \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-lucky7_unittest.o : $(TEST_DIR)/lucky7_unittest.cpp lucky7.h \
+lucky7_unittest.o : $(TEST_DIR)/lucky7_unittest.cpp  $(TEST_DIR)/lucky7.h \
 				$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/lucky7_unittest.cpp
 #----------
