@@ -1,10 +1,37 @@
 #include "lucky7.h"
-#include "IRremote.h"
 #include "pins_arduino.h"
+#include "IRremoteMock.h"
 
-//IRrecv irrecv(IR);
-//decode_results results;
+static decode_results * p_irResults = NULL;
+static IRrecvMock * p_irRecv = NULL;
 
+IRrecvMock & getIRrecv() {
+  if (!p_irRecv) {
+    p_irRecv = new IRrecvMock(IR);
+  }
+  return *p_irRecv;
+}
+
+decode_results & getIRresults() {
+  if (!p_irResults) {
+    p_irResults = new decode_results;
+  }
+  return *p_irResults ;
+}
+
+void freeIRrecv() {
+  if (p_irRecv) {
+    delete p_irRecv;
+    p_irRecv = NULL;
+  }
+}
+
+void freeIRresults() {
+  if (p_irResults) {
+    delete p_irResults;
+    p_irResults = NULL;
+  }
+}
 
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )
@@ -221,6 +248,16 @@ void UpDownMotor::motorDownUpdate() {
     }
 }
 
+Lucky7::Lucky7() : irRecv(getIRrecv()), irResults(getIRresults())
+{
+}
+
+Lucky7::~Lucky7()
+{
+  freeIRrecv();
+  freeIRresults();
+}
+
 void Lucky7::setup() {
   o1 = 0;
   o2 = 0;
@@ -257,7 +294,7 @@ void Lucky7::setup() {
     bc [i] = 0;
   }
 
-  //irrecv.enableIRIn(); // Start the receiver
+  irRecv.enableIRIn(); // Start the receiver
 }
 
 void Lucky7::saveOutputState()
@@ -302,12 +339,12 @@ uint32_t Lucky7::loop() {
   bc[i]  = analogRead(A0);
 
   if (millis() > irTimeout) { // Only look at ir remote value every irTimeout seconds
-//      if (irrecv.decode(&results)) {
-//      rv = results.value;
-//      irTimeout = millis() + 500; // irTimeout = .5 seconds
-//    }
-//  } else {
-//    irrecv.resume();
+  //   if (irRecv.decode(&irResults)) {
+  //     rv = irResults.value;
+  //     irTimeout = millis() + 500; // irTimeout = .5 seconds
+  //   }
+  // } else {
+  //   irRecv.resume();
   }
   return rv;
 }

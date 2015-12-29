@@ -162,6 +162,12 @@ public:
   void motorStop() {motorUpStop(); motorDownStop();};
 };
 
+class  IRrecvMock;
+class  decode_results;
+
+IRrecvMock & getIRrecv();
+void freeIRrecv();
+
 class Lucky7
 {
 private:
@@ -180,8 +186,13 @@ private:
 
   uint8_t o1Saved,o2Saved,o3Saved,o4Saved,o5Saved,o6Saved,o7Saved;
 
+  IRrecvMock & irRecv;
+  decode_results & irResults;
 
 public:
+
+  Lucky7();
+  ~Lucky7();
 
   enum BoardLightMode {
     LIGHT_ON,
