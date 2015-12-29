@@ -58,10 +58,12 @@ class IRrecv
 {
 public:
   IRrecv(int recvpin);
+  virtual ~IRrecv();
+
   void blink13(int blinkflag);
-  int decode(decode_results *results);
-  void enableIRIn();
-  void resume();
+  virtual int decode(decode_results *results);
+  virtual void enableIRIn();
+  virtual void resume();
 private:
   // These are called by decode
   int getRClevel(decode_results *results, int *offset, int *used, int t1);
