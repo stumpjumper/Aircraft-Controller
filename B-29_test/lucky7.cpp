@@ -300,14 +300,23 @@ uint32_t Lucky7::loop() {
   pc2[i] = analogRead(A5);
   bc[i]  = analogRead(A0);
 
-  if (millis() > irTimeout) { // Only look at ir remote value every irTimeout seconds
-  //   if (irRecv.decode(&irResults)) {
-  //     rv = irResults.value;
-  //     irTimeout = millis() + 500; // irTimeout = .5 seconds
-  //   }
-  // } else {
-  //   irRecv.resume();
+  rv = irLoop();
+  return rv;
+}
+
+uint32_t Lucky7::irLoop() {
+  uint32_t rv = 0;
+  
+  const uint32_t currentMillis = millis();
+  if (currentMillis > irTimeout) { // Only look at ir remote value every irTimeout seconds
+    if (irRecv.decode(&irResults)) {
+      rv = irResults.value;
+      irTimeout = currentMillis + 500; // irTimeout = .5 seconds
+    }
+  } else {
+    irRecv.resume();
   }
+  
   return rv;
 }
 

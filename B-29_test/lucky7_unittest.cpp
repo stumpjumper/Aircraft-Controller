@@ -166,6 +166,10 @@ TEST(Lucky7Test, Loop) {
     .Times(loopTimes)
     .WillRepeatedly(Invoke(counterValue));
 
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, resume())
+    .Times(loopTimes);
+
   Lucky7 lucky7 = Lucky7();
 
   for (uint8_t j = 0; j < loopTimes; j++) {
@@ -181,6 +185,50 @@ TEST(Lucky7Test, Loop) {
   }
 
   releaseArduinoMock();
+  releaseIRrecvMock();
+}
+
+TEST(Lucky7Test, IRLoop) {
+  uint32_t rv = 0;
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(4)
+    .WillRepeatedly(testing::InvokeWithoutArgs(
+                      arduinoMock, &ArduinoMock::getMillis));
+
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, resume())
+    .Times(2);
+
+  EXPECT_CALL(*irrecvMock, decode(_))
+    .Times(2);
+  
+  Lucky7 lucky7 = Lucky7();
+
+  irrecvMock->setIRValue(10);
+
+  arduinoMock->setMillisRaw(0);
+  rv = lucky7.irLoop();
+  EXPECT_EQ(0,rv); // Should not have gone into ir read loop
+
+  arduinoMock->setMillisRaw(250);
+  rv = lucky7.irLoop();
+  EXPECT_EQ(10,rv); // Should have gone into ir read loop and read value set above
+
+  irrecvMock->setIRValue(20);
+
+  arduinoMock->setMillisRaw(501);
+  rv = lucky7.irLoop();
+  EXPECT_EQ(0,rv); // Should not have gone into ir read loop and gotten default value
+
+  arduinoMock->addMillisRaw(751);
+  rv = lucky7.irLoop();
+  EXPECT_EQ(20,rv); // Should have gone into ir read loop and read value set above
+
+  releaseArduinoMock();
+  releaseIRrecvMock();
 }
 
 TEST(Lucky7Test, Photocell1and2andBatteryVoltage) {

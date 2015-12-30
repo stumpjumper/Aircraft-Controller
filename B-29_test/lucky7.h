@@ -201,6 +201,7 @@ public:
   void setup();
 
   uint32_t loop();
+  uint32_t irLoop();
 
   void saveOutputState();
   void setOutputStateFromSaved();
