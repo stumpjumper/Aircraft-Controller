@@ -1,9 +1,5 @@
 #include "arduino-mock/Arduino.h"
 
-ArduinoMock::ArduinoMock() {
-  currentMillis = 0;
-}
-
 static ArduinoMock* arduinoMock = NULL;
 ArduinoMock* arduinoMockInstance() {
   if(!arduinoMock) {
@@ -17,6 +13,10 @@ void releaseArduinoMock() {
     delete arduinoMock;
     arduinoMock = NULL;
   }
+}
+
+ArduinoMock::ArduinoMock() {
+  currentMillis = 0;
 }
 
 void pinMode(uint8_t a, uint8_t b) {
