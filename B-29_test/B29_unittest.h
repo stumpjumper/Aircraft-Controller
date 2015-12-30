@@ -13,10 +13,9 @@ protected:
   //{
   //}
   
-  static void TearDownTestCase() {
-    std::cerr << "In TearDownTestCase()" << std::endl;
-    freeIRrecv();
-  }
+  //static void TearDownTestCase()
+  //{
+  //}
 
 };
 

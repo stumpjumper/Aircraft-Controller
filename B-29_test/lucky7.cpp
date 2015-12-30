@@ -1,37 +1,9 @@
 #include "lucky7.h"
 #include "pins_arduino.h"
-#include "IRremoteMock.h"
+#include <IRremote.h>
 
-static decode_results * p_irResults = NULL;
-static IRrecvMock * p_irRecv = NULL;
-
-IRrecvMock & getIRrecv() {
-  if (!p_irRecv) {
-    p_irRecv = new IRrecvMock(IR);
-  }
-  return *p_irRecv;
-}
-
-decode_results & getIRresults() {
-  if (!p_irResults) {
-    p_irResults = new decode_results;
-  }
-  return *p_irResults ;
-}
-
-void freeIRrecv() {
-  if (p_irRecv) {
-    delete p_irRecv;
-    p_irRecv = NULL;
-  }
-}
-
-void freeIRresults() {
-  if (p_irResults) {
-    delete p_irResults;
-    p_irResults = NULL;
-  }
-}
+IRrecv irRecv(IR);
+decode_results irResults;
 
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )
@@ -246,16 +218,6 @@ void UpDownMotor::motorDownUpdate() {
     if (millis() > motorDownStartTime + LUCKY7_TIMEOUTMOTORUPDOWN) {
         motorDownStop();
     }
-}
-
-Lucky7::Lucky7() : irRecv(getIRrecv()), irResults(getIRresults())
-{
-}
-
-Lucky7::~Lucky7()
-{
-  freeIRrecv();
-  freeIRresults();
 }
 
 void Lucky7::setup() {

@@ -1,6 +1,6 @@
 #include "lucky7.h"
 #include "pins_arduino.h"
-#include "IRremoteMock.h"
+#include <IRremote.h>
 #include <gtest/gtest.h>
 
 
@@ -18,8 +18,8 @@ TEST(Lucky7Test, Setup) {
   EXPECT_CALL(*arduinoMock, pinMode(AnyOf(A4,A5),INPUT))
     .Times(2);
 
-  IRrecvMock & irrecv = getIRrecv();
-  EXPECT_CALL(irrecv, enableIRIn())
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, enableIRIn())
     .Times(1);
   
   Lucky7 lucky7 = Lucky7();
@@ -54,6 +54,7 @@ TEST(Lucky7Test, Setup) {
   }
               
   releaseArduinoMock();
+  releaseIRrecvMock();
 }
 
 TEST(Lucky7Test, SaveOutputState) {

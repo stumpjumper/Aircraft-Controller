@@ -127,9 +127,9 @@ arduino_mock_all.a : ArduinoMockAll.o
 ###	$(CXX) $(CPPFLAGS) -DARDUINO=100 -I../include/arduino-mock -I$(AVR_TOOLS_DIR) -I$(ARDUINO_VAR_PATH) $(CXXFLAGS) -c \
 ###		IRremote.cpp
 
-IRremoteMock.o : IRremoteMock.cpp IRremoteMock.h IRremote.h
-	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
-		IRremoteMock.cpp
+###IRremoteMock.o : IRremoteMock.cpp IRremoteMock.h IRremote.h
+###	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
+###		IRremoteMock.cpp
 
 lucky7.o : lucky7.cpp  lucky7.h
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
@@ -139,7 +139,7 @@ B-29.o : B-29.cpp
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
 		B-29.cpp
 
-B-29.a : lucky7.o B-29.o IRremoteMock.o
+B-29.a : lucky7.o B-29.o 
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or

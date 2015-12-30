@@ -47,3 +47,13 @@ void IRrecv::resume()
 }
 
 
+IRrecvMockWrapper::IRrecvMockWrapper() : irrecvMock(NULL)
+{}
+
+getIRrecvMock::getIRrecvMock()
+{
+  if (irrecvMock == NULL) {
+    irrecvMock = getIRrecv();
+  }
+  return * irrecvMock;
+}

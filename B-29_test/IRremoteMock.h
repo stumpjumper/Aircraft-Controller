@@ -19,7 +19,16 @@ public:
   MOCK_METHOD0(resume, void ());
 };
 
-// IRrecvMock* irrecvMockInstance();
-// void releaseIRrecvMock();
+class IRrecvMockWrapper {
+
+private:
+  IRrecvMock * irrecvMock;
+
+public:
+  IRrecvMock & getIRrecvMock();
+}
+
+IRrecvMockWrapper* irrecvMockWrapperInstance();
+void releaseIRrecvMockWrapper();
 
 #endif // IRREMOTEMOCK_H

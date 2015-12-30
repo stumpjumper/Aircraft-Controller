@@ -16,6 +16,8 @@
 #ifndef IRremote_h
 #define IRremote_h
 
+Put in here so will not compile
+
 // The following are compile-time library options.
 // If you change them, recompile the library.
 // If DEBUG is defined, a lot of debugging output will be printed during decoding.
