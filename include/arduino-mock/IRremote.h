@@ -9,30 +9,39 @@
 
 class decode_results {
 public:
-  int decode_type; // NEC, SONY, RC5, UNKNOWN
-  unsigned int panasonicAddress; // This is only used for decoding Panasonic data
-  unsigned long value; // Decoded value
-  int bits; // Number of bits in decoded value
-  volatile unsigned int *rawbuf; // Raw intervals in .5 us ticks
-  int rawlen; // Number of records in rawbuf.
+  decode_results();
+  int16_t decode_type; // NEC, SONY, RC5, UNKNOWN
+  uint16_t panasonicAddress; // This is only used for decoding Panasonic data
+  uint32_t value; // Decoded value
+  int16_t bits; // Number of bits in decoded value
+  volatile uint32_t *rawbuf; // Raw intervals in .5 us ticks
+  int16_t rawlen; // Number of records in rawbuf.
 };
 
 class IRrecvMock {
+private:
+  uint32_t irValue;
+  
 public:
-  MOCK_METHOD1(decode, int (decode_results *));
+  IRrecvMock();
+
+  void setIRValue(uint32_t value) {irValue = value;};
+  uint32_t getIRValue() {return irValue;};
+  
+  MOCK_METHOD1(decode, int16_t (decode_results *));
   MOCK_METHOD0(enableIRIn, void ());
   MOCK_METHOD0(resume, void ());
 };
 
 class IRrecv_ {
-  public:
-  IRrecv_(int recvpin);
-
-  int decode(decode_results *results);
+public:
+  IRrecv_(int16_t recvpin);
+  
+  int16_t decode(decode_results *results);
   void enableIRIn();
   void resume();
-
-  int recvPin;
+  
+  int16_t recvPin;
 };
 
 typedef IRrecv_ IRrecv;
