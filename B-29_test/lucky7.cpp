@@ -5,6 +5,45 @@
 IRrecv irRecv(IR);
 decode_results irResults;
 
+Light::Light()
+{
+  lightLevel = OFF;
+  paused = false;
+};
+
+Light::~Light() {}
+
+BlinkingLight::BlinkingLight(uint32_t onLengthValue,
+                             uint32_t offLengthValue,
+                             uint8_t  maxLightLevelValue) : Light()
+{
+  maxLightLevel = maxLightLevelValue;
+  onLength = onLengthValue;
+  offLength = offLengthValue;
+  changeTime = 0; // Change right away
+
+}
+
+void BlinkingLight::update()
+{
+  if (paused) {
+    return;
+  }
+    
+  const uint32_t now = millis();
+  
+  if (now > changeTime) {
+    if (lightLevel == OFF) {
+      lightLevel = maxLightLevel;
+      changeTime = now + onLength;
+    } else {
+      lightLevel = OFF;
+      changeTime = now + offLength;
+    }
+  }
+}
+
+
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )
 {

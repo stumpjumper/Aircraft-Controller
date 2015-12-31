@@ -47,21 +47,61 @@ class Light
 */
 
 private:
+  FRIEND_TEST(OnOffLight, Constructor);
+  FRIEND_TEST(OnOffLight, On);
+  FRIEND_TEST(OnOffLight, Off);
+  FRIEND_TEST(OnOffLight, FunctionCallOperatorGetValue);
+  FRIEND_TEST(OnOffLight, FunctionCallOperatorSetValue);
+  FRIEND_TEST(OnOffLight, Resume);
+  FRIEND_TEST(OnOffLight, Update);
+
+  // Do not implement to make sure are never called
+  Light(Light & other); 
+  Light & operator=(const Light &rhs);
+
+protected:
+  uint8_t lightLevel;
+  bool paused;
 
 public:
+  Light();
+  virtual ~Light();
 
-  void decayFlashInit();
-  void decayFlash();
-  void decayFlashOff();
+  void on() {lightLevel = ON; paused = true;};
+  void off() {lightLevel = OFF; paused = true;};
+  void resume() {paused = false;};
+  virtual void update() = 0;
 
-  void flashInit();
-  void flash();
-  void flashOff();
+  uint8_t & operator()(void) {return lightLevel;};
+  //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;};
 
-  void steadyOnInit();
-  void steadyOn();
-  void steadyOnOff();
 
+};
+
+class OnOffLight : public Light
+{
+public:
+  OnOffLight() : Light() {;};
+  void update() {;};
+
+};
+
+class BlinkingLight : public Light
+{
+private:
+  FRIEND_TEST(BlinkingLight, Constructor);
+  BlinkingLight(); // Do not implement
+  
+  uint32_t onLength;
+  uint32_t offLength;
+  uint32_t changeTime;
+  uint8_t  maxLightLevel;
+  
+public:
+  BlinkingLight(uint32_t onLengthValue,
+                uint32_t offLengthValue,
+                uint8_t  maxLightLevelValue);
+  void update();
 };
 
 class TimeOfDay
