@@ -73,8 +73,7 @@ TEST_F(UpDownMotorTest, MotorUpStart) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillOnce(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(1);
 
   uint32_t millisSet = 9283*60*60;
   arduinoMock->setMillisRaw(millisSet);
@@ -101,8 +100,7 @@ TEST_F(UpDownMotorTest, MotorDownStart) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillOnce(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(1);
 
   uint32_t millisSet = 9283*60*60;
   arduinoMock->setMillisRaw(millisSet);
@@ -144,8 +142,7 @@ TEST_F(UpDownMotorTest, MotorUpUpdate) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(testing::AtLeast(1));
 
 
   uint32_t startTime = 9283*60*60;
@@ -196,8 +193,7 @@ TEST_F(UpDownMotorTest, MotorDownUpdate) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(testing::AtLeast(1));
 
 
   uint32_t startTime = 9283*60*60;
@@ -245,8 +241,7 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
   SerialMock  * serialMock  = serialMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(testing::AtLeast(1));
 
 
   EXPECT_CALL(*serialMock, print("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n"))

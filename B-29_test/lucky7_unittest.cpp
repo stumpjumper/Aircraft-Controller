@@ -145,9 +145,7 @@ TEST(Lucky7Test, Loop) {
   const uint8_t loopTimes = 3*AVECNT;
 
   EXPECT_CALL(*arduinoMock, millis())
-    .Times(loopTimes)
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                      arduinoMock, &ArduinoMock::getMillis));
+    .Times(loopTimes);
 
   EXPECT_CALL(*arduinoMock, analogWrite(AnyOf(O1,O2,O3,O5,O6,O7),_))
     .Times(loopTimes*6);
@@ -194,9 +192,7 @@ TEST(Lucky7Test, IRLoop) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .Times(4)
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                      arduinoMock, &ArduinoMock::getMillis));
+    .Times(4);
 
   IRrecvMock * irrecvMock = irrecvMockInstance();
   EXPECT_CALL(*irrecvMock, resume())

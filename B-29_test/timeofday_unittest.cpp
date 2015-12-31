@@ -5,8 +5,7 @@ TEST(TimeOfDayTest, setup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillOnce(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(1);
 
   arduinoMock->setMillisRaw(0);
 
@@ -37,8 +36,7 @@ TEST(TimeOfDayTest, getNightDayThreshold) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillOnce(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(1);
 
   arduinoMock->setMillisRaw(0);
 
@@ -67,8 +65,7 @@ TEST(TimeOfDayTest, UpdatePhotocellAvgValues) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillOnce(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(1);
 
   arduinoMock->setMillisRaw(0);
 
@@ -94,8 +91,7 @@ TEST(TimeOfDayTest, UpdateAverage) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(testing::AtLeast(1));
 
   arduinoMock->setMillisRaw(0);
 
@@ -153,8 +149,7 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
 
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(testing::AtLeast(1));
 
 
   // Coming out of setup:
