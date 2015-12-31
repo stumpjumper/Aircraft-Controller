@@ -48,7 +48,8 @@ void analogWrite(uint8_t a, int b) {
 
 unsigned long millis(void) {
   assert (arduinoMock != NULL);
-  return arduinoMock->millis();
+  arduinoMock->millis();
+  return arduinoMock->getMillis();
 }
 
 unsigned long micros(void) {
