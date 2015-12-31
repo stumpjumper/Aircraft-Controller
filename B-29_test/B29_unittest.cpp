@@ -9,8 +9,7 @@ TEST_F(B29Test, ArduinoMockMillis) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(AtLeast(1));
 
   unsigned long currentValue = 0;
   unsigned long addValue = 0;
@@ -79,8 +78,7 @@ TEST_F(B29Test, ResetTimeoutBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(AtLeast(1));
 
   arduinoMock->setMillisRaw(0);
   resetTimeoutBatteryLow();
@@ -163,8 +161,7 @@ TEST_F(B29Test, ResetTimeoutOverride) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   EXPECT_CALL(*arduinoMock, millis())
-    .WillRepeatedly(testing::InvokeWithoutArgs(
-                arduinoMock, &ArduinoMock::getMillis));
+    .Times(AtLeast(1));
 
   arduinoMock->setMillisRaw(0);
   resetTimeoutOverride();
