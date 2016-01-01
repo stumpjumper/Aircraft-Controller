@@ -43,6 +43,15 @@ void BlinkingLight::update()
   }
 }
 
+FastBlinkingLight::FastBlinkingLight(uint8_t maxLightLevelValue) :
+  BlinkingLight(1000, // onLengthValue
+                10  , // offLengthValue
+                maxLightLevelValue) {}
+
+SlowBlinkingLight::SlowBlinkingLight(uint8_t maxLightLevelValue) :
+  BlinkingLight(2000, // onLengthValue
+                10  , // offLengthValue
+                maxLightLevelValue) {}
 
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )

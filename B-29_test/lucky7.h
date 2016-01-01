@@ -39,13 +39,6 @@ class Lucky7;
 
 class Light
 {
-  
-  /*
-    decayFlash
-    see F16 Light Dimming Plot.ods
-    pwm = a+b*exp(d*t/e)
-  */
-  
 private:
   FRIEND_TEST(OnOffLight, Constructor);
   FRIEND_TEST(OnOffLight, On);
@@ -93,9 +86,12 @@ class BlinkingLight : public Light
 private:
   FRIEND_TEST(BlinkingLight, Constructor);
   FRIEND_TEST(BlinkingLight, Update);
+  FRIEND_TEST(FastBlinkingLight, Constructor);
+  FRIEND_TEST(SlowBlinkingLight, Constructor);
   
   BlinkingLight(); // Do not implement
-  
+
+protected:
   uint32_t onLength;
   uint32_t offLength;
   uint32_t changeTime;
@@ -107,6 +103,32 @@ public:
                 uint8_t  maxLightLevelValue);
   void update();
 };
+
+class FastBlinkingLight : public BlinkingLight
+{
+private:
+  FastBlinkingLight(); // Do not implement
+  
+public:
+  FastBlinkingLight(uint8_t maxLightLevelValue);
+};
+
+class SlowBlinkingLight : public BlinkingLight
+{
+private:
+  SlowBlinkingLight(); // Do not implement
+  
+public:
+  SlowBlinkingLight(uint8_t maxLightLevelValue);
+};
+
+class DecayLight: public Light
+{
+
+// see F16 Light Dimming Plot.ods
+// lightLevel = a+b*exp(d*t/e)
+
+}
 
 class TimeOfDay
 {

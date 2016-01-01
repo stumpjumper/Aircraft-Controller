@@ -229,3 +229,29 @@ TEST(BlinkingLight, Update)
   
   releaseArduinoMock();
 }
+
+TEST(FastBlinkingLight, Constructor)
+{
+  FastBlinkingLight light1(199); // 199 is maxLightLevelVaue
+
+  EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(false, light1.getPaused());
+
+  EXPECT_EQ(0,    light1.changeTime);
+  EXPECT_EQ(1000, light1.onLength);
+  EXPECT_EQ(10  , light1.offLength);
+  EXPECT_EQ(199 , light1.maxLightLevel);
+}
+
+TEST(SlowBlinkingLight, Constructor)
+{
+  SlowBlinkingLight light1(199); // 199 is maxLightLevelVaue
+
+  EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(false, light1.getPaused());
+
+  EXPECT_EQ(0,    light1.changeTime);
+  EXPECT_EQ(2000, light1.onLength);
+  EXPECT_EQ(10  , light1.offLength);
+  EXPECT_EQ(199 , light1.maxLightLevel);
+}
