@@ -32,7 +32,7 @@ void BlinkingLight::update()
     
   const uint32_t now = millis();
   
-  if (now > changeTime) {
+  if (now >= changeTime) {
     if (lightLevel == OFF) {
       lightLevel = maxLightLevel;
       changeTime = now + onLength;

@@ -39,13 +39,13 @@ class Lucky7;
 
 class Light
 {
-
-/*
-  decayFlash
-  see F16 Light Dimming Plot.ods
-  pwm = a+b*exp(d*t/e)
-*/
-
+  
+  /*
+    decayFlash
+    see F16 Light Dimming Plot.ods
+    pwm = a+b*exp(d*t/e)
+  */
+  
 private:
   FRIEND_TEST(OnOffLight, Constructor);
   FRIEND_TEST(OnOffLight, On);
@@ -66,7 +66,9 @@ protected:
 public:
   Light();
   virtual ~Light();
-
+  
+  bool getPaused() {return paused;};
+  
   void on() {lightLevel = ON; paused = true;};
   void off() {lightLevel = OFF; paused = true;};
   void resume() {paused = false;};
@@ -90,6 +92,8 @@ class BlinkingLight : public Light
 {
 private:
   FRIEND_TEST(BlinkingLight, Constructor);
+  FRIEND_TEST(BlinkingLight, Update);
+  
   BlinkingLight(); // Do not implement
   
   uint32_t onLength;
