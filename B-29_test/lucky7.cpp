@@ -96,9 +96,10 @@ void DecayLight::update()
 
   if (decaying) {
     // time is time elapsed since last change, 
-    // Where last change time = (changetime - onLength)
-    const uint32_t time = now - (changeTime - onLength);
-    lightLevel = maxLightLevel*exp(float(time)/float(tau));
+    // Where last change time = (changetime - decayLength)
+    const uint32_t time = now - (changeTime - decayLength);
+    // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
+    lightLevel = int(float(maxLightLevel)*exp(-float(time)/float(tau))+.5);
   }
 }
 
