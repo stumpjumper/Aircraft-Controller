@@ -89,8 +89,6 @@ private:
   FRIEND_TEST(FastBlinkingLight, Constructor);
   FRIEND_TEST(SlowBlinkingLight, Constructor);
   
-  BlinkingLight(); // Do not implement
-
 protected:
   uint32_t onLength;
   uint32_t offLength;
@@ -154,13 +152,20 @@ private:
   FRIEND_TEST(DecayLight, Update);
 
 protected:
-  float   tau; // Time constant
-  uint8_t maxLightLevel;
+  bool     decaying;      // Flag if in on or decay mode
+  uint32_t changeTime;    // Keep track of when its time to change modes
+
+  uint32_t onLength;      // How long to stay on for
+  uint32_t decayLength;   // How long to decay for
+  uint8_t  maxLightLevel; // Light level when on
+  uint32_t tau;           // Time constant.  See discussion above
   
 public:
-  DecayLight(uint8_t & lightLevelVariable,
-             uint8_t   maxLightLevelValue,
-             float     tauInSeconds);
+  DecayLight(uint8_t  & lightLevelVariable,
+             uint32_t   onLengthValue,
+             uint32_t   decayLengthValue,
+             uint8_t    maxLightLevelValue,
+             uint32_t   tauInMilliseconds);
   void update();
 };
 

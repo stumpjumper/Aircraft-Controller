@@ -313,3 +313,25 @@ TEST(SlowBlinkingLight, Constructor)
   EXPECT_EQ(10  , light1.offLength);
   EXPECT_EQ(199 , light1.maxLightLevel);
 }
+
+TEST(DecayLight, Constructor)
+{
+  uint8_t lightVariable;
+
+  DecayLight light1(lightVariable,
+                    1000, // onLengthValue.     1 sec
+                    500 , // decayLenthValue. 1/2 sec
+                    199 , // maxLightLevelVaue
+                    250); // Time constant.   1/4 sec
+                       
+  EXPECT_EQ(OFF  , light1.lightLevel);
+  EXPECT_EQ(OFF  , lightVariable);
+  EXPECT_EQ(false, light1.getPaused());
+
+  EXPECT_EQ(true , light1.decaying);
+  EXPECT_EQ(0    , light1.changeTime);
+  EXPECT_EQ(1000 , light1.onLength); 
+  EXPECT_EQ(500  , light1.decayLength);
+  EXPECT_EQ(199  , light1.maxLightLevel);
+  EXPECT_EQ(250  , light1.tau);
+}

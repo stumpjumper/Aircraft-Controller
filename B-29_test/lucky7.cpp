@@ -60,6 +60,49 @@ SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 
+DecayLight::DecayLight(uint8_t  & lightLevelVariable,
+                       uint32_t   onLengthValue,
+                       uint32_t   decayLengthValue,
+                       uint8_t    maxLightLevelValue,
+                       uint32_t   tauInMilliseconds)
+  : Light(lightLevelVariable)
+{
+  onLength      = onLengthValue     ;
+  decayLength   = decayLengthValue  ;
+  maxLightLevel = maxLightLevelValue;
+  tau           = tauInMilliseconds ;
+  changeTime    = 0;    // Change right away
+  decaying      = true; // Will cause us to go to on mode right away
+}
+
+void DecayLight::update()
+{
+  if (paused) {
+    return;
+  }
+    
+  const uint32_t now = millis();
+
+  if (now >= changeTime) {
+    if (decaying) {
+      decaying = false;
+      lightLevel = maxLightLevel;
+      changeTime = now + onLength;
+    } else {
+      decaying = true;
+      changeTime = now + decayLength;
+    }
+  }
+
+  if (decaying) {
+    // time is time elapsed since last change, 
+    // Where last change time = (changetime - onLength)
+    const uint32_t time = now - (changeTime - onLength);
+    lightLevel = maxLightLevel*exp(float(time)/float(tau));
+  }
+}
+
+
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )
 {
