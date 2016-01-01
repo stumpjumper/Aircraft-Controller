@@ -3,75 +3,98 @@
 
 TEST(OnOffLight, Constructor) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.paused);
 }
 
 TEST(OnOffLight, On) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   EXPECT_EQ(false, light1.getPaused());
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   light1.on();
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   EXPECT_EQ(true, light1.getPaused());
 }
 
 TEST(OnOffLight, Off) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   EXPECT_EQ(false, light1.getPaused());
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   light1.off();
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(true, light1.getPaused());
 }
 
 TEST(OnOffLight, FunctionCallOperatorGetValue) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1());
+  EXPECT_EQ(ON, lightVariable);
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1());
+  EXPECT_EQ(OFF, lightVariable);
 
   for (uint8_t i = 0; i < OFF; i++) {
     light1.lightLevel = i;
     EXPECT_EQ(i, light1());
+    EXPECT_EQ(i, lightVariable);
   }
     
 }
 
 TEST(OnOffLight, FunctionCallOperatorSetValue) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   light1() = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
 
   light1() = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
 
   for (uint8_t i = 0; i < OFF; i++) {
     light1() = i;
     EXPECT_EQ(i, light1.lightLevel);
+    EXPECT_EQ(i, lightVariable);
   }
     
 }
 
 TEST(OnOffLight, Resume) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   EXPECT_EQ(false, light1.getPaused());
 
@@ -81,8 +104,10 @@ TEST(OnOffLight, Resume) {
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   light1.resume();
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   light1.paused = true;
@@ -90,8 +115,10 @@ TEST(OnOffLight, Resume) {
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   light1.resume();
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   // paused = false case
@@ -100,8 +127,10 @@ TEST(OnOffLight, Resume) {
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   light1.resume();
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   light1.paused = false;
@@ -109,14 +138,18 @@ TEST(OnOffLight, Resume) {
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   light1.resume();
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 }
 
 TEST(OnOffLight, Update) {
 
-  OnOffLight light1;
+  uint8_t lightVariable;
+
+  OnOffLight light1(lightVariable);
 
   EXPECT_EQ(false, light1.getPaused());
 
@@ -127,14 +160,18 @@ TEST(OnOffLight, Update) {
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   light1.update();
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(true, light1.getPaused());
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   light1.update();
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   EXPECT_EQ(true, light1.getPaused());
 
   // paused = false case
@@ -143,25 +180,33 @@ TEST(OnOffLight, Update) {
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   light1.update();
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   light1.update();
   EXPECT_EQ(ON, light1.lightLevel);
+  EXPECT_EQ(ON, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 }
 
 
 TEST(BlinkingLight, Constructor)
 {
-  BlinkingLight light1(1000, // onLengthValue
+  uint8_t lightVariable;
+
+  BlinkingLight light1(lightVariable,
+                       1000, // onLengthValue
                        10  , // offLengthValue
                        199); // maxLightLevelVaue
 
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   EXPECT_EQ(0,    light1.changeTime);
@@ -174,24 +219,26 @@ TEST(BlinkingLight, Constructor)
 TEST(BlinkingLight, Update)
 {
   const uint8_t aSize = 14;
-
+  
   ArduinoMock * arduinoMock = arduinoMockInstance();
-
+  
   EXPECT_CALL(*arduinoMock, millis())
     .Times(2*aSize-4);
-
+  
+  uint8_t lightVariable;
   uint32_t onLengthValue  = 1000; // On for 1 second
   uint32_t offLengthValue =  500; // Off .5 seconds
   uint8_t  maxLightLevel  =  199; 
-
-  BlinkingLight light1(onLengthValue, offLengthValue, maxLightLevel);
-
+  
+  BlinkingLight light1(lightVariable, onLengthValue,
+                       offLengthValue, maxLightLevel);
+  
   EXPECT_EQ(OFF, light1());
   EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(0, light1.changeTime);
-
+  
   uint8_t & mll = maxLightLevel;
-
+  
   //                                 -on->          1 sec   -off->    1.5 sec
   uint32_t millis[aSize] = {0   , 1   , 500 , 999 , 1000, 1250, 1499, 1500,
                             //  -on->   2.5 sec   -off->  3 sec
@@ -206,10 +253,11 @@ TEST(BlinkingLight, Update)
     arduinoMock->setMillisRaw(millis[i]);
     light1.update();
     EXPECT_EQ(level[i], light1()) << "i = " << int(i) << std::endl;
+    EXPECT_EQ(level[i], lightVariable) << "i = " << int(i) << std::endl;
   }
-
+  
   light1.on();
-
+  
   for (uint8_t i = 0; i < aSize; i++)
   {
     uint8_t expectedValue;
@@ -218,23 +266,29 @@ TEST(BlinkingLight, Update)
     } else {
       expectedValue = level[i];
     }
-
+    
     if (i==4)
       light1.resume();
-
+    
     arduinoMock->setMillisRaw(millis[i] + millis[aSize-1]);
     light1.update();
     EXPECT_EQ(expectedValue, light1()) << "i = " << int(i) << std::endl;
+    EXPECT_EQ(expectedValue, lightVariable) << "i = " << int(i) << std::endl;
   }
-  
+    
   releaseArduinoMock();
-}
 
+}
+  
 TEST(FastBlinkingLight, Constructor)
 {
-  FastBlinkingLight light1(199); // 199 is maxLightLevelVaue
+  uint8_t lightVariable;
+
+  FastBlinkingLight light1(lightVariable,
+                           199); // 199 is maxLightLevelVaue
 
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   EXPECT_EQ(0,    light1.changeTime);
@@ -245,9 +299,13 @@ TEST(FastBlinkingLight, Constructor)
 
 TEST(SlowBlinkingLight, Constructor)
 {
-  SlowBlinkingLight light1(199); // 199 is maxLightLevelVaue
+  uint8_t lightVariable;
+
+  SlowBlinkingLight light1(lightVariable,
+                           199); // 199 is maxLightLevelVaue
 
   EXPECT_EQ(OFF, light1.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
 
   EXPECT_EQ(0,    light1.changeTime);

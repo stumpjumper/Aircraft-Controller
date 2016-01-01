@@ -5,17 +5,20 @@
 IRrecv irRecv(IR);
 decode_results irResults;
 
-Light::Light()
+Light::Light(uint8_t & lightLevelVariable)
+  : lightLevel(lightLevelVariable)
 {
-  lightLevel = OFF;
+  lightLevel = OFF; // Set the initial light level
   paused = false;
 };
 
 Light::~Light() {}
 
-BlinkingLight::BlinkingLight(uint32_t onLengthValue,
-                             uint32_t offLengthValue,
-                             uint8_t  maxLightLevelValue) : Light()
+BlinkingLight::BlinkingLight(
+  uint8_t  & lightLevelVariable,
+  uint32_t onLengthValue,
+  uint32_t offLengthValue,
+  uint8_t  maxLightLevelValue) : Light(lightLevelVariable)
 {
   maxLightLevel = maxLightLevelValue;
   onLength = onLengthValue;
@@ -43,13 +46,17 @@ void BlinkingLight::update()
   }
 }
 
-FastBlinkingLight::FastBlinkingLight(uint8_t maxLightLevelValue) :
-  BlinkingLight(1000, // onLengthValue
+FastBlinkingLight::FastBlinkingLight(uint8_t  & lightLevelVariable,
+                                     uint8_t maxLightLevelValue) :
+  BlinkingLight(lightLevelVariable, // Where the light level will be stored
+                1000, // onLengthValue
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 
-SlowBlinkingLight::SlowBlinkingLight(uint8_t maxLightLevelValue) :
-  BlinkingLight(2000, // onLengthValue
+SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
+                                     uint8_t maxLightLevelValue) :
+  BlinkingLight(lightLevelVariable, // Where the light level will be stored
+                2000, // onLengthValue
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 

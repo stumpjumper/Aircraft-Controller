@@ -53,11 +53,11 @@ private:
   Light & operator=(const Light &rhs);
 
 protected:
-  uint8_t lightLevel;
+  uint8_t & lightLevel;
   bool paused;
 
 public:
-  Light();
+  Light(uint8_t & lightLevelVariable);
   virtual ~Light();
   
   bool getPaused() {return paused;};
@@ -76,7 +76,7 @@ public:
 class OnOffLight : public Light
 {
 public:
-  OnOffLight() : Light() {;};
+  OnOffLight(uint8_t & lightLevelVariable) : Light(lightLevelVariable) {;};
   void update() {;};
 
 };
@@ -98,7 +98,8 @@ protected:
   uint8_t  maxLightLevel;
   
 public:
-  BlinkingLight(uint32_t onLengthValue,
+  BlinkingLight(uint8_t & lightLevelVariable,
+                uint32_t onLengthValue,
                 uint32_t offLengthValue,
                 uint8_t  maxLightLevelValue);
   void update();
@@ -106,29 +107,62 @@ public:
 
 class FastBlinkingLight : public BlinkingLight
 {
-private:
-  FastBlinkingLight(); // Do not implement
-  
 public:
-  FastBlinkingLight(uint8_t maxLightLevelValue);
+  FastBlinkingLight(uint8_t & lightLevelVariable,
+                    uint8_t maxLightLevelValue);
 };
 
 class SlowBlinkingLight : public BlinkingLight
 {
-private:
-  SlowBlinkingLight(); // Do not implement
-  
 public:
-  SlowBlinkingLight(uint8_t maxLightLevelValue);
+  SlowBlinkingLight(uint8_t & lightLevelVariable,
+                    uint8_t maxLightLevelValue);
 };
 
 class DecayLight: public Light
 {
+  // In this class the light level decays at a rate given by Newton's
+  // law of cooling, which is
+  // 
+  // T = T_env + dT*exp(-t/tau)
+  // where:
+  //   t = time
+  //   tau = time constant
+  //   T = Temperature at time t
+  //   T_env = Temperature of the surrounding environment
+  //   dT = Initial temperature difference in bodies (T_0 - T_env)
+  //   T_0 = Temperature at time 0.
+  // 
+  //   tau = ro*V*c_p/h*A_s
+  //   ro = density
+  //   V = volume
+  //   c_p = heat capacity
+  //   A_s = surface area
+  //   h = heat transfer coefficient
+  //
+  // Note:
+  // At t=0, T = T_0 = T_env + dT
+  // At t=tau,   T will have decreased by 63.2% to .368*dTA
+  // At t=2*tau, T will have decreased by 86.5% to .135*dT  
+  // 
+  // For us T_env = 0 and dT = maxLightLevel so
+  // light_level = maxLightLevel*exp(-millis()/(tau/1000))
+  // where tau is a float and given in seconds.
 
-// see F16 Light Dimming Plot.ods
-// lightLevel = a+b*exp(d*t/e)
+private:
+  FRIEND_TEST(DecayLight, Constructor);
+  FRIEND_TEST(DecayLight, Update);
 
-}
+protected:
+  float   tau; // Time constant
+  uint8_t maxLightLevel;
+  
+public:
+  DecayLight(uint8_t & lightLevelVariable,
+             uint8_t   maxLightLevelValue,
+             float     tauInSeconds);
+  void update();
+};
 
 class TimeOfDay
 {
