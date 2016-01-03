@@ -80,65 +80,6 @@ public:
   void update() {;};
 };
 
-class BlinkingLight : public Light
-{
-private:
-  FRIEND_TEST(BlinkingLight, Constructor);
-  FRIEND_TEST(BlinkingLight, Update);
-  FRIEND_TEST(FastBlinkingLight, Constructor);
-  FRIEND_TEST(SlowBlinkingLight, Constructor);
-  
-protected:
-  uint32_t onLength;
-  uint32_t offLength;
-  uint32_t changeTime;
-  uint8_t  maxLightLevel;
-  
-public:
-  BlinkingLight(uint8_t & lightLevelVariable,
-                uint32_t onLengthValue,
-                uint32_t offLengthValue,
-                uint8_t  maxLightLevelValue);
-  void update();
-};
-
-class FlashingLight : public Light
-{
-private:
-  FRIEND_TEST(FlashingLight, Constructor);
-  FRIEND_TEST(FlashingLight, Update);
-  FRIEND_TEST(FastFlashingLight, Constructor);
-  FRIEND_TEST(SlowFlashingLight, Constructor);
-  
-protected:
-  uint8_t  numIntervals;
-  uint32_t * onLength;
-  uint32_t * offLength;
-  uint32_t changeTime;
-  uint8_t  maxLightLevel;
-  
-public:
-  FlashingLight(uint8_t &  lightLevelVariable,
-                uint8_t    numIntervalsValue,
-                uint32_t * onLengthValues,
-                uint32_t * offLengthValues,
-                uint8_t    maxLightLevelValue);
-  void update();
-};
-
-class FastBlinkingLight : public BlinkingLight
-{
-public:
-  FastBlinkingLight(uint8_t & lightLevelVariable,
-                    uint8_t maxLightLevelValue);
-};
-
-class SlowBlinkingLight : public BlinkingLight
-{
-public:
-  SlowBlinkingLight(uint8_t & lightLevelVariable,
-                    uint8_t maxLightLevelValue);
-};
 
 class DecayLight: public Light
 {
@@ -173,27 +114,85 @@ class DecayLight: public Light
 private:
   FRIEND_TEST(DecayLight, Constructor);
   FRIEND_TEST(DecayLight, Update);
+  FRIEND_TEST(DecayLight, UpdateWithTauNULL);
 
 protected:
   uint32_t changeTime;      // Keep track of when its time to change modes
   bool     decaying;        // Flag if in on or decay mode
   uint32_t decayStartTime;  // Keep track of when decay started.
   uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
-  size_t    numIntervals;   // Length of onLenth, decayLength & maxLightLevels
+  size_t   numIntervals;    // Length of onLenth, decayLength & maxLightLevels
 
-  const uint32_t * onLength;      // How long to stay on for, for each interval
-  const uint32_t * decayLength;   // How long to decay for, for each interval
-  const uint8_t  * maxLightLevel; // Light level when on, for each interval
-  const uint32_t * tau;           // Time constants.  See discussion above
+  uint32_t * onLength;      // How long to stay on for, for each interval
+  uint32_t * decayLength;   // How long to decay for, for each interval
+  uint8_t  * maxLightLevel; // Light level when on, for each interval
+  uint32_t * tau;           // Time constants.  See discussion above
   
 public:
-  DecayLight(uint8_t  & lightLevelVariable,
-             const size_t     numberOfValues,
-             const uint32_t * onLengthValues,
-             const uint32_t * decayLengthValues,
-             const uint8_t  * maxLightLevelValues,
-             const uint32_t * tauInMilliseconds);
+  DecayLight(uint8_t & lightLevelVariable,
+             const size_t numberOfValues,
+             uint32_t * onLengthValues,
+             uint32_t * decayLengthValues,
+             uint8_t  * maxLightLevelValues,
+             uint32_t * tauInMilliseconds);
   void update();
+};
+
+class FlashingLight : public DecayLight
+{
+  // Just like DecayLight but simply on and off, no decay.
+  // This one takes arrays of onLength, offLength and maxLightLevels
+
+private:
+  FRIEND_TEST(FlashingLight, Constructor);
+
+  uint32_t * tauInMilliseconds;
+  
+  
+public:
+  FlashingLight(uint8_t & lightLevelVariable,
+                const size_t numberOfValues,
+                uint32_t * onLengthValues,
+                uint32_t * offLengthValues,
+                uint8_t  * maxLightLevelValues);
+};
+
+class BlinkingLight : public FlashingLight
+{
+  // Just like DecayLight but simply on and off with no decay
+  // and one on and one off value are given.
+
+private:
+  FRIEND_TEST(BlinkingLight, Constructor);
+  FRIEND_TEST(BlinkingLight, Update);
+  FRIEND_TEST(FastBlinkingLight, Constructor);
+  FRIEND_TEST(SlowBlinkingLight, Constructor);
+
+  uint32_t onLengthValues[1];
+  uint32_t offLengthValues[1];
+  uint8_t  maxLightLevelValues[1];
+  
+public:
+  BlinkingLight(uint8_t & lightLevelVariable,
+                uint32_t onLengthValue,
+                uint32_t offLengthValue,
+                uint8_t  maxLightLevelValue);
+};
+
+class FastBlinkingLight : public BlinkingLight
+{
+  // A fast blinking light
+public:
+  FastBlinkingLight(uint8_t & lightLevelVariable,
+                    uint8_t maxLightLevelValue);
+};
+
+class SlowBlinkingLight : public BlinkingLight
+{
+  // A slow blinking light
+public:
+  SlowBlinkingLight(uint8_t & lightLevelVariable,
+                    uint8_t maxLightLevelValue);
 };
 
 class TimeOfDay

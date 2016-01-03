@@ -18,32 +18,13 @@ BlinkingLight::BlinkingLight(
   uint8_t  & lightLevelVariable,
   uint32_t onLengthValue,
   uint32_t offLengthValue,
-  uint8_t  maxLightLevelValue) : Light(lightLevelVariable)
+  uint8_t  maxLightLevelValue) :
+  FlashingLight(lightLevelVariable, 1, onLengthValues, 
+                offLengthValues, maxLightLevelValues)
 {
-  maxLightLevel = maxLightLevelValue;
-  onLength = onLengthValue;
-  offLength = offLengthValue;
-  changeTime = 0; // Change right away
-
-}
-
-void BlinkingLight::update()
-{
-  if (paused) {
-    return;
-  }
-    
-  const uint32_t now = millis();
-  
-  if (now >= changeTime) {
-    if (lightLevel == OFF) {
-      lightLevel = maxLightLevel;
-      changeTime = now + onLength;
-    } else {
-      lightLevel = OFF;
-      changeTime = now + offLength;
-    }
-  }
+  onLengthValues[0] = onLengthValue;
+  offLengthValues[0] = offLengthValue;
+  maxLightLevelValues[0] = maxLightLevelValue;
 }
 
 FastBlinkingLight::FastBlinkingLight(uint8_t  & lightLevelVariable,
@@ -61,11 +42,11 @@ SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
                 maxLightLevelValue) {}
 
 DecayLight::DecayLight(uint8_t  & lightLevelVariable,
-                       const size_t     numberOfValues,
-                       const uint32_t * onLengthValues,
-                       const uint32_t * decayLengthValues,
-                       const uint8_t  * maxLightLevelValues,
-                       const uint32_t * tauInMilliseconds)
+                       const size_t numberOfValues,
+                       uint32_t * onLengthValues,
+                       uint32_t * decayLengthValues,
+                       uint8_t  * maxLightLevelValues,
+                       uint32_t * tauInMilliseconds)
 : Light(lightLevelVariable)
 {
   onLength = onLengthValues;
@@ -106,7 +87,7 @@ void DecayLight::update()
   }
 
   if (decaying) {
-    if (tau[j] == 0) {
+    if (tau == NULL || tau[j] == 0) {
       lightLevel = OFF;
     } else {
       const uint32_t time = now - decayStartTime;
@@ -127,6 +108,15 @@ void DecayLight::update()
   //           << " tau  = " << tau << std::endl;
 }
 
+FlashingLight::FlashingLight(uint8_t & lightLevelVariable,
+                             const size_t numberOfValues,
+                             uint32_t * onLengthValues,
+                             uint32_t * offLengthValues,
+                             uint8_t  * maxLightLevelValues)
+  : DecayLight(lightLevelVariable, numberOfValues, onLengthValues,
+               offLengthValues, maxLightLevelValues, NULL)
+{
+}
 
 void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
                  uint8_t nightDayThresholdPercentageValue )
