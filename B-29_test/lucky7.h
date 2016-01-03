@@ -64,7 +64,7 @@ public:
   
   void on() {lightLevel = ON; paused = true;};
   void off() {lightLevel = OFF; paused = true;};
-  void resume() {paused = false;};
+  void resume() {paused = false;}
   virtual void update() = 0;
 
   uint8_t & operator()(void) {return lightLevel;};
@@ -78,7 +78,6 @@ class OnOffLight : public Light
 public:
   OnOffLight(uint8_t & lightLevelVariable) : Light(lightLevelVariable) {;};
   void update() {;};
-
 };
 
 class BlinkingLight : public Light
@@ -100,6 +99,30 @@ public:
                 uint32_t onLengthValue,
                 uint32_t offLengthValue,
                 uint8_t  maxLightLevelValue);
+  void update();
+};
+
+class FlashingLight : public Light
+{
+private:
+  FRIEND_TEST(FlashingLight, Constructor);
+  FRIEND_TEST(FlashingLight, Update);
+  FRIEND_TEST(FastFlashingLight, Constructor);
+  FRIEND_TEST(SlowFlashingLight, Constructor);
+  
+protected:
+  uint8_t  numIntervals;
+  uint32_t * onLength;
+  uint32_t * offLength;
+  uint32_t changeTime;
+  uint8_t  maxLightLevel;
+  
+public:
+  FlashingLight(uint8_t &  lightLevelVariable,
+                uint8_t    numIntervalsValue,
+                uint32_t * onLengthValues,
+                uint32_t * offLengthValues,
+                uint8_t    maxLightLevelValue);
   void update();
 };
 
@@ -152,20 +175,24 @@ private:
   FRIEND_TEST(DecayLight, Update);
 
 protected:
-  bool     decaying;      // Flag if in on or decay mode
-  uint32_t changeTime;    // Keep track of when its time to change modes
+  uint32_t changeTime;      // Keep track of when its time to change modes
+  bool     decaying;        // Flag if in on or decay mode
+  uint32_t decayStartTime;  // Keep track of when decay started.
+  uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
+  size_t    numIntervals;   // Length of onLenth, decayLength & maxLightLevels
 
-  uint32_t onLength;      // How long to stay on for
-  uint32_t decayLength;   // How long to decay for
-  uint8_t  maxLightLevel; // Light level when on
-  uint32_t tau;           // Time constant.  See discussion above
+  const uint32_t * onLength;      // How long to stay on for, for each interval
+  const uint32_t * decayLength;   // How long to decay for, for each interval
+  const uint8_t  * maxLightLevel; // Light level when on, for each interval
+  const uint32_t * tau;           // Time constants.  See discussion above
   
 public:
   DecayLight(uint8_t  & lightLevelVariable,
-             uint32_t   onLengthValue,
-             uint32_t   decayLengthValue,
-             uint8_t    maxLightLevelValue,
-             uint32_t   tauInMilliseconds);
+             const size_t     numberOfValues,
+             const uint32_t * onLengthValues,
+             const uint32_t * decayLengthValues,
+             const uint8_t  * maxLightLevelValues,
+             const uint32_t * tauInMilliseconds);
   void update();
 };
 

@@ -61,46 +61,70 @@ SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
                 maxLightLevelValue) {}
 
 DecayLight::DecayLight(uint8_t  & lightLevelVariable,
-                       uint32_t   onLengthValue,
-                       uint32_t   decayLengthValue,
-                       uint8_t    maxLightLevelValue,
-                       uint32_t   tauInMilliseconds)
-  : Light(lightLevelVariable)
+                       const size_t     numberOfValues,
+                       const uint32_t * onLengthValues,
+                       const uint32_t * decayLengthValues,
+                       const uint8_t  * maxLightLevelValues,
+                       const uint32_t * tauInMilliseconds)
+: Light(lightLevelVariable)
 {
-  onLength      = onLengthValue     ;
-  decayLength   = decayLengthValue  ;
-  maxLightLevel = maxLightLevelValue;
-  tau           = tauInMilliseconds ;
-  changeTime    = 0;    // Change right away
-  decaying      = true; // Will cause us to go to on mode right away
+  onLength = onLengthValues;
+  decayLength = decayLengthValues;
+  maxLightLevel = maxLightLevelValues;
+  tau = tauInMilliseconds;
+  numIntervals = numberOfValues;
+
+  changeTime     = 0;    // Change right away
+  decaying       = true; // Will cause us to go to on mode right away
+  decayStartTime = 0;   
+  intervalIndex  = 0;   // Will be incremented during first call to update
 }
 
 void DecayLight::update()
 {
+  size_t j;
+  
   if (paused) {
     return;
   }
-    
+  
   const uint32_t now = millis();
-
+  j = intervalIndex % numIntervals;
+  
   if (now >= changeTime) {
     if (decaying) {
       decaying = false;
-      lightLevel = maxLightLevel;
-      changeTime = now + onLength;
+      intervalIndex++;
+      j = intervalIndex % numIntervals;
+      lightLevel = maxLightLevel[j];
+      changeTime = now + onLength[j];
     } else {
       decaying = true;
-      changeTime = now + decayLength;
+      decayStartTime = now;
+      changeTime = now + decayLength[j];
     }
   }
 
   if (decaying) {
-    // time is time elapsed since last change, 
-    // Where last change time = (changetime - decayLength)
-    const uint32_t time = now - (changeTime - decayLength);
-    // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
-    lightLevel = int(float(maxLightLevel)*exp(-float(time)/float(tau))+.5);
+    if (tau[j] == 0) {
+      lightLevel = OFF;
+    } else {
+      const uint32_t time = now - decayStartTime;
+      // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
+      lightLevel = int(
+        float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5
+                       );
+    }
   }
+
+  // std::cerr << "now = " << now
+  //           << " changeTime  = " << changeTime
+  //           << " numIntervals = " << int(numIntervals)
+  //           << " intervalIndex = " << int(intervalIndex)
+  //           << " j = " << int(j) << std::endl
+  //           << "decaying = " << decaying
+  //           << " lightLevel = " << int(lightLevel)
+  //           << " tau  = " << tau << std::endl;
 }
 
 
