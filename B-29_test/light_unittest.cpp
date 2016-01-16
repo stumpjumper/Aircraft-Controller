@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 const uint8_t onLightLevelValue = ON-2;
+const uint8_t maxLightLevelValue = 199;
 
 TEST(OnOffLight, Constructor) {
 
@@ -524,7 +525,7 @@ TEST(BlinkingLight, Constructor)
                        onLightLevelValue,
                        1000, // onLengthValue
                        10  , // offLengthValue
-                       199); // maxLightLevelVaue
+                       maxLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
@@ -534,7 +535,7 @@ TEST(BlinkingLight, Constructor)
   EXPECT_EQ(0,    light1.changeTime);
   EXPECT_EQ(1000, light1.onLength[0]);
   EXPECT_EQ(10  , light1.decayLength[0]);
-  EXPECT_EQ(199 , light1.maxLightLevel[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.maxLightLevel[0]);
 }
 
 TEST(BlinkingLight, Update)
@@ -630,7 +631,7 @@ TEST(FastBlinkingLight, Constructor)
   uint8_t lightVariable;
 
   FastBlinkingLight light1(lightVariable, onLightLevelValue,
-                           199); // 199 is maxLightLevelVaue
+                           maxLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
@@ -640,7 +641,7 @@ TEST(FastBlinkingLight, Constructor)
   EXPECT_EQ(0,    light1.changeTime);
   EXPECT_EQ(1000, light1.onLength[0]);
   EXPECT_EQ(10  , light1.decayLength[0]);
-  EXPECT_EQ(199 , light1.maxLightLevel[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.maxLightLevel[0]);
 }
 
 TEST(SlowBlinkingLight, Constructor)
@@ -648,7 +649,7 @@ TEST(SlowBlinkingLight, Constructor)
   uint8_t lightVariable;
 
   SlowBlinkingLight light1(lightVariable, onLightLevelValue,
-                           199); // 199 is maxLightLevelVaue
+                           maxLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
@@ -658,6 +659,64 @@ TEST(SlowBlinkingLight, Constructor)
   EXPECT_EQ(0,    light1.changeTime);
   EXPECT_EQ(2000, light1.onLength[0]);
   EXPECT_EQ(10  , light1.decayLength[0]);
-  EXPECT_EQ(199 , light1.maxLightLevel[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.maxLightLevel[0]);
+}
+
+TEST(FastSlowBlinkingLight, Constructor)
+{
+  uint8_t lightVariable;
+
+  FastSlowBlinkingLight light1(lightVariable, onLightLevelValue,
+                               maxLightLevelValue);
+
+  EXPECT_EQ(onLightLevelValue, light1.fastLight.onLightLevel);
+  EXPECT_EQ(OFF, light1.fastLight.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
+  EXPECT_EQ(false, light1.fastLight.getPaused());
+
+  EXPECT_EQ(onLightLevelValue, light1.slowLight.onLightLevel);
+  EXPECT_EQ(OFF, light1.slowLight.lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
+  EXPECT_EQ(false, light1.slowLight.getPaused());
+
+  EXPECT_EQ(0,    light1.fastLight.changeTime);
+  EXPECT_EQ(1000, light1.fastLight.onLength[0]);
+  EXPECT_EQ(10  , light1.fastLight.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.fastLight.maxLightLevel[0]);
+
+  EXPECT_EQ(0,    light1.slowLight.changeTime);
+  EXPECT_EQ(2000, light1.slowLight.onLength[0]);
+  EXPECT_EQ(10  , light1.slowLight.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.slowLight.maxLightLevel[0]);
+}
+
+TEST(FastSlowBlinkingLight, SetToFast)
+{
+  uint8_t lightVariable;
+
+  FastSlowBlinkingLight light1(lightVariable, onLightLevelValue,
+                               maxLightLevelValue);
+
+  light1.setToFast();
+
+  EXPECT_EQ(0,    light1.p_currentLight->changeTime);
+  EXPECT_EQ(1000, light1.p_currentLight->onLength[0]);
+  EXPECT_EQ(10  , light1.p_currentLight->decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.p_currentLight->maxLightLevel[0]);
+}
+
+TEST(FastSlowBlinkingLight, SetToSlow)
+{
+  uint8_t lightVariable;
+
+  FastSlowBlinkingLight light1(lightVariable, onLightLevelValue,
+                               maxLightLevelValue);
+
+  light1.setToSlow();
+
+  EXPECT_EQ(0,    light1.p_currentLight->changeTime);
+  EXPECT_EQ(2000, light1.p_currentLight->onLength[0]);
+  EXPECT_EQ(10  , light1.p_currentLight->decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue , light1.p_currentLight->maxLightLevel[0]);
 }
 

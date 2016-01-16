@@ -171,6 +171,9 @@ private:
   FRIEND_TEST(BlinkingLight, Update);
   FRIEND_TEST(FastBlinkingLight, Constructor);
   FRIEND_TEST(SlowBlinkingLight, Constructor);
+  FRIEND_TEST(FastSlowBlinkingLight, Constructor);
+  FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
+  FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
 
   uint32_t onLengthValues[1];
   uint32_t offLengthValues[1];
@@ -200,6 +203,34 @@ public:
   SlowBlinkingLight(uint8_t & lightLevelVariable,
                     const uint8_t onLightLevel,
                     uint8_t maxLightLevelValue);
+};
+
+class FastSlowBlinkingLight
+{
+  // A fast or slow blinking light, use can choose.
+
+private:
+  FRIEND_TEST(FastSlowBlinkingLight, Constructor);
+  FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
+  FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
+
+  FastBlinkingLight fastLight;
+  SlowBlinkingLight slowLight;
+  BlinkingLight * p_currentLight;
+  
+public:
+  FastSlowBlinkingLight(uint8_t & lightLevelVariable,
+                        const uint8_t onLightLevel,
+                        uint8_t maxLightLevelValue);
+
+  void setToFast() {p_currentLight = &fastLight;};
+  void setToSlow() {p_currentLight = &slowLight;};
+
+  bool getPaused() {return p_currentLight->getPaused();};
+  void on() {fastLight.on(); slowLight.on();};
+  void off() {fastLight.off(); slowLight.off();};
+  void resume() {fastLight.resume(); slowLight.resume();};
+  void update() {p_currentLight->update();};
 };
 
 class TimeOfDay

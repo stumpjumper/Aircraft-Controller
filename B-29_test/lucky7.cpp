@@ -47,6 +47,15 @@ SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 
+FastSlowBlinkingLight::FastSlowBlinkingLight(uint8_t & lightLevelVariable,
+                                             const uint8_t onLightLevel,
+                                             uint8_t maxLightLevelValue)
+  : fastLight(lightLevelVariable, onLightLevel, maxLightLevelValue),
+    slowLight(lightLevelVariable, onLightLevel, maxLightLevelValue)
+{
+  p_currentLight = &fastLight;
+}
+
 DecayLight::DecayLight(uint8_t  & lightLevelVariable,
                        const uint8_t onLightLevelValue,
                        const size_t numberOfValues,
