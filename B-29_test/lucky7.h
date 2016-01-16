@@ -53,16 +53,17 @@ private:
   Light & operator=(const Light &rhs);
 
 protected:
+  uint8_t onLightLevel;
   uint8_t & lightLevel;
   bool paused;
 
 public:
-  Light(uint8_t & lightLevelVariable);
+  Light(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
   virtual ~Light();
   
   bool getPaused() {return paused;};
   
-  void on() {lightLevel = ON; paused = true;};
+  void on() {lightLevel = onLightLevel; paused = true;};
   void off() {lightLevel = OFF; paused = true;};
   void resume() {paused = false;}
   virtual void update() = 0;
@@ -76,7 +77,8 @@ public:
 class OnOffLight : public Light
 {
 public:
-  OnOffLight(uint8_t & lightLevelVariable) : Light(lightLevelVariable) {;};
+  OnOffLight(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue) :
+    Light(lightLevelVariable, onLightLevelValue) {;};
   void update() {;};
 };
 
@@ -104,12 +106,12 @@ class DecayLight: public Light
   //
   // Note:
   // At t=0, T = T_0 = T_env + dT
-  // At t=tau,   T will have decreased by 63.2% to .368*dTA
+  // At t=tau,   T will have decreased by 63.2% to .368*dT
   // At t=2*tau, T will have decreased by 86.5% to .135*dT  
   // 
   // For us T_env = 0 and dT = maxLightLevel so
-  // light_level = maxLightLevel*exp(-millis()/(tau/1000))
-  // where tau is a float and given in seconds.
+  // light_level = maxLightLevel*exp(-millis()/(tau))
+  // where tau is given in seconds.
 
 private:
   FRIEND_TEST(DecayLight, Constructor);
@@ -130,6 +132,7 @@ protected:
   
 public:
   DecayLight(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
              const size_t numberOfValues,
              uint32_t * onLengthValues,
              uint32_t * decayLengthValues,
@@ -151,6 +154,7 @@ private:
   
 public:
   FlashingLight(uint8_t & lightLevelVariable,
+                const uint8_t onLightLevel,
                 const size_t numberOfValues,
                 uint32_t * onLengthValues,
                 uint32_t * offLengthValues,
@@ -174,6 +178,7 @@ private:
   
 public:
   BlinkingLight(uint8_t & lightLevelVariable,
+                const uint8_t onLightLevel,
                 uint32_t onLengthValue,
                 uint32_t offLengthValue,
                 uint8_t  maxLightLevelValue);
@@ -184,6 +189,7 @@ class FastBlinkingLight : public BlinkingLight
   // A fast blinking light
 public:
   FastBlinkingLight(uint8_t & lightLevelVariable,
+                    const uint8_t onLightLevel,
                     uint8_t maxLightLevelValue);
 };
 
@@ -192,6 +198,7 @@ class SlowBlinkingLight : public BlinkingLight
   // A slow blinking light
 public:
   SlowBlinkingLight(uint8_t & lightLevelVariable,
+                    const uint8_t onLightLevel,
                     uint8_t maxLightLevelValue);
 };
 

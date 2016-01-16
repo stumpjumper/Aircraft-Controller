@@ -5,9 +5,10 @@
 IRrecv irRecv(IR);
 decode_results irResults;
 
-Light::Light(uint8_t & lightLevelVariable)
+Light::Light(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   : lightLevel(lightLevelVariable)
 {
+  onLightLevel = onLightLevelValue;
   lightLevel = OFF; // Set the initial light level
   paused = false;
 };
@@ -15,11 +16,12 @@ Light::Light(uint8_t & lightLevelVariable)
 Light::~Light() {}
 
 BlinkingLight::BlinkingLight(
-  uint8_t  & lightLevelVariable,
+  uint8_t & lightLevelVariable,
+  const uint8_t onLightLevelValue,
   uint32_t onLengthValue,
   uint32_t offLengthValue,
-  uint8_t  maxLightLevelValue) :
-  FlashingLight(lightLevelVariable, 1, onLengthValues, 
+  uint8_t maxLightLevelValue) :
+  FlashingLight(lightLevelVariable, onLightLevelValue, 1, onLengthValues, 
                 offLengthValues, maxLightLevelValues)
 {
   onLengthValues[0] = onLengthValue;
@@ -28,26 +30,31 @@ BlinkingLight::BlinkingLight(
 }
 
 FastBlinkingLight::FastBlinkingLight(uint8_t  & lightLevelVariable,
+                                     const uint8_t onLightLevelValue,
                                      uint8_t maxLightLevelValue) :
   BlinkingLight(lightLevelVariable, // Where the light level will be stored
+                onLightLevelValue, // Brightness when light is constant on
                 1000, // onLengthValue
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 
 SlowBlinkingLight::SlowBlinkingLight(uint8_t  & lightLevelVariable,
+                                     const uint8_t onLightLevelValue,
                                      uint8_t maxLightLevelValue) :
   BlinkingLight(lightLevelVariable, // Where the light level will be stored
+                onLightLevelValue, // Brightness when light is constant on
                 2000, // onLengthValue
                 10  , // offLengthValue
                 maxLightLevelValue) {}
 
 DecayLight::DecayLight(uint8_t  & lightLevelVariable,
+                       const uint8_t onLightLevelValue,
                        const size_t numberOfValues,
                        uint32_t * onLengthValues,
                        uint32_t * decayLengthValues,
                        uint8_t  * maxLightLevelValues,
                        uint32_t * tauInMilliseconds)
-: Light(lightLevelVariable)
+  : Light(lightLevelVariable, onLightLevelValue)
 {
   onLength = onLengthValues;
   decayLength = decayLengthValues;
@@ -92,9 +99,8 @@ void DecayLight::update()
     } else {
       const uint32_t time = now - decayStartTime;
       // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
-      lightLevel = int(
-        float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5
-                       );
+      lightLevel =
+        int(float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5);
     }
   }
 
@@ -109,11 +115,12 @@ void DecayLight::update()
 }
 
 FlashingLight::FlashingLight(uint8_t & lightLevelVariable,
+                             const uint8_t onLightLevelValue,
                              const size_t numberOfValues,
                              uint32_t * onLengthValues,
                              uint32_t * offLengthValues,
                              uint8_t  * maxLightLevelValues)
-  : DecayLight(lightLevelVariable, numberOfValues, onLengthValues,
+  : DecayLight(lightLevelVariable, onLightLevelValue, numberOfValues, onLengthValues,
                offLengthValues, maxLightLevelValues, NULL)
 {
 }
