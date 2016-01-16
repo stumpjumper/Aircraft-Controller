@@ -1,12 +1,15 @@
 #include "lucky7.h"
 #include <gtest/gtest.h>
 
+const uint8_t onLightLevelValue = ON-2;
+
 TEST(OnOffLight, Constructor) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.paused);
@@ -16,16 +19,17 @@ TEST(OnOffLight, On) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(false, light1.getPaused());
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
 
   light1.lightLevel = OFF;
   EXPECT_EQ(OFF, light1.lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   light1.on();
-  EXPECT_EQ(ON, light1.lightLevel);
-  EXPECT_EQ(ON, lightVariable);
+  EXPECT_EQ(onLightLevelValue, light1.lightLevel);
+  EXPECT_EQ(onLightLevelValue, lightVariable);
   EXPECT_EQ(true, light1.getPaused());
 }
 
@@ -33,8 +37,9 @@ TEST(OnOffLight, Off) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(false, light1.getPaused());
 
   light1.lightLevel = ON;
@@ -50,8 +55,9 @@ TEST(OnOffLight, FunctionCallOperatorGetValue) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   light1.lightLevel = ON;
   EXPECT_EQ(ON, light1());
   EXPECT_EQ(ON, lightVariable);
@@ -72,8 +78,9 @@ TEST(OnOffLight, FunctionCallOperatorSetValue) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   light1() = ON;
   EXPECT_EQ(ON, light1.lightLevel);
   EXPECT_EQ(ON, lightVariable);
@@ -94,8 +101,9 @@ TEST(OnOffLight, Resume) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(false, light1.getPaused());
 
   // paused = true case
@@ -149,10 +157,10 @@ TEST(OnOffLight, Update) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1(lightVariable);
+  OnOffLight light1(lightVariable, onLightLevelValue);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(false, light1.getPaused());
-
 
   // paused = true case
   light1.paused = true;
@@ -208,12 +216,14 @@ TEST(DecayLight, Constructor)
   assert (numIntervals == 3);
   
   DecayLight light1(lightVariable,
+                    onLightLevelValue,
                     numIntervals,
                     onLengths,
                     decayLengths,
                     maxLightLevels,
                     tauInMillisec);
   
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF  , light1.lightLevel);
   EXPECT_EQ(OFF  , lightVariable);
   EXPECT_EQ(false, light1.getPaused());
@@ -249,11 +259,15 @@ TEST(DecayLight, Update)
 
   
   DecayLight light1(lightVariable,
+                    onLightLevelValue,
                     numIntervals,
                     onLengths,
                     decayLengths,
                     maxLightLevels,
                     tauInMillisec);
+
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
+
 
   // mSec   Decay  Level  index // mSec   Decay  Level  index 
   // ----   -----  -----  ----- // ----   -----  -----  ----- 
@@ -327,7 +341,7 @@ TEST(DecayLight, Update)
       light1.resume();
 
     if (i < 18) {
-      expectedLevel    = ON;
+      expectedLevel    = onLightLevelValue;
       expectedDecaying = true;
     } else {
       expectedLevel    = level[j];
@@ -369,12 +383,15 @@ TEST(DecayLight, UpdateWithTauNULL)
 
   
   DecayLight light1(lightVariable,
+                    onLightLevelValue,
                     numIntervals,
                     onLengths,
                     decayLengths,
                     maxLightLevels,
                     tauInMillisec);
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
+  
   // mSec   Decay  Level  index // mSec   Decay  Level  index 
   // ----   -----  -----  ----- // ----   -----  -----  ----- 
   // 1500   0      150    6     // 4500   0      200    12    
@@ -447,7 +464,7 @@ TEST(DecayLight, UpdateWithTauNULL)
       light1.resume();
 
     if (i < 18) {
-      expectedLevel    = ON;
+      expectedLevel    = onLightLevelValue;
       expectedDecaying = true;
     } else {
       expectedLevel    = level[j];
@@ -479,11 +496,13 @@ TEST(FlashingLight, Constructor)
   assert (numIntervals == 3);
   
   FlashingLight light1(lightVariable,
+                    onLightLevelValue,
                     numIntervals,
                     onLengths,
                     decayLengths,
                     maxLightLevels);
   
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF  , light1.lightLevel);
   EXPECT_EQ(OFF  , lightVariable);
   EXPECT_EQ(false, light1.getPaused());
@@ -502,10 +521,12 @@ TEST(BlinkingLight, Constructor)
   uint8_t lightVariable;
 
   BlinkingLight light1(lightVariable,
+                       onLightLevelValue,
                        1000, // onLengthValue
                        10  , // offLengthValue
                        199); // maxLightLevelVaue
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
@@ -533,9 +554,12 @@ TEST(BlinkingLight, Update)
   uint8_t  maxLightLevel =  100; 
   
   BlinkingLight light1(lightVariable,
+                       onLightLevelValue,
                        onLength,
                        offLength,
                        maxLightLevel);
+
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
 
   // mSec   Decay  Level  index 
   // ----   -----  -----  ----- 
@@ -579,7 +603,7 @@ TEST(BlinkingLight, Update)
       light1.resume();
     
     if (i < 18) {
-      expectedLevel    = ON;
+      expectedLevel    = onLightLevelValue;
       expectedOff      = true;
     } else {
       expectedLevel    = level[j];
@@ -605,9 +629,10 @@ TEST(FastBlinkingLight, Constructor)
 {
   uint8_t lightVariable;
 
-  FastBlinkingLight light1(lightVariable,
+  FastBlinkingLight light1(lightVariable, onLightLevelValue,
                            199); // 199 is maxLightLevelVaue
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
@@ -622,9 +647,10 @@ TEST(SlowBlinkingLight, Constructor)
 {
   uint8_t lightVariable;
 
-  SlowBlinkingLight light1(lightVariable,
+  SlowBlinkingLight light1(lightVariable, onLightLevelValue,
                            199); // 199 is maxLightLevelVaue
 
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, light1.lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(false, light1.getPaused());
