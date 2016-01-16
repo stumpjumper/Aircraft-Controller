@@ -7,7 +7,7 @@
 // There's an interrupt collision with the IR routines and the PWM
 // Outputs 1, 5, 6 can be dimmed
 // Outputs 2, 3, 7 cannont be dimmed
-// Output 4, 8 and 13 are digital, cannot be dimmed
+// Outputs 4, 8 and 13 are digital, cannot be dimmed
 //
 // Output 8 is the red led on the board
 // Output 13 is the blue led on the board
@@ -49,7 +49,7 @@ enum {
     LIGHTTHRESHOLDADDRESSL
 } ;
 
-enum {
+enum Mode {
     MODE_OVERRIDE   = 'O',
     MODE_BATTERYLOW = 'B',
     MODE_EVENING    = 'E',
@@ -59,7 +59,7 @@ enum {
     MODE_DAY        = 'D',
 } ;
 
-enum {
+enum Coll {
     COLL_ON1,
     COLL_OFF1,
     COLL_ON2,
@@ -89,8 +89,8 @@ uint8_t  mode;
 uint16_t photocellLevel;
 
 Lucky7      hw          = Lucky7();
-UpDownMotor upDownMotor = UpDownMotor();
 TimeOfDay   timeOfDay   = TimeOfDay(); 
+UpDownMotor upDownMotor = UpDownMotor();
 
 void resetTimeoutBatteryLow() {
   timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
@@ -105,42 +105,64 @@ void resetTimeoutOverride() {
   timeoutOverride   = millis() + TIMEOUTOVERRIDE;
 }
 
-void idenOn() {hw.o1On ();};
-void landOn() {hw.o2On ();};
-void illuOn() {hw.o4On ();};
-void posiOn() {hw.o5On ();};
-void formOn() {hw.o6On ();};
-void blueOn() {hw.o8On ();};
-void redOn () {hw.o13On();};
+uint32_t decayOnLengths[1]         = {250};
+uint32_t decayDecayLengths[1]      = {1100-250};
+uint8_t  decayMaxLightLevels[1]    = {ON};
+uint32_t decayTauInMilliseconds[1] = {450};
 
-void idenOff() {hw.o1Off ();};
-void landOff() {hw.o2Off ();};
-void illuOff() {hw.o4Off ();};
-void posiOff() {hw.o5Off ();};
-void formOff() {hw.o6Off ();};
-void blueOff() {hw.o8Off ();};
-void redOff () {hw.o13Off();};
+// Identification: Mid-Fuselete Bottom Identification (3)
+DecayLight ident(hw.o1, ON, 1, decayOnLengths, decayDecayLengths,
+                 decayMaxLightLevels, decayTauInMilliseconds);
+// Landing: Wing Bottom Retractable Landing Lights (2)
+OnOffLight landing(hw.o2, ON);
+// Illumination: Wheel Wells (3)
+OnOffLight illum(hw.o4, ON);
+// Position:  Wing Tips (2), Tail (1)
+DecayLight position(hw.o5, ON, 1, decayOnLengths, decayDecayLengths,
+                 decayMaxLightLevels, decayTauInMilliseconds);
+// Formation: Wing Top (6), Fuselage Top (3)
+DecayLight formation(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
+                 decayMaxLightLevels, decayTauInMilliseconds);
+// Blue and Red lights on board
+FastBlinkingLight blueFast(hw.o8 , ON, ON);
+SlowBlinkingLight blueSlow(hw.o8 , ON, ON);
+FastBlinkingLight redFast (hw.o13, ON, ON);
+SlowBlinkingLight redSlow (hw.o13, ON, ON);
+BlinkingLight * p_blue = &blueFast;
+BlinkingLight * p_red  = &redFast;
 
 void allLightsOn() {
-  idenOn();
-  landOn();
-  illuOn();
-  posiOn();
-  formOn();
+  ident.on();
+  landing.on();
+  illum.on();
+  position.on();
+  formation.on();
 }
 
 void allLightsOff() {
-  idenOff();
-  landOff();
-  illuOff();
-  posiOff();
-  formOff();
+  ident.off();
+  landing.off();
+  illum.off();
+  position.off();
+  formation.off();
+}
+
+void updateLights() {
+  ident.update();
+  landing.update();
+  illum.update();
+  position.update();
+  formation.update();
+  p_blue->update();
+  p_red->update();
+  upDownMotor.motorUpdate();
 }
 
 void allOff() {
   upDownMotor.motorStop();
   allLightsOff();
 }
+
 
 void setLightsEvening() {
   allLightsOn();
@@ -161,6 +183,51 @@ void setLightsMorning() {
 void setLightsDay() {
   allLightsOn();
 }
+
+
+// void setToMode( int mode) {
+// //                        Red          Blue  
+// // MODE_OVERRIDE   = 'O', fast blink   fast blink
+// // MODE_BATTERYLOW = 'B', fast blink   off
+// // MODE_EVENING    = 'E', off          slow blink
+// // MODE_NIGHT      = 'N', off          on
+// // MODE_PREDAWN    = 'P', slow blink   on
+// // MODE_MORNING    = 'M', slow blink   off
+// // MODE_DAY        = 'D', on           off
+
+//   switch (mode) {
+//   case MODE_OVERRIDE:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_BATTERYLOW:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_EVENING:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_NIGHT:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_PREDAWN:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_MORNING:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   case MODE_DAY:
+//     p_red  = ;
+//     p_blue = ;
+//     break;
+//   }
+// }
+
+
 
 void setToMode( int targetMode) {
   switch (targetMode) {
@@ -277,25 +344,10 @@ void processKey(uint32_t key) {
       }
 }
 
-void updateLights() {
-
-    switch (mode) {
-    case MODE_OVERRIDE:
-      hw.boardLight(Lucky7::LIGHT_FAST_BLINK, redOn ,redOff );
-      hw.boardLight(Lucky7::LIGHT_FAST_BLINK, blueOn,blueOff);
-      upDownMotor.motorUpdate();
-      break;
-    case MODE_BATTERYLOW:
-      allOff();
-      hw.boardLight(Lucky7::LIGHT_FAST_BLINK, redOn, redOff );
-      hw.boardLight(Lucky7::LIGHT_OFF, blueOn, blueOff);
-      break;
-    }
-}
-
 void statemap() {
   float batteryVoltage = hw.batteryVoltage();
-  if ((mode != MODE_BATTERYLOW) && ! overrideBatteryLow() && batteryVoltage <= BATTERYLOW) {
+  if ((mode != MODE_BATTERYLOW) && ! overrideBatteryLow() &&
+      batteryVoltage <= BATTERYLOW) {
     setToMode(MODE_BATTERYLOW);
   }
 
@@ -377,6 +429,8 @@ void input() {
 }
 
 void setup() {
+
+
     Serial.begin(115200);
     Serial.println("NMNSH B-29 Lighting Controller setup");
 
@@ -390,7 +444,6 @@ void setup() {
     timeoutStatus = 0;
     timeoutOverride = 0;
     timeoutBatteryLow = 2000; // Initial timeout is 2 seconds to let levels settle down but statup almost right away.
-
 
     setToMode(MODE_DAY);
 }
