@@ -4,3 +4,6 @@
 *~
 .DS_*
 TAGS
+depend
+depend.bak
+Makefile.bak
