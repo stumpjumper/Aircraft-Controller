@@ -1,9 +1,11 @@
+
 #include "B29_unittest.h"
 #include "B-29.ino"
 #include <IRremote.h>
 #include <gtest/gtest.h>
 
 using testing::AtLeast;
+using testing::_;
 
 TEST_F(B29Test, ArduinoMockMillis) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -102,7 +104,7 @@ TEST_F(B29Test, ResetTimeoutBatteryLow) {
 TEST_F(B29Test, HardWareSetup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
     .Times(testing::AtLeast(1));
 
   IRrecvMock * irrecvMock = irrecvMockInstance();
@@ -128,7 +130,7 @@ TEST_F(B29Test, HardWareSetup) {
 TEST_F(B29Test, OverrideBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
     .Times(testing::AtLeast(1));
 
   IRrecvMock * irrecvMock = irrecvMockInstance();
@@ -185,7 +187,7 @@ TEST_F(B29Test, ResetTimeoutOverride) {
 TEST_F(B29Test, NameLightGroupsOnAndOff) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
     .Times(testing::AtLeast(1));
   
   IRrecvMock * irrecvMock = irrecvMockInstance();
@@ -204,37 +206,37 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
   EXPECT_EQ(OFF, hw.o8 );
   EXPECT_EQ(OFF, hw.o13);
 
-  idenOn();
+  ident.on();
   EXPECT_EQ(ON, hw.o1 );
-  landOn();
+  landing.on();
   EXPECT_EQ(ON, hw.o2 );
-  illuOn();
+  illum.on();
   EXPECT_EQ(ON, hw.o4 );
-  posiOn();
+  position.on();
   EXPECT_EQ(ON, hw.o5 );
-  formOn();
+  formation.on();
   EXPECT_EQ(ON, hw.o6 );
-  blueOn();
+  p_blue->on();
   EXPECT_EQ(ON, hw.o8 );
-  redOn ();
+  p_red->on ();
   EXPECT_EQ(ON, hw.o13 );
 
   EXPECT_EQ(OFF, hw.o3 );
   EXPECT_EQ(OFF, hw.o7 );
 
-  idenOff();
+  ident.off();
   EXPECT_EQ(OFF, hw.o1 );
-  landOff();
+  landing.off();
   EXPECT_EQ(OFF, hw.o2 );
-  illuOff();
+  illum.off();
   EXPECT_EQ(OFF, hw.o4 );
-  posiOff();
+  position.off();
   EXPECT_EQ(OFF, hw.o5 );
-  formOff();
+  formation.off();
   EXPECT_EQ(OFF, hw.o6 );
-  blueOff();
+  p_blue->off();
   EXPECT_EQ(OFF, hw.o8 );
-  redOff ();
+  p_red->off ();
   EXPECT_EQ(OFF, hw.o13 );
 
   EXPECT_EQ(OFF, hw.o3 );
@@ -247,7 +249,7 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
 TEST_F(B29Test, AllLightsOnAndOff) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(testing::_,testing::_))
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
     .Times(testing::AtLeast(1));
   
   IRrecvMock * irrecvMock = irrecvMockInstance();
@@ -293,3 +295,39 @@ TEST_F(B29Test, AllLightsOnAndOff) {
 }
 
 
+
+TEST_F(B29Test, FullTest1) {
+
+  EEPROMMock * eepromMock  = EEPROMMockInstance();
+  EXPECT_CALL(*eepromMock, read(_))
+    .Times(2);
+
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, begin(_))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller setup"))
+    .Times(1);
+  
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
+    .Times(11);
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(1);
+
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, enableIRIn())
+    .Times(1);
+
+
+  arduinoMock->setMillisRaw(0);
+  setup();
+ 
+  EXPECT_EQ(MODE_DAY, mode);
+
+  releaseSerialMock();
+  releaseArduinoMock();
+  releaseIRrecvMock();
+  releaseEEPROMMock();
+
+}
