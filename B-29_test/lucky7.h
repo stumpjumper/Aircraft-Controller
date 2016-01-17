@@ -117,6 +117,7 @@ private:
   FRIEND_TEST(DecayLight, Constructor);
   FRIEND_TEST(DecayLight, Update);
   FRIEND_TEST(DecayLight, UpdateWithTauNULL);
+  FRIEND_TEST(DecayLight, UpdateCalledInfrequently);
 
 protected:
   uint32_t changeTime;      // Keep track of when its time to change modes

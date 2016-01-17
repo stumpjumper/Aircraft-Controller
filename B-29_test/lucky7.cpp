@@ -101,9 +101,11 @@ void DecayLight::update()
     }
     decayStartTime = changeTime;
     changeTime = changeTime + changeTimeDelta;
-    if (now >= changeTime) { // Can happen if time between calls to update() is > [on|decay]Length[j]
+    // Check if time between calls to update() is > onLength[j] or decayLength[j]
+    if (now >= changeTime) { 
       decayStartTime = now;
       changeTime = now + changeTimeDelta;
+      // std::cerr << "decayStartTime, changeTime, decaying = " << decayStartTime << ", " << changeTime << ", " <<  decaying << std::endl;
     }
   }
 
