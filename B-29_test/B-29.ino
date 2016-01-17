@@ -507,7 +507,7 @@ void setup() {
     Serial.println("NMNSH B-29 Lighting Controller setup");
 
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
-    upDownMotor.setup(&hw.o3, &hw.o7); // Initialize with (up, down) outputs
+    upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
       
     lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);

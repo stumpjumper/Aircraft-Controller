@@ -301,7 +301,7 @@ TEST_F(B29Test, UpdateLights) {
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
-  upDownMotor.setup(&hw.o3, &hw.o7); // (up, down)
+  upDownMotor.setup(hw.o3, hw.o7); // (up, down)
 
   // On construction, all lights and motors are off
   EXPECT_EQ(OFF, ident());

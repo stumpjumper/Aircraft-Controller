@@ -26,7 +26,7 @@ TEST_F(UpDownMotorTest, Setup) {
     uint8_t oDown = p_oDownArray[i];
     
     UpDownMotor udm = UpDownMotor();
-    udm.setup(&oUp, &oDown);
+    udm.setup(oUp, oDown);
     
     EXPECT_EQ(&oUp          , udm.p_outputUp        );
     EXPECT_EQ(&oDown        , udm.p_outputDown      );
@@ -45,7 +45,7 @@ TEST_F(UpDownMotorTest, MotorUpStop) {
     uint8_t oDown = p_oDownArray[i];
     
     UpDownMotor udm = UpDownMotor();
-    udm.setup(&oUp, &oDown);
+    udm.setup(oUp, oDown);
 
     udm.motorUpStop();
     EXPECT_EQ(OFF  , *udm.p_outputUp);
@@ -60,7 +60,7 @@ TEST_F(UpDownMotorTest, MotorDownStop) {
     uint8_t oDown = p_oDownArray[i];
     
     UpDownMotor udm = UpDownMotor();
-    udm.setup(&oUp, &oDown);
+    udm.setup(oUp, oDown);
 
     udm.motorDownStop();
     EXPECT_EQ(OFF  , *udm.p_outputDown);
@@ -83,7 +83,7 @@ TEST_F(UpDownMotorTest, MotorUpStart) {
   UpDownMotor udm = UpDownMotor();
   uint8_t oUp   = ON;
   uint8_t oDown = OFF;
-  udm.setup(&oUp, &oDown);
+  udm.setup(oUp, oDown);
   
   for (uint8_t i = 0; i < 2; i++) {
     udm.inMotorUpMode = inMotorUpModeArray[i];
@@ -110,7 +110,7 @@ TEST_F(UpDownMotorTest, MotorDownStart) {
   uint8_t oUp   = ON;
   uint8_t oDown = OFF;
   UpDownMotor udm = UpDownMotor();
-  udm.setup(&oUp, &oDown);
+  udm.setup(oUp, oDown);
   
   for (uint8_t i = 0; i < 2; i++) {
     udm.inMotorDownMode = inMotorDownModeArray[i];
@@ -149,7 +149,7 @@ TEST_F(UpDownMotorTest, MotorUpUpdate) {
   uint8_t oUp   = OFF;
   uint8_t oDown = OFF;
   UpDownMotor udm = UpDownMotor();
-  udm.setup(&oUp, &oDown);
+  udm.setup(oUp, oDown);
 
   udm.inMotorUpMode = false;
   udm.motorUpStartTime = startTime;
@@ -200,7 +200,7 @@ TEST_F(UpDownMotorTest, MotorDownUpdate) {
   uint8_t oUp   = OFF;
   uint8_t oDown = OFF;
   UpDownMotor udm = UpDownMotor();
-  udm.setup(&oUp, &oDown);
+  udm.setup(oUp, oDown);
 
   udm.inMotorDownMode = false;
   udm.motorDownStartTime = startTime;
@@ -253,7 +253,7 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
   uint8_t oUp   = OFF;
   uint8_t oDown = OFF;
   UpDownMotor udm = UpDownMotor();
-  udm.setup(&oUp, &oDown);
+  udm.setup(oUp, oDown);
 
   // Error: In both motor up and motor down mode:
   udm.inMotorUpMode   = true;

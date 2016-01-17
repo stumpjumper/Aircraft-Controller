@@ -284,10 +284,10 @@ TimeOfDay::DayPart TimeOfDay::getDayPart()
   return currentDayPart;
 }
 
-void UpDownMotor::setup(uint8_t * p_oUp, uint8_t * p_oDown)
+void UpDownMotor::setup(uint8_t & oUp, uint8_t & oDown)
 {
-  p_outputUp = p_oUp;
-  p_outputDown = p_oDown;
+  p_outputUp = &oUp;
+  p_outputDown = &oDown;
   inMotorUpMode = false;
   inMotorDownMode = false;
 

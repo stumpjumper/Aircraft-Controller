@@ -331,7 +331,7 @@ private:
 
 
 public:
-  void setup(uint8_t * p_oUp, uint8_t * p_oDown);
+  void setup(uint8_t & oUp, uint8_t & p_oDown);
 
   void motorUpStart();
   void motorDownStart();
