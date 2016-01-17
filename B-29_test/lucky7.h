@@ -139,6 +139,7 @@ public:
              uint8_t  * maxLightLevelValues,
              uint32_t * tauInMilliseconds);
   void update();
+  bool getDecaying() {return decaying;};
 };
 
 class FlashingLight : public DecayLight
@@ -174,6 +175,7 @@ private:
   FRIEND_TEST(FastSlowBlinkingLight, Constructor);
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
   FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
+  FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
 
   uint32_t onLengthValues[1];
   uint32_t offLengthValues[1];
@@ -213,6 +215,11 @@ private:
   FRIEND_TEST(FastSlowBlinkingLight, Constructor);
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
   FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
+  FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
+
+  // Do not implement to make sure are never called
+  FastSlowBlinkingLight(Light & other); 
+  FastSlowBlinkingLight & operator=(const Light &rhs);
 
   FastBlinkingLight fastLight;
   SlowBlinkingLight slowLight;
@@ -231,6 +238,11 @@ public:
   void off() {fastLight.off(); slowLight.off();};
   void resume() {fastLight.resume(); slowLight.resume();};
   void update() {p_currentLight->update();};
+
+  uint8_t & operator()(void) {return (*p_currentLight)();};
+  
+  //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;};
+  
 };
 
 class TimeOfDay

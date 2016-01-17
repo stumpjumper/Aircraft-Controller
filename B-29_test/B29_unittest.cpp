@@ -94,9 +94,9 @@ TEST_F(B29Test, ResetTimeoutBatteryLow) {
   resetTimeoutBatteryLow();
   EXPECT_EQ(20+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
-  arduinoMock->setMillisRaw(30);
+  arduinoMock->setMillisRaw(40000);
   resetTimeoutBatteryLow();
-  EXPECT_EQ(30+TIMEOUTBATTERYLOW, timeoutBatteryLow);
+  EXPECT_EQ(40000+TIMEOUTBATTERYLOW, timeoutBatteryLow);
 
   releaseArduinoMock();
 }
@@ -216,9 +216,9 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
   EXPECT_EQ(ON, hw.o5 );
   formation.on();
   EXPECT_EQ(ON, hw.o6 );
-  p_blue->on();
+  blueLight.on ();
   EXPECT_EQ(ON, hw.o8 );
-  p_red->on ();
+  redLight.on();
   EXPECT_EQ(ON, hw.o13 );
 
   EXPECT_EQ(OFF, hw.o3 );
@@ -234,9 +234,9 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
   EXPECT_EQ(OFF, hw.o5 );
   formation.off();
   EXPECT_EQ(OFF, hw.o6 );
-  p_blue->off();
+  blueLight.off();
   EXPECT_EQ(OFF, hw.o8 );
-  p_red->off ();
+  redLight.off ();
   EXPECT_EQ(OFF, hw.o13 );
 
   EXPECT_EQ(OFF, hw.o3 );
@@ -294,9 +294,123 @@ TEST_F(B29Test, AllLightsOnAndOff) {
   releaseIRrecvMock();
 }
 
+TEST_F(B29Test, UpdateLights) {
 
+  ArduinoMock * arduinoMock = arduinoMockInstance();
 
-TEST_F(B29Test, FullTest1) {
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  upDownMotor.setup(&hw.o3, &hw.o7); // (up, down)
+
+  // On construction, all lights and motors are off
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(OFF, redLight());
+
+  // At time = 200 msecs decay lights are not yet decaying as their on-time is 250 msecs
+  // on/off lights are whatever they are set to
+  // Fast blinking lights are still on as have 1000 msec on time
+  // Motor has 2 second delay before it starts
+  arduinoMock->setMillisRaw(200);
+  landing.on();
+  illum.on();
+  upDownMotor.motorUpStart();
+  redLight.setToFast();
+  blueLight.setToFast();
+
+  updateLights();
+  std::cerr << "ident.getDecaying() = " << bool(ident.getDecaying()) << std::endl;
+  EXPECT_EQ(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+  EXPECT_EQ(decayMaxLightLevels[0], position());
+  EXPECT_EQ(decayMaxLightLevels[0], formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(ON, redLight());
+
+  // At time = 250+450 = 700 ms decay lights (with 250 ms on-time and tau = 450 ms)
+  // are decaying
+  // on/off lights don't change.
+  // Fast blinking lights are still on as have 1000 msec on time
+  // Motor still not started
+
+  arduinoMock->setMillisRaw(250+450);
+  updateLights();
+  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), ident()); 
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), position());
+  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(ON, redLight());
+
+  // At time = 1000 msecs decay lights are still decaying
+  // on/off lights don't change.
+  // Fast blinking lights have just turned off
+  // Motor still not started
+
+  arduinoMock->setMillisRaw(1000);
+  updateLights();
+  EXPECT_GT(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+  EXPECT_GT(decayMaxLightLevels[0], position());
+  EXPECT_GT(decayMaxLightLevels[0], formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(OFF, redLight());
+
+  // At time = 1100 msecs decay lights are back full on
+  // on/off lights don't change.
+  // Fast blinking lights are on
+  // Motor still not started
+
+  arduinoMock->setMillisRaw(1100);
+  updateLights();
+  EXPECT_EQ(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+  EXPECT_EQ(decayMaxLightLevels[0], position());
+  EXPECT_EQ(decayMaxLightLevels[0], formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(ON, redLight());
+
+  // At time = 5000 ms motor has turned on
+  arduinoMock->setMillisRaw(5000);
+  updateLights();
+  EXPECT_EQ(ON, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+
+  // At time = 45200 ms, motor is just about turned off
+  arduinoMock->setMillisRaw(45200);
+  updateLights();
+  EXPECT_EQ(ON, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+
+  // At time = 45201 ms, motor has just turned off
+  arduinoMock->setMillisRaw(45201);
+  updateLights();
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+  
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, Setup) {
 
   EEPROMMock * eepromMock  = EEPROMMockInstance();
   EXPECT_CALL(*eepromMock, read(_))

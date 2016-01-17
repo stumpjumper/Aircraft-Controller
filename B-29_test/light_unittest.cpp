@@ -246,7 +246,7 @@ TEST(DecayLight, Update)
   ArduinoMock * arduinoMock = arduinoMockInstance();
   
   EXPECT_CALL(*arduinoMock, millis())
-    .Times(2*intervals-18);
+    .Times(2*intervals);
   
   uint8_t lightVariable;
 
@@ -282,11 +282,11 @@ TEST(DecayLight, Update)
   //  mSec   Decay  Level  index // mSec   Decay  Level  index 
   //  ----   -----  -----  ----- // ----   -----  -----  ----- 
   // 10500   0      100    18    //  0     0      100    0     
-  // 20500   0      100    19    //  250   0      100    1     
-  // 30500   1      100    20    //  500   1      100    2     
-  // 30500   1      100    21    //  750   1       37    3     
-  // 40500   1      100    22    // 1000   1       14    4     
-  // 50500   1      100    23    // 1250   1        5    5     
+  // 20500   0      100    19    //  500   0      100    1     
+  // 30500   1      100    20    // 1000   1      100    2     
+  // 30500   1      100    21    // 1500   1       37    3     
+  // 40500   1      100    22    // 2000   1       14    4     
+  // 50500   1      100    23    // 2500   1        5    5     
 
   // Expected Values:
  
@@ -330,12 +330,9 @@ TEST(DecayLight, Update)
   light1.on();
 
   uint8_t expectedLevel;
-  bool    expectedDecaying;
 
-  j = 6;
   for (i = 0; i < intervals; i++) {
-    if (j == sizeof(decaying)/sizeof(bool))
-      j = 0;
+    j = i % sizeof(decaying)/sizeof(bool);
     arduinoMock->setMillisRaw(timeMS);
 
     if (i == 18)
@@ -343,16 +340,15 @@ TEST(DecayLight, Update)
 
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
-      expectedDecaying = true;
     } else {
       expectedLevel    = level[j];
-      expectedDecaying = decaying[j];
     }
     
     light1.update();
+
     EXPECT_EQ(expectedLevel   , light1())
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
-    EXPECT_EQ(expectedDecaying, light1.decaying)
+    EXPECT_EQ(decaying[j], light1.decaying)
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
     
     timeMS += timeSteps[j];
@@ -370,7 +366,7 @@ TEST(DecayLight, UpdateWithTauNULL)
   ArduinoMock * arduinoMock = arduinoMockInstance();
   
   EXPECT_CALL(*arduinoMock, millis())
-    .Times(2*intervals-18);
+    .Times(2*intervals);
   
   uint8_t lightVariable;
 
@@ -453,12 +449,9 @@ TEST(DecayLight, UpdateWithTauNULL)
   light1.on();
 
   uint8_t expectedLevel;
-  bool    expectedDecaying;
 
-  j = 6;
   for (i = 0; i < intervals; i++) {
-    if (j == sizeof(decaying)/sizeof(bool))
-      j = 0;
+    j = i % sizeof(decaying)/sizeof(bool);
     arduinoMock->setMillisRaw(timeMS);
 
     if (i == 18)
@@ -466,16 +459,14 @@ TEST(DecayLight, UpdateWithTauNULL)
 
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
-      expectedDecaying = true;
     } else {
       expectedLevel    = level[j];
-      expectedDecaying = decaying[j];
     }
     
     light1.update();
     EXPECT_EQ(expectedLevel   , light1())
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
-    EXPECT_EQ(expectedDecaying, light1.decaying)
+    EXPECT_EQ(decaying[j], light1.decaying)
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
     
     timeMS += timeSteps[j];
@@ -545,7 +536,7 @@ TEST(BlinkingLight, Update)
   ArduinoMock * arduinoMock = arduinoMockInstance();
   
   EXPECT_CALL(*arduinoMock, millis())
-    .Times(2*intervals-18);
+    .Times(2*intervals);
   
   uint8_t lightVariable;
 
@@ -593,9 +584,7 @@ TEST(BlinkingLight, Update)
   light1.on();
 
   uint8_t expectedLevel;
-  bool    expectedOff;
 
-  j = 6;
   for (i = 0; i < intervals; i++) {
     j = i % sizeof(off)/sizeof(bool);
     arduinoMock->setMillisRaw(timeMS);
@@ -605,16 +594,14 @@ TEST(BlinkingLight, Update)
     
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
-      expectedOff      = true;
     } else {
       expectedLevel    = level[j];
-      expectedOff      = off[j];
     }
-    
+
     light1.update();
     EXPECT_EQ(expectedLevel   , light1())
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
-    EXPECT_EQ(expectedOff, light1.decaying)
+    EXPECT_EQ(off[j], light1.decaying)
       << "i,j = " << int(i) << ", " << int(j) << std::endl;
     
     timeMS += timeStep;
@@ -720,3 +707,28 @@ TEST(FastSlowBlinkingLight, SetToSlow)
   EXPECT_EQ(maxLightLevelValue , light1.p_currentLight->maxLightLevel[0]);
 }
 
+TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue) {
+
+  uint8_t lightVariable;
+
+  FastSlowBlinkingLight light1(lightVariable, onLightLevelValue,
+                               maxLightLevelValue);
+
+  light1.setToSlow();
+
+  EXPECT_EQ(onLightLevelValue, light1.p_currentLight->onLightLevel);
+  light1.p_currentLight->lightLevel = ON;
+  EXPECT_EQ(ON, light1());
+  EXPECT_EQ(ON, lightVariable);
+
+  light1.p_currentLight->lightLevel = OFF;
+  EXPECT_EQ(OFF, light1());
+  EXPECT_EQ(OFF, lightVariable);
+
+  for (uint8_t i = 0; i < OFF; i++) {
+    light1.p_currentLight->lightLevel = i;
+    EXPECT_EQ(i, light1());
+    EXPECT_EQ(i, lightVariable);
+  }
+    
+}

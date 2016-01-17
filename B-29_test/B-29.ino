@@ -123,13 +123,9 @@ DecayLight position(hw.o5, ON, 1, decayOnLengths, decayDecayLengths,
 // Formation: Wing Top (6), Fuselage Top (3)
 DecayLight formation(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
                  decayMaxLightLevels, decayTauInMilliseconds);
-// Blue and Red lights on board
-FastBlinkingLight blueFast(hw.o8 , ON, ON);
-SlowBlinkingLight blueSlow(hw.o8 , ON, ON);
-FastBlinkingLight redFast (hw.o13, ON, ON);
-SlowBlinkingLight redSlow (hw.o13, ON, ON);
-BlinkingLight * p_blue = &blueFast;
-BlinkingLight * p_red  = &redFast;
+// Blue and Red lights on Aurdino board
+FastSlowBlinkingLight blueLight(hw.o8 , ON, ON);
+FastSlowBlinkingLight redLight (hw.o13, ON, ON);
 
 void allLightsOn() {
   ident.on();
@@ -153,9 +149,10 @@ void updateLights() {
   illum.update();
   position.update();
   formation.update();
-  p_blue->update();
-  p_red->update();
   upDownMotor.motorUpdate();
+
+  blueLight.update();
+  redLight.update();
 }
 
 void allOff() {
@@ -163,185 +160,260 @@ void allOff() {
   allLightsOff();
 }
 
+//         Mode              Red          Blue
+// ---------------------  ----------   ----------
+// MODE_OVERRIDE   = 'O'  slow blink   fast blink
+// MODE_BATTERYLOW = 'B'  fast blink   slow blink
+// MODE_EVENING    = 'E'  off          slow blink
+// MODE_NIGHT      = 'N'  off          on
+// MODE_PREDAWN    = 'P'  slow blink   on
+// MODE_MORNING    = 'M'  slow blink   off
+// MODE_DAY        = 'D'  on           off
 
-void setLightsEvening() {
-  allLightsOn();
+void setOverride() {
+  redLight .setToSlow();
+  blueLight.setToFast();
+
+  allOff();
 }
 
-void setLightsNight() {
-  allLightsOn();
+void setBatteryLow() {
+  redLight .setToFast();
+  blueLight.setToSlow();
+
+  allOff();
 }
 
-void setLightsPredawn() {
-  allLightsOn();
+void setEvening() {
+  redLight .off();
+  blueLight.setToSlow();
+
+  ident.on();
+  landing.on();
+  illum.on();
+  position.resume();
+  formation.on();
 }
 
-void setLightsMorning() {
-  allLightsOn();
+void setNight() {
+  redLight .off();
+  blueLight.on();
+
+  ident.on();
+  landing.on();
+  illum.on();
+  position.resume();
+  formation.on();
 }
 
-void setLightsDay() {
-  allLightsOn();
+void setPreDawn() {
+  redLight .setToSlow();
+  blueLight.on();
+
+  ident.on();
+  landing.on();
+  illum.on();
+  position.resume();
+  formation.on();
 }
 
+void setMorning() {
+  redLight .setToSlow();
+  blueLight.off();
 
-// void setToMode( int mode) {
-// //                        Red          Blue  
-// // MODE_OVERRIDE   = 'O', fast blink   fast blink
-// // MODE_BATTERYLOW = 'B', fast blink   off
-// // MODE_EVENING    = 'E', off          slow blink
-// // MODE_NIGHT      = 'N', off          on
-// // MODE_PREDAWN    = 'P', slow blink   on
-// // MODE_MORNING    = 'M', slow blink   off
-// // MODE_DAY        = 'D', on           off
+  ident.on();
+  landing.on();
+  illum.on();
+  position.resume();
+  formation.on();
+}
 
-//   switch (mode) {
-//   case MODE_OVERRIDE:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_BATTERYLOW:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_EVENING:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_NIGHT:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_PREDAWN:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_MORNING:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   case MODE_DAY:
-//     p_red  = ;
-//     p_blue = ;
-//     break;
-//   }
-// }
+void setDay() {
+  redLight  .on();
+  blueLight.off();
 
-
+  ident.on();
+  landing.on();
+  illum.off();
+  position.resume();
+  formation.on();
+}
 
 void setToMode( int targetMode) {
+
   switch (targetMode) {
   case MODE_OVERRIDE:
+    if (MODE_OVERRIDE != mode) {
+      setOverride();
+    }
     mode = MODE_OVERRIDE;
+
     resetTimeoutOverride();
     break;
   case MODE_BATTERYLOW:
-    mode = MODE_BATTERYLOW;
-    resetTimeoutBatteryLow();
-    if (mode != MODE_BATTERYLOW) {
-      upDownMotor.motorStop();            
+    if (MODE_BATTERYLOW != mode) {
+      setBatteryLow();
     }
+    mode = MODE_BATTERYLOW;
+
+    resetTimeoutBatteryLow();
     break;
   case MODE_EVENING:
+    if (MODE_EVENING != mode) {
+      setEvening();
+    }
     mode = MODE_EVENING;
     break;
   case MODE_NIGHT:
+    if (MODE_NIGHT != mode) {
+      setNight();
+    }
     mode = MODE_NIGHT;
     break;
   case MODE_PREDAWN:
+    if (MODE_PREDAWN != mode) {
+      setPreDawn();
+    }
     mode = MODE_PREDAWN;
     break;
   case MODE_MORNING:
+    if (MODE_MORNING != mode) {
+      setMorning();
+    }
     mode = MODE_MORNING;
     break;
   case MODE_DAY:
+    if (MODE_DAY != mode) {
+      setDay();
+    }
     mode = MODE_DAY;
     break;
   }
 }
 
 void processKey(uint32_t key) {
-    Serial.print("key ");
-    Serial.println(key, HEX);
-    switch (key) {
-      case '0':
-      case RC65X_KEY0:
-      case RC65X_KEYDOWN: // Control wheel down
-      case RM_YD065_KEY0:
-      case RM_YD065_KEYDOWN:
-          allOff();
-          break;
-      case '1':
-      case RC65X_KEY1:
-      case RM_YD065_KEY1:
-          hw.o1Toggle();
-          break;
-      case '2':
-      case RC65X_KEY2:
-      case RM_YD065_KEY2:
-          hw.o2Toggle();
-          break;
+  Serial.print("key ");
+  Serial.println(key, HEX);
+  switch (key) {
+  case '0':
+  case RC65X_KEY0:
+  case RC65X_KEYDOWN: // Control wheel down
+  case RM_YD065_KEY0:
+  case RM_YD065_KEYDOWN:
+    Serial.print("Got remote \"0\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    allOff();
+    break;
+  case '1':
+  case RC65X_KEY1:
+  case RM_YD065_KEY1:
+    Serial.print("Got remote \"1\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    hw.o1Toggle();
+    break;
+  case '2':
+  case RC65X_KEY2:
+  case RM_YD065_KEY2:
+    Serial.print("Got remote \"2\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    hw.o2Toggle();
+    break;
 //    case '3':
 //    case RC65X_KEY3:
 //    case RM_YD065_KEY3:
 //        hw.o3Toggle();
 //        break;
-      case '4':
-      case RC65X_KEY4:
-      case RM_YD065_KEY4:
-          hw.o4Toggle();
-          break;
-      case '5':
-      case RC65X_KEY5:
-      case RM_YD065_KEY5:
-          hw.o5Toggle();
-          break;
-      case '6':
-      case RC65X_KEY6:
-      case RM_YD065_KEY6:
-          hw.o6Toggle();
-          break;
+  case '4':
+  case RC65X_KEY4:
+  case RM_YD065_KEY4:
+    Serial.print("Got remote \"4\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    hw.o4Toggle();
+    break;
+  case '5':
+  case RC65X_KEY5:
+  case RM_YD065_KEY5:
+    Serial.print("Got remote \"5\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    hw.o5Toggle();
+    break;
+  case '6':
+  case RC65X_KEY6:
+  case RM_YD065_KEY6:
+    Serial.print("Got remote \"6\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    hw.o6Toggle();
+    break;
 //    case '7':
 //    case RC65X_KEY7:
 //    case RM_YD065_KEY7:
 //        hw.o7Toggle();
 //        break;
-      case 'B':
-      case RC65X_KEYRED:
-      case RM_YD065_KEYRED:
-          setToMode(MODE_BATTERYLOW);
-          break;
-      case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
-      case RC65X_KEYTVINPUT:
-      case RM_YD065_KEYINPUT:
-          uint16_t val;
-          val = hw.photocell2();
-          EEPROM.write(LIGHTTHRESHOLDADDRESSH, (val >> 8));
-          EEPROM.write(LIGHTTHRESHOLDADDRESSL, (val & 0xFF));
-          lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
-          break;
-      case '8':
-      case RC65X_KEY8:
-      case RC65X_KEYUP: // Control wheel up
-      case RM_YD065_KEY8:
-      case RM_YD065_KEYUP:
-          allLightsOn();
-          break;
-      case 'U':
-      case RC65X_KEYCHANUP:
-      case RM_YD065_KEYVOLUMEUP:
-      case RM_YD065_KEYPROGUP:
-          Serial.print("Got remote \"U\"\n");
-          upDownMotor.motorUpStart();
-          break;
-      case 'D':
-      case RC65X_KEYCHANDOWN:
-      case RM_YD065_KEYVOLUMEDOWN:
-      case RM_YD065_KEYPROGDOWN:
-          Serial.print("Got remote \"D\"\n");
-          upDownMotor.motorDownStart();
-          break;
-      }
+  case 'B':
+  case RC65X_KEYRED:
+  case RM_YD065_KEYRED:
+    Serial.print("Got remote \"B\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    setToMode(MODE_BATTERYLOW);
+    break;
+  case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
+  case RC65X_KEYTVINPUT:
+  case RM_YD065_KEYINPUT:
+    Serial.print("Got remote \"R\"\n");
+    uint16_t val;
+    val = hw.photocell2();
+    EEPROM.write(LIGHTTHRESHOLDADDRESSH, (val >> 8));
+    EEPROM.write(LIGHTTHRESHOLDADDRESSL, (val & 0xFF));
+    lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
+    break;
+  case '8':
+  case RC65X_KEY8:
+  case RC65X_KEYUP: // Control wheel up
+  case RM_YD065_KEY8:
+  case RM_YD065_KEYUP:
+    Serial.print("Got remote \"8\"\n");
+    if (mode != MODE_OVERRIDE) {
+      setToMode(MODE_OVERRIDE);
+    }
+    resetTimeoutOverride();
+    allLightsOn();
+    break;
+  case 'U':
+  case RC65X_KEYCHANUP:
+  case RM_YD065_KEYVOLUMEUP:
+  case RM_YD065_KEYPROGUP:
+    Serial.print("Got remote \"U\"\n");
+    upDownMotor.motorUpStart();
+    break;
+  case 'D':
+  case RC65X_KEYCHANDOWN:
+  case RM_YD065_KEYVOLUMEDOWN:
+  case RM_YD065_KEYPROGDOWN:
+    Serial.print("Got remote \"D\"\n");
+    upDownMotor.motorDownStart();
+    break;
+  }
 }
 
 void statemap() {
@@ -439,7 +511,6 @@ void setup() {
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
       
     lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
-    lightThreshold = 100;
 
     timeoutStatus = 0;
     timeoutOverride = 0;
@@ -462,7 +533,7 @@ void loop() {
     statemap();     // 1) Read battery, MODE_BATTERYLOW if low
                     // 2) Walk through statemap using case on MODE_* and timers
                     //    2a) Change MODE_* as needed based on timers and sensor
-                    //        thresholds.
+                    //        thresholds via setToMode();
                     //    2b) Maybe initiallize some levels and times.
     updateLights(); // Set the software output levels (0-255) on the outputs.
     status();       // Print to serial port, reset board if running for 30 days.

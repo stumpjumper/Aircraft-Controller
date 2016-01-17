@@ -80,10 +80,8 @@ DecayLight::DecayLight(uint8_t  & lightLevelVariable,
 void DecayLight::update()
 {
   size_t j;
-  
-  if (paused) {
-    return;
-  }
+
+  uint32_t changeTimeDelta = 0;
   
   const uint32_t now = millis();
   j = intervalIndex % numIntervals;
@@ -93,34 +91,49 @@ void DecayLight::update()
       decaying = false;
       intervalIndex++;
       j = intervalIndex % numIntervals;
-      lightLevel = maxLightLevel[j];
-      changeTime = now + onLength[j];
+      if (! paused) {
+        lightLevel = maxLightLevel[j];
+      }
+      changeTimeDelta = onLength[j];
     } else {
       decaying = true;
+      changeTimeDelta = decayLength[j];
+    }
+    decayStartTime = changeTime;
+    changeTime = changeTime + changeTimeDelta;
+    if (now >= changeTime) { // Can happen if time between calls to update() is > [on|decay]Length[j]
       decayStartTime = now;
-      changeTime = now + decayLength[j];
+      changeTime = now + changeTimeDelta;
     }
   }
 
-  if (decaying) {
+  if (decaying && ! paused) {
+    //std::cerr << "A" << std::endl;
     if (tau == NULL || tau[j] == 0) {
+      //std::cerr << "B" << std::endl;
       lightLevel = OFF;
     } else {
+      //std::cerr << "C" << std::endl;
       const uint32_t time = now - decayStartTime;
+      //std::cerr << "now " << int(now) << std::endl;
+      //std::cerr << "time " << int(time) << std::endl;
       // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
       lightLevel =
         int(float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5);
+      //std::cerr << "lightLevel " << int(lightLevel) << std::endl;
     }
   }
 
   // std::cerr << "now = " << now
+  //           << " decayStartTime = " << decayStartTime
   //           << " changeTime  = " << changeTime
   //           << " numIntervals = " << int(numIntervals)
   //           << " intervalIndex = " << int(intervalIndex)
   //           << " j = " << int(j) << std::endl
   //           << "decaying = " << decaying
   //           << " lightLevel = " << int(lightLevel)
-  //           << " tau  = " << tau << std::endl;
+  //           << " tau  = " << (tau != NULL ? int(tau[j]) : 0)
+  //           << std::endl;
 }
 
 FlashingLight::FlashingLight(uint8_t & lightLevelVariable,
@@ -331,7 +344,7 @@ void UpDownMotor::motorUpUpdate() {
     }
       
     if (millis() > motorUpStartTime + LUCKY7_TIMEOUTMOTORUPDOWN) {
-        motorUpStop();
+      motorUpStop();
     }
 }
 
