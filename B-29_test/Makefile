@@ -80,7 +80,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_DIR)/include/arduino-mock/*.h
 all : $(TESTS)
 
 mytest: $(TESTS)
-	./B29_unittest --gtest_filter=B29Test.FullTest1
+	./B29_unittest --gtest_filter=B29Test.UpdateLights
 
 test : $(TESTS)
 	for t in $(TESTS); do ./$$t; done;
