@@ -1,8 +1,9 @@
-                           Red        Blue  
-    MODE_OVERRIDE   = 'O', fast blink fast blink
-    MODE_BATTERYLOW = 'B', fast blink off
-    MODE_EVENING    = 'E', off        blink
-    MODE_NIGHT      = 'N', off        full
-    MODE_PREDAWN    = 'P', blink      full
-    MODE_MORNING    = 'M', blink      off
-    MODE_DAY        = 'D', full       off
+//         Mode              Red          Blue
+// ---------------------  ----------   ----------
+// MODE_OVERRIDE   = 'O'  slow blink   fast blink
+// MODE_BATTERYLOW = 'B'  fast blink   slow blink
+// MODE_EVENING    = 'E'  off          slow blink
+// MODE_NIGHT      = 'N'  off          on
+// MODE_PREDAWN    = 'P'  slow blink   on
+// MODE_MORNING    = 'M'  slow blink   off
+// MODE_DAY        = 'D'  on           off
