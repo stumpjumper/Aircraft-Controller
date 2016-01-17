@@ -54,21 +54,23 @@ private:
 
 protected:
   uint8_t onLightLevel;
-  uint8_t & lightLevel;
+  uint8_t * p_lightLevel;
   bool paused;
 
 public:
-  Light(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
+  Light();
   virtual ~Light();
+
+  void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
   
   bool getPaused() {return paused;};
   
-  void on() {lightLevel = onLightLevel; paused = true;};
-  void off() {lightLevel = OFF; paused = true;};
+  void on() {*p_lightLevel = onLightLevel; paused = true;};
+  void off() {*p_lightLevel = OFF; paused = true;};
   void resume() {paused = false;}
   virtual void update() = 0;
 
-  uint8_t & operator()(void) {return lightLevel;};
+  uint8_t & operator()(void) {return *p_lightLevel;};
   //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;};
 
 
@@ -77,8 +79,11 @@ public:
 class OnOffLight : public Light
 {
 public:
-  OnOffLight(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue) :
-    Light(lightLevelVariable, onLightLevelValue) {;};
+  OnOffLight();
+  virtual ~OnOffLight();
+
+  void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
+
   void update() {;};
 };
 
@@ -132,13 +137,17 @@ protected:
   uint32_t * tau;           // Time constants.  See discussion above
   
 public:
-  DecayLight(uint8_t & lightLevelVariable,
+  DecayLight();
+  virtual ~DecayLight();
+
+  void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
              const size_t numberOfValues,
              uint32_t * onLengthValues,
              uint32_t * decayLengthValues,
              uint8_t  * maxLightLevelValues,
              uint32_t * tauInMilliseconds);
+  
   void update();
   bool getDecaying() {return decaying;};
 };
@@ -155,12 +164,15 @@ private:
   
   
 public:
-  FlashingLight(uint8_t & lightLevelVariable,
-                const uint8_t onLightLevel,
-                const size_t numberOfValues,
-                uint32_t * onLengthValues,
-                uint32_t * offLengthValues,
-                uint8_t  * maxLightLevelValues);
+  FlashingLight();
+  virtual ~FlashingLight();
+
+  void setup(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
+             const size_t numberOfValues,
+             uint32_t * onLengthValues,
+             uint32_t * offLengthValues,
+             uint8_t  * maxLightLevelValues);
 };
 
 class BlinkingLight : public FlashingLight
@@ -183,29 +195,45 @@ private:
   uint8_t  maxLightLevelValues[1];
   
 public:
-  BlinkingLight(uint8_t & lightLevelVariable,
-                const uint8_t onLightLevel,
-                uint32_t onLengthValue,
-                uint32_t offLengthValue,
-                uint8_t  maxLightLevelValue);
+  BlinkingLight();
+  virtual ~BlinkingLight();
+  void setup(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
+             uint32_t onLengthValue,
+             uint32_t offLengthValue,
+             uint8_t  maxLightLevelValue);
 };
 
 class FastBlinkingLight : public BlinkingLight
 {
   // A fast blinking light
+
+private:
+  static const uint32_t onLengthValue  = 1000;
+  static const uint32_t offLengthValue = 10;
+  
 public:
-  FastBlinkingLight(uint8_t & lightLevelVariable,
-                    const uint8_t onLightLevel,
-                    uint8_t maxLightLevelValue);
+  FastBlinkingLight();
+  virtual ~FastBlinkingLight();
+  void setup(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
+             uint8_t maxLightLevelValue);
 };
 
 class SlowBlinkingLight : public BlinkingLight
 {
   // A slow blinking light
+
+private:
+  static const uint32_t onLengthValue  = 2000;
+  static const uint32_t offLengthValue = 10;
+  
 public:
-  SlowBlinkingLight(uint8_t & lightLevelVariable,
-                    const uint8_t onLightLevel,
-                    uint8_t maxLightLevelValue);
+  SlowBlinkingLight();
+  virtual ~SlowBlinkingLight();
+  void setup(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
+             uint8_t maxLightLevelValue);
 };
 
 class FastSlowBlinkingLight
@@ -227,9 +255,11 @@ private:
   BlinkingLight * p_currentLight;
   
 public:
-  FastSlowBlinkingLight(uint8_t & lightLevelVariable,
-                        const uint8_t onLightLevel,
-                        uint8_t maxLightLevelValue);
+  FastSlowBlinkingLight();
+  ~FastSlowBlinkingLight();
+  void setup(uint8_t & lightLevelVariable,
+             const uint8_t onLightLevel,
+             uint8_t maxLightLevelValue);
 
   void setToFast() {p_currentLight = &fastLight;};
   void setToSlow() {p_currentLight = &slowLight;};

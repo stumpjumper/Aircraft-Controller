@@ -92,6 +92,22 @@ Lucky7      hw          = Lucky7();
 TimeOfDay   timeOfDay   = TimeOfDay(); 
 UpDownMotor upDownMotor = UpDownMotor();
 
+// Decay settings for identification, position and formation lights
+uint32_t decayOnLengths[1]         = {250};
+uint32_t decayDecayLengths[1]      = {1100-250};
+uint8_t  decayMaxLightLevels[1]    = {ON};
+uint32_t decayTauInMilliseconds[1] = {450};
+
+// Light objects to control each channel
+DecayLight ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
+DecayLight position ; // Position      : Wing Tips (2), Tail (1)
+DecayLight formation; // Formation     : Wing Top (6), Fuselage Top (3)
+OnOffLight landing  ; // Landing       : Wing Bottom Retractable Landing Lights (2)
+OnOffLight illum    ; // Illumination  : Wheel Wells (3)
+// Light objects to control each status light on the board
+FastSlowBlinkingLight blueLight; // Blue light on Aurdino board
+FastSlowBlinkingLight redLight ; // Red light on Aurdino board
+
 void resetTimeoutBatteryLow() {
   timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
 }
@@ -104,28 +120,6 @@ bool overrideBatteryLow() {
 void resetTimeoutOverride() {
   timeoutOverride   = millis() + TIMEOUTOVERRIDE;
 }
-
-uint32_t decayOnLengths[1]         = {250};
-uint32_t decayDecayLengths[1]      = {1100-250};
-uint8_t  decayMaxLightLevels[1]    = {ON};
-uint32_t decayTauInMilliseconds[1] = {450};
-
-// Identification: Mid-Fuselete Bottom Identification (3)
-DecayLight ident(hw.o1, ON, 1, decayOnLengths, decayDecayLengths,
-                 decayMaxLightLevels, decayTauInMilliseconds);
-// Landing: Wing Bottom Retractable Landing Lights (2)
-OnOffLight landing(hw.o2, ON);
-// Illumination: Wheel Wells (3)
-OnOffLight illum(hw.o4, ON);
-// Position:  Wing Tips (2), Tail (1)
-DecayLight position(hw.o5, ON, 1, decayOnLengths, decayDecayLengths,
-                 decayMaxLightLevels, decayTauInMilliseconds);
-// Formation: Wing Top (6), Fuselage Top (3)
-DecayLight formation(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
-                 decayMaxLightLevels, decayTauInMilliseconds);
-// Blue and Red lights on Aurdino board
-FastSlowBlinkingLight blueLight(hw.o8 , ON, ON);
-FastSlowBlinkingLight redLight (hw.o13, ON, ON);
 
 void allLightsOn() {
   ident.on();
@@ -500,6 +494,20 @@ void input() {
     }
 }
 
+void setupLightingChannels()
+{
+  ident     .setup(hw.o1, ON, 1, decayOnLengths, decayDecayLengths,
+                   decayMaxLightLevels, decayTauInMilliseconds);
+  landing   .setup(hw.o2, ON);
+  illum     .setup(hw.o4, ON);
+  position  .setup(hw.o5, ON, 1, decayOnLengths, decayDecayLengths,
+                   decayMaxLightLevels, decayTauInMilliseconds);
+  formation .setup(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
+                   decayMaxLightLevels, decayTauInMilliseconds);
+  blueLight .setup(hw.o8 , ON, ON);
+  redLight  .setup(hw.o13, ON, ON);
+
+}
 void setup() {
 
 
@@ -509,6 +517,8 @@ void setup() {
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
     upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
+
+    setupLightingChannels();
       
     lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
 

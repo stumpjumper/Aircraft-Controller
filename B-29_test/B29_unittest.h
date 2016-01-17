@@ -6,7 +6,7 @@
 class B29Test : public ::testing::Test {
 
 protected:
-  //virtual void SetUp();
+  virtual void SetUp();
   //virtual void TearDown();
   
   //static void SetUpTestCase()

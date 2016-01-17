@@ -7,6 +7,12 @@
 using testing::AtLeast;
 using testing::_;
 
+
+void B29Test::SetUp()
+{
+  setupLightingChannels();
+}
+
 TEST_F(B29Test, ArduinoMockMillis) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
