@@ -317,6 +317,9 @@ void UpDownMotor::setup(uint8_t & oUp, uint8_t & oDown)
   inMotorUpMode = false;
   inMotorDownMode = false;
 
+  *p_outputUp   = OFF; // Up motor off to start
+  *p_outputDown = OFF; // Down motor off to start
+
   motorUpStartTime = 0;
   motorDownStartTime = 0;
 }
