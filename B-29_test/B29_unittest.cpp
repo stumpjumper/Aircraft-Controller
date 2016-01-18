@@ -10,7 +10,7 @@ using testing::_;
 
 void B29Test::SetUp()
 {
-  setupLightingChannels();
+  // setupLightingAndMotorChannels();
 }
 
 TEST_F(B29Test, ArduinoMockMillis) {
@@ -191,16 +191,8 @@ TEST_F(B29Test, ResetTimeoutOverride) {
 }
 
 TEST_F(B29Test, NameLightGroupsOnAndOff) {
-  ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(_,_))
-    .Times(testing::AtLeast(1));
-  
-  IRrecvMock * irrecvMock = irrecvMockInstance();
-  EXPECT_CALL(*irrecvMock, enableIRIn())
-    .Times(1);
-
-  hw.setup();
+  setupLightingAndMotorChannels();
 
   EXPECT_EQ(OFF, hw.o1 );
   EXPECT_EQ(OFF, hw.o2 );
@@ -247,22 +239,11 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
 
   EXPECT_EQ(OFF, hw.o3 );
   EXPECT_EQ(OFF, hw.o7 );
-
-  releaseArduinoMock();
-  releaseIRrecvMock();
 }
 
 TEST_F(B29Test, AllLightsOnAndOff) {
-  ArduinoMock * arduinoMock = arduinoMockInstance();
 
-  EXPECT_CALL(*arduinoMock, pinMode(_,_))
-    .Times(testing::AtLeast(1));
-  
-  IRrecvMock * irrecvMock = irrecvMockInstance();
-  EXPECT_CALL(*irrecvMock, enableIRIn())
-    .Times(1);
-
-  hw.setup();
+  setupLightingAndMotorChannels();
 
   EXPECT_EQ(OFF, hw.o1 );
   EXPECT_EQ(OFF, hw.o2 );
@@ -296,8 +277,6 @@ TEST_F(B29Test, AllLightsOnAndOff) {
   EXPECT_EQ(OFF, hw.o3 );
   EXPECT_EQ(OFF, hw.o7 );
 
-  releaseArduinoMock();
-  releaseIRrecvMock();
 }
 
 TEST_F(B29Test, UpdateLights) {
@@ -307,7 +286,7 @@ TEST_F(B29Test, UpdateLights) {
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
-  upDownMotor.setup(hw.o3, hw.o7); // (up, down)
+  setupLightingAndMotorChannels();
 
   // On construction, all lights and motors are off
   EXPECT_EQ(OFF, ident());
@@ -451,3 +430,367 @@ TEST_F(B29Test, Setup) {
   releaseEEPROMMock();
 
 }
+
+TEST_F(B29Test, AllOff) {
+
+  setupLightingAndMotorChannels();
+
+  allLightsOn();
+  hw.o3 = ON; // Never want up and down motors both on in real life!!
+  hw.o7 = ON;       
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, hw.o3); 
+  EXPECT_EQ(ON, hw.o7);           
+
+  allOff();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, hw.o3); 
+  EXPECT_EQ(OFF, hw.o7);           
+}
+
+TEST_F(B29Test, SetOverride) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOn();
+  redLight.on();
+  blueLight.on();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setOverride();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  EXPECT_EQ(FastSlowBlinkingLight::FAST, blueLight.getSpeed());
+
+  releaseArduinoMock();
+}  
+
+TEST_F(B29Test, SetBatteryLow) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOn();
+  redLight.on();
+  blueLight.on();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setBatteryLow();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::FAST, redLight.getSpeed());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+
+  releaseArduinoMock();
+}  
+
+TEST_F(B29Test, SetEvening) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setEvening();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(false, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(ON , blueLight());
+  EXPECT_EQ(true , redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+
+  releaseArduinoMock();
+}  
+
+TEST_F(B29Test, SetNight) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setNight();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(false, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(ON , blueLight());
+  EXPECT_EQ(true , redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, SetPreDawn) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setPreDawn();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(false, position.getPaused());
+
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(true , blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, SetMorning) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setMorning();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(ON, illum());
+
+  EXPECT_EQ(false, position.getPaused());
+
+  EXPECT_EQ(ON , redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(true , blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+
+  releaseArduinoMock();
+}  
+
+TEST_F(B29Test, SetDay) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+  setupLightingAndMotorChannels();
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(true, position.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  setDay();
+
+  arduinoMock->setMillisRaw(1);
+  updateLights();
+
+  EXPECT_EQ(ON, ident());
+  EXPECT_EQ(ON, position());
+  EXPECT_EQ(ON, formation());
+  EXPECT_EQ(ON, landing());
+  EXPECT_EQ(OFF, illum());
+
+  EXPECT_EQ(false, position.getPaused());
+
+  EXPECT_EQ(ON , redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  releaseArduinoMock();
+}  
+

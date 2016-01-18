@@ -166,14 +166,18 @@ void allOff() {
 
 void setOverride() {
   redLight .setToSlow();
+  redLight .resume();
   blueLight.setToFast();
+  blueLight.resume();
 
   allOff();
 }
 
 void setBatteryLow() {
   redLight .setToFast();
+  redLight .resume();
   blueLight.setToSlow();
+  blueLight.resume();
 
   allOff();
 }
@@ -181,6 +185,7 @@ void setBatteryLow() {
 void setEvening() {
   redLight .off();
   blueLight.setToSlow();
+  blueLight.resume();
 
   ident.on();
   landing.on();
@@ -202,6 +207,7 @@ void setNight() {
 
 void setPreDawn() {
   redLight .setToSlow();
+  redLight .resume();
   blueLight.on();
 
   ident.on();
@@ -213,6 +219,7 @@ void setPreDawn() {
 
 void setMorning() {
   redLight .setToSlow();
+  redLight .resume();
   blueLight.off();
 
   ident.on();
@@ -494,7 +501,7 @@ void input() {
     }
 }
 
-void setupLightingChannels()
+void setupLightingAndMotorChannels()
 {
   ident     .setup(hw.o1, ON, 1, decayOnLengths, decayDecayLengths,
                    decayMaxLightLevels, decayTauInMilliseconds);
@@ -504,6 +511,9 @@ void setupLightingChannels()
                    decayMaxLightLevels, decayTauInMilliseconds);
   formation .setup(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
                    decayMaxLightLevels, decayTauInMilliseconds);
+
+  upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
+
   blueLight .setup(hw.o8 , ON, ON);
   redLight  .setup(hw.o13, ON, ON);
 
@@ -515,10 +525,9 @@ void setup() {
     Serial.println("NMNSH B-29 Lighting Controller setup");
 
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
-    upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
 
-    setupLightingChannels();
+    setupLightingAndMotorChannels();
       
     lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
 
