@@ -237,6 +237,12 @@ class FastSlowBlinkingLight
 {
   // A fast or slow blinking light, use can choose.
 
+public:
+  enum Speed {
+    NOTSET = 0,
+    FAST,
+    SLOW };
+
 private:
   FRIEND_TEST(FastSlowBlinkingLight, Constructor);
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
@@ -250,6 +256,7 @@ private:
   FastBlinkingLight fastLight;
   SlowBlinkingLight slowLight;
   BlinkingLight * p_currentLight;
+  Speed blinkSpeed;
   
 public:
   FastSlowBlinkingLight();
@@ -258,10 +265,11 @@ public:
              const uint8_t onLightLevel,
              uint8_t maxLightLevelValue);
 
-  void setToFast() {p_currentLight = &fastLight;};
-  void setToSlow() {p_currentLight = &slowLight;};
+  void setToFast() {p_currentLight = &fastLight; blinkSpeed = FAST;};
+  void setToSlow() {p_currentLight = &slowLight; blinkSpeed = SLOW;};
 
   bool getPaused() {return p_currentLight->getPaused();};
+  Speed getSpeed() {return blinkSpeed;};
   void on() {fastLight.on(); slowLight.on();};
   void off() {fastLight.off(); slowLight.off();};
   void resume() {fastLight.resume(); slowLight.resume();};

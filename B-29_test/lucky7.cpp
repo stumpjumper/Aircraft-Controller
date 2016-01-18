@@ -65,7 +65,7 @@ void SlowBlinkingLight::setup(uint8_t  & lightLevelVariable,
                        maxLightLevelValue);
 }
 
-FastSlowBlinkingLight::FastSlowBlinkingLight() : p_currentLight(NULL) {;}
+FastSlowBlinkingLight::FastSlowBlinkingLight() : p_currentLight(NULL),blinkSpeed(NOTSET) {;}
 FastSlowBlinkingLight::~FastSlowBlinkingLight() {;}
 void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
                                   const uint8_t onLightLevel,
@@ -73,7 +73,7 @@ void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
 {
   fastLight.setup(lightLevelVariable, onLightLevel, maxLightLevelValue);
   slowLight.setup(lightLevelVariable, onLightLevel, maxLightLevelValue);
-  p_currentLight = &fastLight;
+  setToFast();
 }
 
 DecayLight::DecayLight() :
