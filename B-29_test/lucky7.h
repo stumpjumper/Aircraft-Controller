@@ -160,9 +160,6 @@ class FlashingLight : public DecayLight
 private:
   FRIEND_TEST(FlashingLight, Constructor);
 
-  uint32_t * tauInMilliseconds;
-  
-  
 public:
   FlashingLight();
   virtual ~FlashingLight();

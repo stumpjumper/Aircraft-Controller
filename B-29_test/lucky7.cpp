@@ -5,7 +5,7 @@
 IRrecv irRecv(IR);
 decode_results irResults;
 
-Light::Light() {;}
+Light::Light() : p_lightLevel(NULL) {;}
 Light::~Light() {;}
 
 void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
@@ -65,7 +65,7 @@ void SlowBlinkingLight::setup(uint8_t  & lightLevelVariable,
                        maxLightLevelValue);
 }
 
-FastSlowBlinkingLight::FastSlowBlinkingLight() {;}
+FastSlowBlinkingLight::FastSlowBlinkingLight() : p_currentLight(NULL) {;}
 FastSlowBlinkingLight::~FastSlowBlinkingLight() {;}
 void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
                                   const uint8_t onLightLevel,
@@ -76,7 +76,8 @@ void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
   p_currentLight = &fastLight;
 }
 
-DecayLight::DecayLight() {;}
+DecayLight::DecayLight() :
+  onLength(NULL), decayLength(NULL), maxLightLevel(NULL), tau(NULL) {;}
 DecayLight::~DecayLight() {;}
 void DecayLight::setup(uint8_t  & lightLevelVariable,
                        const uint8_t onLightLevelValue,
