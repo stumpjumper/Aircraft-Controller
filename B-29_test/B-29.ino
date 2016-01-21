@@ -45,25 +45,26 @@
 //     Tail Illumination
 
 enum {
-    LIGHTTHRESHOLDADDRESSH,
-    LIGHTTHRESHOLDADDRESSL
+  LIGHTTHRESHOLDADDRESSH,
+  LIGHTTHRESHOLDADDRESSL
 } ;
 
 enum Mode {
-    MODE_OVERRIDE   = 'O',
-    MODE_BATTERYLOW = 'B',
-    MODE_EVENING    = 'E',
-    MODE_NIGHT      = 'N',
-    MODE_PREDAWN    = 'P',
-    MODE_MORNING    = 'M',
-    MODE_DAY        = 'D',
+  MODE_NOTSET     = 0,
+  MODE_OVERRIDE   = 'O',
+  MODE_BATTERYLOW = 'B',
+  MODE_EVENING    = 'E',
+  MODE_NIGHT      = 'N',
+  MODE_PREDAWN    = 'P',
+  MODE_MORNING    = 'M',
+  MODE_DAY        = 'D',
 } ;
 
 enum Coll {
-    COLL_ON1,
-    COLL_OFF1,
-    COLL_ON2,
-    COLL_OFF2
+  COLL_ON1,
+  COLL_OFF1,
+  COLL_ON2,
+  COLL_OFF2
 } ;
 
 #define TIMEOUTSTATUS          1000        //   1 sec in milliseconds
