@@ -281,6 +281,7 @@ public:
   void setToSlow() {p_currentLight = &slowLight; blinkSpeed = SLOW;};
 
   bool getPaused() {return p_currentLight->getPaused();};
+  Light::MODE getLightMode() {return p_currentLight->getLightMode();};
   Speed getSpeed() {return blinkSpeed;};
   void on() {fastLight.on(); slowLight.on();};
   void off() {fastLight.off(); slowLight.off();};
