@@ -5,7 +5,7 @@
 IRrecv irRecv(IR);
 decode_results irResults;
 
-Light::Light() : p_lightLevel(NULL) {;}
+Light::Light() : p_lightLevel(NULL), lightMode(LIGHT_MODE_NOTSET) {;}
 Light::~Light() {;}
 
 void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
@@ -14,6 +14,7 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   onLightLevel = onLightLevelValue;
   *p_lightLevel = OFF; // Set the initial light level
   paused = false;
+  lightMode = LIGHT_FLASHING;
 };
 
 OnOffLight::OnOffLight() {;}

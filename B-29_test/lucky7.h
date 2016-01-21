@@ -1,3 +1,4 @@
+
 #ifndef LUCKY7_H
 #define LUCKY7_H
 #include "Arduino.h"
@@ -39,6 +40,14 @@ class Lucky7;
 
 class Light
 {
+  // Abstract base class for lights
+public:
+  enum MODE {
+    LIGHT_MODE_NOTSET = -1,
+    LIGHT_OFF,
+    LIGHT_ON,
+    LIGHT_FLASHING};
+
 private:
   FRIEND_TEST(OnOffLight, Constructor);
   FRIEND_TEST(OnOffLight, On);
@@ -56,18 +65,21 @@ protected:
   uint8_t onLightLevel;
   uint8_t * p_lightLevel;
   bool paused;
+  Light::MODE lightMode;
 
 public:
+
   Light();
   virtual ~Light();
 
   void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
   
   bool getPaused() {return paused;};
+  Light::MODE getLightMode() {return lightMode;};
   
-  void on() {*p_lightLevel = onLightLevel; paused = true;};
-  void off() {*p_lightLevel = OFF; paused = true;};
-  void resume() {paused = false;}
+  void on() {*p_lightLevel = onLightLevel; paused = true; lightMode = LIGHT_ON;};
+  void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
+  void resume() {paused = false; lightMode = LIGHT_FLASHING;}
   virtual void update() = 0;
 
   uint8_t & operator()(void) {return *p_lightLevel;};
