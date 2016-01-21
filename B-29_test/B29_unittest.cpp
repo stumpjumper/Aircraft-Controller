@@ -1,4 +1,3 @@
-
 #include "B29_unittest.h"
 #include "B-29.ino"
 #include <IRremote.h>
@@ -311,7 +310,6 @@ TEST_F(B29Test, UpdateLights) {
   blueLight.setToFast();
 
   updateLights();
-  std::cerr << "ident.getDecaying() = " << bool(ident.getDecaying()) << std::endl;
   EXPECT_EQ(decayMaxLightLevels[0], ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
@@ -458,6 +456,93 @@ TEST_F(B29Test, AllOff) {
   EXPECT_EQ(OFF, hw.o7);           
 }
 
+void checkStatusLightsAllOff() {
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+}
+
+
+void checkOverrideStatusLights() {
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
+  EXPECT_EQ(FastSlowBlinkingLight::FAST, blueLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, blueLight.getLightMode());
+}
+
+void checkBatteryLowStatusLights() {
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+
+  EXPECT_EQ(FastSlowBlinkingLight::FAST, redLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, blueLight.getLightMode());
+}
+
+void checkEveningStatusLights() {
+  EXPECT_EQ(ON , blueLight());
+  EXPECT_EQ(true , redLight.getPaused());
+  EXPECT_EQ(false, blueLight.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, blueLight.getLightMode());
+}
+
+void checkNightStatusLights() {
+  EXPECT_EQ(true , redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(ON , blueLight());
+  EXPECT_EQ(Light::LIGHT_ON, blueLight.getLightMode());
+}
+
+void checkPreDawnStatusLights() {
+  EXPECT_EQ(ON, redLight());
+  EXPECT_EQ(true , blueLight.getPaused());
+  EXPECT_EQ(false, redLight.getPaused());
+
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
+  EXPECT_EQ(ON, blueLight());
+  EXPECT_EQ(Light::LIGHT_ON, blueLight.getLightMode());
+}
+
+void checkMorningStatusLights() {
+  EXPECT_EQ(ON , redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(false, redLight.getPaused());
+  EXPECT_EQ(true , blueLight.getPaused());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+}
+
+void checkDayStatusLights() {
+  EXPECT_EQ(true, redLight.getPaused());
+  EXPECT_EQ(true, blueLight.getPaused());
+
+  EXPECT_EQ(ON , redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_ON, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+}
+
 TEST_F(B29Test, SetOverride) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -497,15 +582,10 @@ TEST_F(B29Test, SetOverride) {
 
   EXPECT_EQ(true, position.getPaused());
 
-  EXPECT_EQ(ON, redLight());
-  EXPECT_EQ(ON, blueLight());
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
-  EXPECT_EQ(FastSlowBlinkingLight::FAST, blueLight.getSpeed());
+  checkOverrideStatusLights();
 
   releaseArduinoMock();
-}  
+}
 
 TEST_F(B29Test, SetBatteryLow) {
 
@@ -546,15 +626,10 @@ TEST_F(B29Test, SetBatteryLow) {
 
   EXPECT_EQ(true, position.getPaused());
 
-  EXPECT_EQ(ON, redLight());
-  EXPECT_EQ(ON, blueLight());
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
-  EXPECT_EQ(FastSlowBlinkingLight::FAST, redLight.getSpeed());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+  checkBatteryLowStatusLights();
 
   releaseArduinoMock();
-}  
+}
 
 TEST_F(B29Test, SetEvening) {
 
@@ -595,14 +670,10 @@ TEST_F(B29Test, SetEvening) {
 
   EXPECT_EQ(false, position.getPaused());
 
-  EXPECT_EQ(OFF, redLight());
-  EXPECT_EQ(ON , blueLight());
-  EXPECT_EQ(true , redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+  checkEveningStatusLights();
 
   releaseArduinoMock();
-}  
+}
 
 TEST_F(B29Test, SetNight) {
 
@@ -643,10 +714,7 @@ TEST_F(B29Test, SetNight) {
 
   EXPECT_EQ(false, position.getPaused());
 
-  EXPECT_EQ(OFF, redLight());
-  EXPECT_EQ(ON , blueLight());
-  EXPECT_EQ(true , redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  checkNightStatusLights();
 
   releaseArduinoMock();
 }
@@ -690,11 +758,7 @@ TEST_F(B29Test, SetPreDawn) {
 
   EXPECT_EQ(false, position.getPaused());
 
-  EXPECT_EQ(ON, redLight());
-  EXPECT_EQ(ON, blueLight());
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(true , blueLight.getPaused());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  checkPreDawnStatusLights();
 
   releaseArduinoMock();
 }
@@ -738,14 +802,11 @@ TEST_F(B29Test, SetMorning) {
 
   EXPECT_EQ(false, position.getPaused());
 
-  EXPECT_EQ(ON , redLight());
-  EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(true , blueLight.getPaused());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
+  checkMorningStatusLights();
 
   releaseArduinoMock();
-}  
+}
+
 
 TEST_F(B29Test, SetDay) {
 
@@ -767,7 +828,6 @@ TEST_F(B29Test, SetDay) {
   EXPECT_EQ(OFF, illum());
 
   EXPECT_EQ(true, position.getPaused());
-
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
   EXPECT_EQ(true, redLight.getPaused());
@@ -786,11 +846,64 @@ TEST_F(B29Test, SetDay) {
 
   EXPECT_EQ(false, position.getPaused());
 
-  EXPECT_EQ(ON , redLight());
-  EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  checkDayStatusLights();
 
   releaseArduinoMock();
-}  
+}
+
+TEST_F(B29Test, SetToMode) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  setupLightingAndMotorChannels();
+
+  Mode modes[7] = {MODE_OVERRIDE, MODE_BATTERYLOW, MODE_EVENING,
+                   MODE_NIGHT   , MODE_PREDAWN   , MODE_MORNING, MODE_DAY};
+
+  typedef void (*check_status_function)(void);
+  check_status_function checkStatus[] =
+    {checkOverrideStatusLights, checkBatteryLowStatusLights,
+     checkEveningStatusLights , checkNightStatusLights,
+     checkPreDawnStatusLights , checkMorningStatusLights,
+     checkDayStatusLights};
+
+  uint32_t time = 0;
+
+  for (uint8_t i = 0; i < 7; i++) {
+
+    redLight.off();
+    blueLight.off();
+    checkStatusLightsAllOff();
+
+    mode = MODE_NOTSET;
+    setToMode(modes[i]);
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+
+    EXPECT_EQ(modes[i], mode);
+    checkStatus[i]();
+
+
+    redLight.off();
+    blueLight.off();
+    setToMode(modes[i]);
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+
+    checkStatusLightsAllOff();
+  }
+
+  releaseArduinoMock();
+
+}
+
+
 
