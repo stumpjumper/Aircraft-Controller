@@ -434,7 +434,6 @@ void statemap() {
       if (batteryVoltage <= BATTERYLOW) {
         resetTimeoutBatteryLow();
       } else {
-        timeoutBatteryLow = 0;
         setToMode(dayPart);
       }
     }
