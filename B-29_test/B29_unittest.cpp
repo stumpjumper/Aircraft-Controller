@@ -873,23 +873,35 @@ TEST_F(B29Test, SetToMode) {
 
   uint32_t time = 0;
 
+  timeoutOverride   = 10000;
+  timeoutBatteryLow = 20000;
+  
+  arduinoMock->setMillisRaw(0); 
+  
   for (uint8_t i = 0; i < 7; i++) {
-
+    
     redLight.off();
     blueLight.off();
     checkStatusLightsAllOff();
-
+    
     mode = MODE_NOTSET;
     setToMode(modes[i]);
+    if (mode == MODE_OVERRIDE) {
+      EXPECT_EQ(600000, timeoutOverride);
+    }
+    if (mode == MODE_BATTERYLOW) {
+      EXPECT_EQ(50000, timeoutBatteryLow);
+    }
+    
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
     updateLights();
-
+    
     EXPECT_EQ(modes[i], mode);
     checkStatus[i]();
-
-
+    
+    
     redLight.off();
     blueLight.off();
     setToMode(modes[i]);
@@ -897,9 +909,19 @@ TEST_F(B29Test, SetToMode) {
     time += 10000;
     arduinoMock->setMillisRaw(time); 
     updateLights();
-
+    
     checkStatusLightsAllOff();
+    
+    if (mode == MODE_OVERRIDE) {
+      EXPECT_EQ(610000, timeoutOverride);
+    }
+    if (mode == MODE_BATTERYLOW) {
+      EXPECT_EQ(60000, timeoutBatteryLow);
+    }
   }
+  // Ressting of overrides should not have been called twice
+  EXPECT_EQ(610000, timeoutOverride);
+  EXPECT_EQ(60000, timeoutBatteryLow);
 
   releaseArduinoMock();
 
