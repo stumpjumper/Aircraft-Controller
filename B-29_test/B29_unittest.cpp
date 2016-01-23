@@ -240,42 +240,67 @@ TEST_F(B29Test, NameLightGroupsOnAndOff) {
   EXPECT_EQ(OFF, hw.o7 );
 }
 
-TEST_F(B29Test, AllLightsOnAndOff) {
+void testAllLightsOn() {
 
-  setupLightingAndMotorChannels();
-
-  EXPECT_EQ(OFF, hw.o1 );
-  EXPECT_EQ(OFF, hw.o2 );
-  EXPECT_EQ(OFF, hw.o3 );
-  EXPECT_EQ(OFF, hw.o4 );
-  EXPECT_EQ(OFF, hw.o5 );
-  EXPECT_EQ(OFF, hw.o6 );
-  EXPECT_EQ(OFF, hw.o7 );
-  EXPECT_EQ(OFF, hw.o8 );
-  EXPECT_EQ(OFF, hw.o13);
+  hw.o1  = OFF;
+  hw.o2  = OFF;
+  hw.o4  = OFF;
+  hw.o5  = OFF;
+  hw.o6  = OFF;
+  hw.o8  = OFF;
+  hw.o13 = OFF;
+  hw.o3  = OFF;
+  hw.o7  = OFF;
 
   allLightsOn();
-  EXPECT_EQ(ON, hw.o1 );
-  EXPECT_EQ(ON, hw.o2 );
-  EXPECT_EQ(ON, hw.o4 );
-  EXPECT_EQ(ON, hw.o5 );
-  EXPECT_EQ(ON, hw.o6 );
+
+  EXPECT_EQ(ON , hw.o1 );
+  EXPECT_EQ(ON , hw.o2 );
+  EXPECT_EQ(ON , hw.o4 );
+  EXPECT_EQ(ON , hw.o5 );
+  EXPECT_EQ(ON , hw.o6 );
   EXPECT_EQ(OFF, hw.o8 );
   EXPECT_EQ(OFF, hw.o13 );
   EXPECT_EQ(OFF, hw.o3 );
   EXPECT_EQ(OFF, hw.o7 );
+}
+
+void testAllLightsOff() {
+  hw.o1  = ON;
+  hw.o2  = ON;
+  hw.o4  = ON;
+  hw.o5  = ON;
+  hw.o6  = ON;
+  hw.o8  = ON;
+  hw.o13 = ON;
+  hw.o3  = ON;
+  hw.o7  = ON;
 
   allLightsOff();
+
   EXPECT_EQ(OFF, hw.o1 );
   EXPECT_EQ(OFF, hw.o2 );
   EXPECT_EQ(OFF, hw.o4 );
   EXPECT_EQ(OFF, hw.o5 );
   EXPECT_EQ(OFF, hw.o6 );
-  EXPECT_EQ(OFF, hw.o8 );
-  EXPECT_EQ(OFF, hw.o13);
-  EXPECT_EQ(OFF, hw.o3 );
-  EXPECT_EQ(OFF, hw.o7 );
+  EXPECT_EQ(ON, hw.o8 );
+  EXPECT_EQ(ON, hw.o13);
+  EXPECT_EQ(ON, hw.o3 );
+  EXPECT_EQ(ON, hw.o7 );
+}
 
+TEST_F(B29Test, AllLightsOn) {
+
+  setupLightingAndMotorChannels();
+
+  testAllLightsOn();
+}
+
+TEST_F(B29Test, AllLightsOff) {
+
+  setupLightingAndMotorChannels();
+
+  testAllLightsOff();
 }
 
 TEST_F(B29Test, UpdateLights) {
@@ -429,10 +454,7 @@ TEST_F(B29Test, Setup) {
 
 }
 
-TEST_F(B29Test, AllOff) {
-
-  setupLightingAndMotorChannels();
-
+void testAllOff() {
   allLightsOn();
   hw.o3 = ON; // Never want up and down motors both on in real life!!
   hw.o7 = ON;       
@@ -454,6 +476,14 @@ TEST_F(B29Test, AllOff) {
   EXPECT_EQ(OFF, formation());
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
+}
+
+TEST_F(B29Test, AllOff) {
+
+  setupLightingAndMotorChannels();
+
+  testAllOff();
+
 }
 
 void checkStatusLightsAllOff() {
@@ -871,12 +901,12 @@ TEST_F(B29Test, SetToMode) {
      checkPreDawnStatusLights , checkMorningStatusLights,
      checkDayStatusLights};
 
-  uint32_t time = 0;
+  uint32_t time = 10000;
 
   timeoutOverride   = 10000;
   timeoutBatteryLow = 20000;
   
-  arduinoMock->setMillisRaw(0); 
+  arduinoMock->setMillisRaw(time); 
   
   for (uint8_t i = 0; i < 7; i++) {
     
@@ -886,11 +916,12 @@ TEST_F(B29Test, SetToMode) {
     
     mode = MODE_NOTSET;
     setToMode(modes[i]);
+    EXPECT_EQ(modes[i], mode);
     if (mode == MODE_OVERRIDE) {
-      EXPECT_EQ(600000, timeoutOverride);
+      EXPECT_EQ(TIMEOUTOVERRIDE + 10000, timeoutOverride);
     }
     if (mode == MODE_BATTERYLOW) {
-      EXPECT_EQ(50000, timeoutBatteryLow);
+      EXPECT_EQ(TIMEOUTBATTERYLOW + 30000, timeoutBatteryLow);
     }
     
     // Move lights to new state
@@ -898,13 +929,12 @@ TEST_F(B29Test, SetToMode) {
     arduinoMock->setMillisRaw(time); 
     updateLights();
     
-    EXPECT_EQ(modes[i], mode);
     checkStatus[i]();
-    
     
     redLight.off();
     blueLight.off();
     setToMode(modes[i]);
+    EXPECT_EQ(modes[i], mode);
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
@@ -913,15 +943,15 @@ TEST_F(B29Test, SetToMode) {
     checkStatusLightsAllOff();
     
     if (mode == MODE_OVERRIDE) {
-      EXPECT_EQ(610000, timeoutOverride);
+      EXPECT_EQ(TIMEOUTOVERRIDE + 20000, timeoutOverride);
     }
     if (mode == MODE_BATTERYLOW) {
-      EXPECT_EQ(60000, timeoutBatteryLow);
+      EXPECT_EQ(TIMEOUTBATTERYLOW + 40000, timeoutBatteryLow);
     }
   }
   // Ressting of overrides should not have been called twice
-  EXPECT_EQ(610000, timeoutOverride);
-  EXPECT_EQ(60000, timeoutBatteryLow);
+  EXPECT_EQ(TIMEOUTOVERRIDE + 20000, timeoutOverride);
+  EXPECT_EQ(TIMEOUTBATTERYLOW + 40000, timeoutBatteryLow);
 
   releaseArduinoMock();
 
@@ -929,3 +959,160 @@ TEST_F(B29Test, SetToMode) {
 
 
 
+TEST_F(B29Test, ProcessKey) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, begin(_))
+    .Times(1);
+
+  EXPECT_CALL(*serialMock, println(_,_))
+    .Times(AtLeast(1));
+  // EXPECT_CALL(*serialMock, print("key "))
+  //   .Times(AtLeast(1));
+  // EXPECT_CALL(*serialMock, println("Got remote \"0\"\n"))
+  //   .Times(2);
+  
+  setupLightingAndMotorChannels();
+  Serial.begin(115200);
+
+  uint32_t time = 10000;
+
+  timeoutOverride   = 10000;
+  timeoutBatteryLow = 20000;
+  
+  arduinoMock->setMillisRaw(time); 
+
+  //-------------------------------------------------------
+  // '0' : allOff
+  //-------------------------------------------------------
+  redLight.off();
+  blueLight.off();
+  checkStatusLightsAllOff();
+    
+  mode = MODE_NOTSET;
+  processKey('0');
+  EXPECT_EQ(MODE_OVERRIDE, mode);
+  testAllOff();
+  EXPECT_EQ(TIMEOUTOVERRIDE + 10000, timeoutOverride);
+    
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time); 
+  updateLights();
+    
+  checkOverrideStatusLights();
+    
+  redLight.off();
+  blueLight.off();
+  processKey('0');
+  EXPECT_EQ(MODE_OVERRIDE, mode);
+  testAllOff();
+  EXPECT_EQ(TIMEOUTOVERRIDE + 20000, timeoutOverride);
+
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time); 
+  updateLights();
+  
+  checkStatusLightsAllOff();
+    
+  //-------------------------------------------------------
+  // '8' : allLightsOn
+  //-------------------------------------------------------
+
+  redLight.off();
+  blueLight.off();
+  checkStatusLightsAllOff();
+    
+  mode = MODE_NOTSET;
+  processKey('8');
+  EXPECT_EQ(MODE_OVERRIDE, mode);
+  testAllLightsOn();
+  EXPECT_EQ(TIMEOUTOVERRIDE + 30000, timeoutOverride);
+    
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time); 
+  updateLights();
+
+  checkOverrideStatusLights();
+    
+  redLight.off();
+  blueLight.off();
+  processKey('0');
+  EXPECT_EQ(MODE_OVERRIDE, mode);
+  testAllLightsOn();
+  EXPECT_EQ(TIMEOUTOVERRIDE + 40000, timeoutOverride);
+
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time); 
+  updateLights();
+
+  
+  checkStatusLightsAllOff();
+
+  // '1' : toggle o1
+  // '2' : toggle o2
+  // '4' : toggle o4
+  // '5' : toggle o5
+  // '6' : toggle o6
+  
+  //-------------------------------------------------------
+  // 'B' : set to MODE_BATTERYLOW
+  //-------------------------------------------------------
+
+  redLight.off();
+  blueLight.off();
+  checkStatusLightsAllOff();
+    
+  mode = MODE_NOTSET;
+  processKey('B');
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+  testAllOff();
+  EXPECT_EQ(TIMEOUTBATTERYLOW + 50000, timeoutBatteryLow);
+    
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time);
+  updateLights();
+    
+
+  checkBatteryLowStatusLights();
+    
+  redLight.off();
+  blueLight.off();
+  processKey('B');
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+  testAllOff();
+  EXPECT_EQ(TIMEOUTBATTERYLOW + 60000, timeoutBatteryLow);
+
+  // Move lights to new state
+  time += 10000;
+  arduinoMock->setMillisRaw(time); 
+  updateLights();
+  
+  checkStatusLightsAllOff();
+  
+  //-------------------------------------------------------
+  // 'R' : read photocell and reset photocell value
+  //-------------------------------------------------------
+  
+  //-------------------------------------------------------
+  // 'U' : motor Up
+  //-------------------------------------------------------
+  
+  //-------------------------------------------------------
+  // 'D' : motor Down
+  //-------------------------------------------------------
+
+  releaseSerialMock();
+  releaseArduinoMock();
+
+}
