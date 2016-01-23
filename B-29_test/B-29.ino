@@ -303,30 +303,20 @@ void processKey(uint32_t key) {
   case RM_YD065_KEY0:
   case RM_YD065_KEYDOWN:
     Serial.print("Got remote \"0\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     allOff();
     break;
   case '1':
   case RC65X_KEY1:
   case RM_YD065_KEY1:
     Serial.print("Got remote \"1\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
     hw.o1Toggle();
     break;
   case '2':
   case RC65X_KEY2:
   case RM_YD065_KEY2:
     Serial.print("Got remote \"2\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     hw.o2Toggle();
     break;
 //    case '3':
@@ -338,30 +328,21 @@ void processKey(uint32_t key) {
   case RC65X_KEY4:
   case RM_YD065_KEY4:
     Serial.print("Got remote \"4\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     hw.o4Toggle();
     break;
   case '5':
   case RC65X_KEY5:
   case RM_YD065_KEY5:
     Serial.print("Got remote \"5\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     hw.o5Toggle();
     break;
   case '6':
   case RC65X_KEY6:
   case RM_YD065_KEY6:
     Serial.print("Got remote \"6\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     hw.o6Toggle();
     break;
 //    case '7':
@@ -373,10 +354,6 @@ void processKey(uint32_t key) {
   case RC65X_KEYRED:
   case RM_YD065_KEYRED:
     Serial.print("Got remote \"B\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
     setToMode(MODE_BATTERYLOW);
     break;
   case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
@@ -395,10 +372,7 @@ void processKey(uint32_t key) {
   case RM_YD065_KEY8:
   case RM_YD065_KEYUP:
     Serial.print("Got remote \"8\"\n");
-    if (mode != MODE_OVERRIDE) {
-      setToMode(MODE_OVERRIDE);
-    }
-    resetTimeoutOverride();
+    setToMode(MODE_OVERRIDE);
     allLightsOn();
     break;
   case 'U':
