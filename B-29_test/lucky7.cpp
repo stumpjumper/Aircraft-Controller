@@ -17,6 +17,20 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   lightMode = LIGHT_FLASHING;
 };
 
+void Light::toggle() {
+  switch (lightMode) {
+  case LIGHT_MODE_NOTSET:
+  case LIGHT_FLASHING:
+    break;
+  case LIGHT_OFF:
+    on();
+    break;
+  case LIGHT_ON:
+    off();
+    break;
+  }
+}
+
 OnOffLight::OnOffLight() {;}
 OnOffLight::~OnOffLight() {;}
 
