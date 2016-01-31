@@ -43,6 +43,24 @@ TEST_F(UpDownMotorTest, Setup) {
   }
 }
 
+TEST_F(UpDownMotorTest, GetInMotorUpDownMode) {
+    uint8_t oUp  ;
+    uint8_t oDown;
+    UpDownMotor udm = UpDownMotor();
+    udm.setup(oUp, oDown);
+
+    udm.inMotorUpMode = true;
+    udm.inMotorDownMode = true;
+    EXPECT_EQ(true, udm.getInMotorUpMode()   );
+    EXPECT_EQ(true, udm.getInMotorDownMode() );
+
+    udm.inMotorUpMode = false;
+    udm.inMotorDownMode = false;
+    EXPECT_EQ(false, udm.getInMotorUpMode()   );
+    EXPECT_EQ(false, udm.getInMotorDownMode() );
+
+}
+
 TEST_F(UpDownMotorTest, MotorUpStop) {
   for (uint8_t i = 0; i < 4; i++) {
     uint8_t oUp  ;
@@ -261,6 +279,7 @@ TEST_F(UpDownMotorTest, MotorDownUpdate) {
 
   releaseArduinoMock();
 }
+
 
 TEST_F(UpDownMotorTest, MotorUpdate) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
