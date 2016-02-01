@@ -3,9 +3,12 @@
 #include <IRremote.h>
 #include <gtest/gtest.h>
 
-using testing::AtLeast;
-using testing::_;
 
+using ::testing::AtLeast;
+using ::testing::_;
+using ::testing::An;
+using ::testing::TypedEq;
+using ::testing::Return;
 
 void B29Test::SetUp()
 {
@@ -963,7 +966,6 @@ TEST_F(B29Test, ProcessKey) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
-
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
@@ -973,10 +975,37 @@ TEST_F(B29Test, ProcessKey) {
 
   EXPECT_CALL(*serialMock, println(_,_))
     .Times(AtLeast(1));
-  // EXPECT_CALL(*serialMock, print("key "))
-  //   .Times(AtLeast(1));
-  // EXPECT_CALL(*serialMock, println("Got remote \"0\"\n"))
-  //   .Times(2);
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("key ")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"0\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"1\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"2\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"4\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"5\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"6\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"8\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"B\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"R\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"U\"\n")))
+    .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"D\"\n")))
+    .Times(AtLeast(1));
+
+  EEPROMMock * eepromMock  = EEPROMMockInstance();
+  EXPECT_CALL(*eepromMock, write(_,_))
+    .Times(2);
+  EXPECT_CALL(*eepromMock, read(_))
+    .WillOnce(Return(300))
+    .WillOnce(Return(400));
   
   setupLightingAndMotorChannels();
   Serial.begin(115200);
@@ -999,7 +1028,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('0');
   EXPECT_EQ(MODE_OVERRIDE, mode);
   testAllOff();
-  EXPECT_EQ(TIMEOUTOVERRIDE + 10000, timeoutOverride);
+  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
     
   // Move lights to new state
   time += 10000;
@@ -1013,7 +1042,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('0');
   EXPECT_EQ(MODE_OVERRIDE, mode);
   testAllOff();
-  EXPECT_EQ(TIMEOUTOVERRIDE + 20000, timeoutOverride);
+  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
 
   // Move lights to new state
   time += 10000;
@@ -1034,7 +1063,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('8');
   EXPECT_EQ(MODE_OVERRIDE, mode);
   testAllLightsOn();
-  EXPECT_EQ(TIMEOUTOVERRIDE + 30000, timeoutOverride);
+  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
     
   // Move lights to new state
   time += 10000;
@@ -1048,7 +1077,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('0');
   EXPECT_EQ(MODE_OVERRIDE, mode);
   testAllLightsOn();
-  EXPECT_EQ(TIMEOUTOVERRIDE + 40000, timeoutOverride);
+  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
 
   // Move lights to new state
   time += 10000;
@@ -1058,11 +1087,56 @@ TEST_F(B29Test, ProcessKey) {
   
   checkStatusLightsAllOff();
 
-  // '1' : toggle o1
-  // '2' : toggle o2
-  // '4' : toggle o4
-  // '5' : toggle o5
-  // '6' : toggle o6
+  //-------------------------------------------------------
+  // '1','2','4','5','6' : toggle o1, toggle o2, toggle o3
+  //                       toggle o4, toggle o5, toggle o6
+  // Note: o3 and o7 are the motor up and down controlers
+  //       that are tested with 'U' and 'D'
+  //-------------------------------------------------------
+
+  Light * p_lights[] = {&ident, &landing, &illum, &position, &formation};
+  char    keys    [] = {   '1',  '2',  '4',  '5',  '6'};
+  size_t  numKeys   = sizeof(keys)/sizeof(char);
+  size_t  numLights = sizeof(p_lights)/sizeof(Light *);
+  assert(numKeys == numLights);
+  assert(numKeys == 5);
+
+  for (uint8_t i = 0; i < numKeys; i++) {
+    std::stringstream msgS;
+    msgS << "Testing key '" << keys[i] << "'";
+    std::string msg =  msgS.str();
+
+    redLight.off();
+    blueLight.off();
+    checkStatusLightsAllOff();
+    
+    mode = MODE_NOTSET;
+    processKey(keys[i]);
+    EXPECT_EQ(MODE_OVERRIDE, mode)  << msg;
+    EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride) << msg;
+    
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+    EXPECT_EQ(ON,(*p_lights[i])()) << msg;
+    
+    checkOverrideStatusLights();
+    
+    redLight.off();
+    blueLight.off();
+    processKey(keys[i]);
+    EXPECT_EQ(MODE_OVERRIDE, mode)  << msg;
+    EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride) << msg;
+
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+    EXPECT_EQ(OFF,(*p_lights[i])())  << msg;
+    
+    checkStatusLightsAllOff();
+  }
   
   //-------------------------------------------------------
   // 'B' : set to MODE_BATTERYLOW
@@ -1076,7 +1150,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('B');
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   testAllOff();
-  EXPECT_EQ(TIMEOUTBATTERYLOW + 50000, timeoutBatteryLow);
+  EXPECT_EQ(TIMEOUTBATTERYLOW + time, timeoutBatteryLow);
     
   // Move lights to new state
   time += 10000;
@@ -1091,7 +1165,7 @@ TEST_F(B29Test, ProcessKey) {
   processKey('B');
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   testAllOff();
-  EXPECT_EQ(TIMEOUTBATTERYLOW + 60000, timeoutBatteryLow);
+  EXPECT_EQ(TIMEOUTBATTERYLOW + time, timeoutBatteryLow);
 
   // Move lights to new state
   time += 10000;
@@ -1103,16 +1177,51 @@ TEST_F(B29Test, ProcessKey) {
   //-------------------------------------------------------
   // 'R' : read photocell and reset photocell value
   //-------------------------------------------------------
+
+  EXPECT_EQ(0, lightThreshold);
+  processKey('R');
+  EXPECT_EQ(11408, lightThreshold);
   
   //-------------------------------------------------------
   // 'U' : motor Up
   //-------------------------------------------------------
+
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  processKey('U');
+  updateLights();
+  EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
+  updateLights();
+  EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
+  updateLights();
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   
   //-------------------------------------------------------
   // 'D' : motor Down
   //-------------------------------------------------------
 
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  processKey('D');
+  updateLights();
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
+  arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
+  updateLights();
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
+  arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
+  updateLights();
+  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
+  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+
   releaseSerialMock();
   releaseArduinoMock();
+  releaseEEPROMMock();
 
 }

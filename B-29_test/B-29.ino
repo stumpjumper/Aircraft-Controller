@@ -310,14 +310,15 @@ void processKey(uint32_t key) {
   case RC65X_KEY1:
   case RM_YD065_KEY1:
     Serial.print("Got remote \"1\"\n");
-    hw.o1Toggle();
+    setToMode(MODE_OVERRIDE);
+    ident.toggle();
     break;
   case '2':
   case RC65X_KEY2:
   case RM_YD065_KEY2:
     Serial.print("Got remote \"2\"\n");
     setToMode(MODE_OVERRIDE);
-    hw.o2Toggle();
+    landing.toggle();
     break;
 //    case '3':
 //    case RC65X_KEY3:
@@ -329,21 +330,21 @@ void processKey(uint32_t key) {
   case RM_YD065_KEY4:
     Serial.print("Got remote \"4\"\n");
     setToMode(MODE_OVERRIDE);
-    hw.o4Toggle();
+    illum.toggle();
     break;
   case '5':
   case RC65X_KEY5:
   case RM_YD065_KEY5:
     Serial.print("Got remote \"5\"\n");
     setToMode(MODE_OVERRIDE);
-    hw.o5Toggle();
+    position.toggle();
     break;
   case '6':
   case RC65X_KEY6:
   case RM_YD065_KEY6:
     Serial.print("Got remote \"6\"\n");
     setToMode(MODE_OVERRIDE);
-    hw.o6Toggle();
+    formation.toggle();
     break;
 //    case '7':
 //    case RC65X_KEY7:
