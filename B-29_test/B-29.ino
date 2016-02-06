@@ -80,6 +80,7 @@ enum Coll {
 #define TIMEOUTBATTERYLOWFLASH 100         //  .1 sec
 #define BATTERYLOW             11.8        // Volts  
 #define MILLISIN30DAYS         2592000000U //  30 days
+//                          2,592,000,000
  
 uint32_t timeoutStatus;
 uint16_t lightThreshold;
@@ -110,7 +111,12 @@ FastSlowBlinkingLight blueLight; // Blue light on Aurdino board
 FastSlowBlinkingLight redLight ; // Red light on Aurdino board
 
 void resetTimeoutBatteryLow() {
-  timeoutBatteryLow = millis() + TIMEOUTBATTERYLOW;
+  const uint32_t time = millis();
+  const uint32_t timeoutBatteryLowOld = timeoutBatteryLow;
+  timeoutBatteryLow = time + TIMEOUTBATTERYLOW;
+  if (timeoutBatteryLow < timeoutBatteryLowOld) {
+    Serial.print("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n");
+  }
 }
 
 bool overrideBatteryLow() {
@@ -119,7 +125,12 @@ bool overrideBatteryLow() {
 }
 
 void resetTimeoutOverride() {
-  timeoutOverride   = millis() + TIMEOUTOVERRIDE;
+  const uint32_t time = millis();
+  const uint32_t timeoutOverrideOld = timeoutOverride;
+  timeoutOverride   = time + TIMEOUTOVERRIDE;
+  if (timeoutOverride < timeoutOverrideOld) {
+    Serial.print("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n");
+  }
 }
 
 void allLightsOn() {
@@ -395,7 +406,8 @@ void processKey(uint32_t key) {
 
 void statemap() {
   float batteryVoltage = hw.batteryVoltage();
-  if ((mode != MODE_BATTERYLOW) && ! overrideBatteryLow() &&
+  if ((mode != MODE_BATTERYLOW) &&
+      ! overrideBatteryLow()    &&
       batteryVoltage <= BATTERYLOW) {
     setToMode(MODE_BATTERYLOW);
   }
@@ -422,7 +434,6 @@ void statemap() {
     setToMode(dayPart);
     break;
   }
-
 }
 
 void status() {
@@ -444,7 +455,7 @@ void status() {
         Serial.print((char)mode);
         if (mode == MODE_BATTERYLOW) {
           Serial.print(" timeoutBatteryLow: ");
-          Serial.print(timeoutBatteryLow);
+          Serial.print(uint32_t(timeoutBatteryLow));
         }
         sprintf(buffer," output:%3d %3d %3d %3d %3d %3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7);
         Serial.print(buffer);
