@@ -85,29 +85,71 @@ TEST_F(B29Test, ArduinoMockMillis) {
 }
 
 TEST_F(B29Test, ResetTimeoutBatteryLow) {
+  
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
+    .Times(1);
+  
   ArduinoMock * arduinoMock = arduinoMockInstance();
-
+  
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
-
-  arduinoMock->setMillisRaw(0);
-  resetTimeoutBatteryLow();
-  EXPECT_EQ(0+TIMEOUTBATTERYLOW, timeoutBatteryLow);
-
-  arduinoMock->setMillisRaw(10);
-  resetTimeoutBatteryLow();
-  EXPECT_EQ(10+TIMEOUTBATTERYLOW, timeoutBatteryLow);
-
-  arduinoMock->setMillisRaw(20);
-  resetTimeoutBatteryLow();
-  EXPECT_EQ(20+TIMEOUTBATTERYLOW, timeoutBatteryLow);
-
-  arduinoMock->setMillisRaw(40000);
-  resetTimeoutBatteryLow();
-  EXPECT_EQ(40000+TIMEOUTBATTERYLOW, timeoutBatteryLow);
-
+  
+  //                              ,   .  ,   .   ,   . ,  ,   .  ,  ,   .
+  uint32_t times[] = {0,10U,100U,1000U,10000U,100000U,1000000U,10000000U,
+                      // ,  ,   . ,  ,  ,   . ,  ,  ,   .
+                      100000000U,1000000000U,2000000000U,MILLISIN30DAYS,0xFFFFFFFF};
+  const size_t numTimes = sizeof(times)/sizeof(uint32_t);
+  
+  for (size_t i = 0; i < numTimes; i++) {
+    
+    const uint32_t time = times[i];
+    arduinoMock->setMillisRaw(time);
+    resetTimeoutBatteryLow();
+    if (i < numTimes-1) {
+      EXPECT_GT(uint32_t(timeoutBatteryLow), uint32_t(time)) << "i = " << i << ", timeoutBatteryLow = " <<  uint32_t(timeoutBatteryLow) << ", time = " << uint32_t(time);
+    } else {
+      EXPECT_LT(uint32_t(timeoutBatteryLow), uint32_t(time)) << "i = " << i << ", timeoutBatteryLow = " <<  uint32_t(timeoutBatteryLow) << ", time = " << uint32_t(time);
+    }
+    EXPECT_EQ(time+uint32_t(TIMEOUTBATTERYLOW), timeoutBatteryLow) << "i = " << i << ", time = " << uint32_t(time);
+  }
+  
   releaseArduinoMock();
+  releaseSerialMock();
 }
+
+TEST_F(B29Test, ResetTimeoutOverride) {
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n")))
+    .Times(1);
+  
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+  
+  //                              ,   .  ,   .   ,   . ,  ,   .  ,  ,   .
+  uint32_t times[] = {0,10U,100U,1000U,10000U,100000U,1000000U,10000000U,
+                      // ,  ,   . ,  ,  ,   . ,  ,  ,   .
+                      100000000U,1000000000U,2000000000U,MILLISIN30DAYS,0xFFFFFFFF};
+  const size_t numTimes = sizeof(times)/sizeof(uint32_t);
+  
+  for (size_t i = 0; i < numTimes; i++) {
+    
+    const uint32_t time = times[i];
+    arduinoMock->setMillisRaw(time);
+    resetTimeoutOverride();
+    if (i < numTimes-1) {
+      EXPECT_GT(uint32_t(timeoutOverride), uint32_t(time)) << "i = " << i << ", timeoutOverride = " <<  uint32_t(timeoutOverride) << ", time = " << uint32_t(time);
+    } else {
+      EXPECT_LT(uint32_t(timeoutOverride), uint32_t(time)) << "i = " << i << ", timeoutOverride = " <<  uint32_t(timeoutOverride) << ", time = " << uint32_t(time);
+    }
+    EXPECT_EQ(time+uint32_t(TIMEOUTOVERRIDE), timeoutOverride) << "i = " << i << ", time = " << uint32_t(time);
+  }
+  releaseArduinoMock();
+  releaseSerialMock();
+}
+
 
 TEST_F(B29Test, HardWareSetup) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -165,31 +207,6 @@ TEST_F(B29Test, OverrideBatteryLow) {
   
   releaseArduinoMock();
   releaseIRrecvMock();
-}
-
-TEST_F(B29Test, ResetTimeoutOverride) {
-  ArduinoMock * arduinoMock = arduinoMockInstance();
-
-  EXPECT_CALL(*arduinoMock, millis())
-    .Times(AtLeast(1));
-
-  arduinoMock->setMillisRaw(0);
-  resetTimeoutOverride();
-  EXPECT_EQ(0+TIMEOUTOVERRIDE, timeoutOverride);
-
-  arduinoMock->setMillisRaw(10);
-  resetTimeoutOverride();
-  EXPECT_EQ(10+TIMEOUTOVERRIDE, timeoutOverride);
-
-  arduinoMock->setMillisRaw(20);
-  resetTimeoutOverride();
-  EXPECT_EQ(20+TIMEOUTOVERRIDE, timeoutOverride);
-
-  arduinoMock->setMillisRaw(30);
-  resetTimeoutOverride();
-  EXPECT_EQ(30+TIMEOUTOVERRIDE, timeoutOverride);
-
-  releaseArduinoMock();
 }
 
 TEST_F(B29Test, NameLightGroupsOnAndOff) {
@@ -1224,4 +1241,262 @@ TEST_F(B29Test, ProcessKey) {
   releaseArduinoMock();
   releaseEEPROMMock();
 
+}
+
+TEST_F(B29Test, Statemap) {
+
+  size_t i;
+
+  TimeOfDay::DayPart dayParts[] = {TimeOfDay::EVENING, TimeOfDay::NIGHT  ,
+                                   TimeOfDay::PREDAWN, TimeOfDay::MORNING,
+                                   TimeOfDay::DAY                         };
+  size_t numDayParts = sizeof(dayParts)/sizeof(TimeOfDay::DayPart);
+  
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
+    .Times(11);
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(AtLeast(1));
+
+  EEPROMMock * eepromMock  = EEPROMMockInstance();
+  EXPECT_CALL(*eepromMock, read(_))
+    .Times(2);
+
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, begin(_))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller setup"))
+    .Times(1);
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
+    .Times(0);
+
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, enableIRIn())
+    .Times(1);
+
+  arduinoMock->setMillisRaw(0);
+  setup();
+  timeOfDay.setUpdateAverageTestMode(true); // Allows us to test statemap easily
+
+  EXPECT_EQ(MODE_DAY, mode);
+  EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+
+  //----------------------------------------------------------------------------
+  // Normal path where state set on basis of timeOfDay.updateAverage(lightLevel)
+  //----------------------------------------------------------------------------
+
+  for (i = 0; i < AVECNT; i++) {
+    hw.pc1[i] = 1000;
+    hw.pc2[i] = 1000;
+    hw.bc[i] = uint16_t(12.0/float(BVSCALE) + .5);
+  }
+
+  EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+
+  arduinoMock->addMillisRaw(3000);
+  timeOfDay.update5minTimeout = arduinoMock->getMillis() + LUCKY7_TIME5MIN;
+
+  for (i = 0; i < numDayParts; i++) {
+    timeOfDay.currentDayPart = dayParts[i];
+    statemap();
+    EXPECT_EQ(dayParts[i], timeOfDay.getDayPart()) << "Current DayPart = "
+                                                   << dayParts[i];
+    EXPECT_EQ(dayParts[i], mode) << "Current DayPart = "
+                                 << dayParts[i];
+  }
+
+  //----------------------------------------------------------------------------
+  // case MODE_OVERRIDE
+  //----------------------------------------------------------------------------
+
+  // 1: millis() < timeoutOverride
+  // 2: millis() > timeoutOverride
+
+
+  timeOfDay.currentDayPart = TimeOfDay::PREDAWN;
+  statemap();
+  EXPECT_EQ(TimeOfDay::PREDAWN, timeOfDay.getDayPart());
+  EXPECT_EQ(TimeOfDay::PREDAWN, mode);
+
+
+  for (i = 0; i < numDayParts; i++) {
+
+    timeOfDay.currentDayPart = dayParts[i];
+    arduinoMock->addMillisRaw(1000);
+    setToMode(MODE_OVERRIDE);
+    EXPECT_EQ(MODE_OVERRIDE, mode);
+
+    // millis() < timeoutOverride
+    arduinoMock->addMillisRaw(10);
+    statemap();
+    EXPECT_EQ(MODE_OVERRIDE, mode);
+    
+    // millis() > timeoutOverride
+    arduinoMock->addMillisRaw(TIMEOUTOVERRIDE);
+    statemap();
+
+    EXPECT_EQ(dayParts[i], timeOfDay.getDayPart()) << "Current DayPart = "
+                                                   << dayParts[i];
+    EXPECT_EQ(dayParts[i], mode) << "Current DayPart = "
+                                 << dayParts[i];
+  }
+
+  //----------------------------------------------------------------------------
+  // case MODE_BATTERYLOW
+  //----------------------------------------------------------------------------
+
+  // 1: millis() < timeoutBatteryLow, batteryVoltage <= BATTERYLOW
+  // 2: millis() > timeoutBatteryLow, batteryVoltage <= BATTERYLOW
+  // 3: millis() < timeoutBatteryLow, batteryVoltage > BATTERYLOW
+  // 4: millis() > timeoutBatteryLow, batteryVoltage > BATTERYLOW
+
+  timeOfDay.currentDayPart = TimeOfDay::PREDAWN;
+  statemap();
+  EXPECT_EQ(TimeOfDay::PREDAWN, timeOfDay.getDayPart());
+  EXPECT_EQ(TimeOfDay::PREDAWN, mode);
+
+
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t((BATTERYLOW/2.0)/float(BVSCALE) + .5);
+  }
+
+  for (i = 0; i < numDayParts; i++) {
+
+    timeOfDay.currentDayPart = dayParts[i];
+    arduinoMock->addMillisRaw(1000);
+    setToMode(MODE_BATTERYLOW);
+    EXPECT_EQ(MODE_BATTERYLOW, mode);
+
+    // millis() < timeoutBatteryLow, batteryVoltage <= BATTERYLOW
+    arduinoMock->addMillisRaw(10);
+    statemap();
+    EXPECT_EQ(MODE_BATTERYLOW, mode);
+    
+    // millis() > timeoutBatteryLow, batteryVoltage <= BATTERYLOW
+    arduinoMock->addMillisRaw(TIMEOUTBATTERYLOW);
+    statemap();
+    EXPECT_EQ(timeoutBatteryLow, arduinoMock->getMillis() + TIMEOUTBATTERYLOW);
+    
+    EXPECT_EQ(dayParts[i], timeOfDay.getDayPart()) << "Current DayPart = "
+                                                   << dayParts[i];
+    EXPECT_EQ(MODE_BATTERYLOW, mode) << "Current DayPart = "
+                                     << dayParts[i];
+  }
+
+  timeOfDay.currentDayPart = TimeOfDay::PREDAWN;
+  statemap();
+  EXPECT_EQ(TimeOfDay::PREDAWN, timeOfDay.getDayPart());
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+
+
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t(12.0/float(BVSCALE) + .5);
+  }
+
+  for (i = 0; i < numDayParts; i++) {
+
+    timeOfDay.currentDayPart = dayParts[i];
+    arduinoMock->addMillisRaw(1000);
+    setToMode(MODE_BATTERYLOW);
+    EXPECT_EQ(MODE_BATTERYLOW, mode);
+    EXPECT_EQ(timeoutBatteryLow, arduinoMock->getMillis() + TIMEOUTBATTERYLOW);
+    uint32_t timeoutBatteryLowOld = timeoutBatteryLow;
+
+    // millis() < timeoutBatteryLow, batteryVoltage > BATTERYLOW
+    arduinoMock->addMillisRaw(10);
+    statemap();
+    EXPECT_EQ(MODE_BATTERYLOW, mode);
+    
+    // millis() > timeoutBatteryLow, batteryVoltage > BATTERYLOW
+    arduinoMock->addMillisRaw(TIMEOUTBATTERYLOW);
+    statemap();
+    EXPECT_EQ(timeoutBatteryLowOld, timeoutBatteryLow);
+    
+    EXPECT_EQ(dayParts[i], timeOfDay.getDayPart()) << "Current DayPart = "
+                                                   << dayParts[i];
+    EXPECT_EQ(dayParts[i], mode) << "Current DayPart = "
+                                 << dayParts[i];
+  }
+
+  //----------------------------------------------------------------------------
+  // Entering function with mode != MODE_BATTERYLOW
+  //----------------------------------------------------------------------------
+
+  uint8_t j;
+
+  // 1: overrideBatteryLow() == true , batteryVoltage >= BATTERYLOW
+  // Set values so overrideBatteryLow() will return true
+  hw.o3 = ON;
+  // Set battery so batteryVoltage >= BATTERYLOW
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t((12.0)/float(BVSCALE) + .5);
+  }
+  for (i = 0; i < numDayParts; i++) {
+    mode = dayParts[i];
+    for (j = 0; j < numDayParts; j++) {
+      timeOfDay.currentDayPart = dayParts[i];
+      statemap();
+      EXPECT_EQ(dayParts[i], timeOfDay.getDayPart());
+      EXPECT_EQ(dayParts[i], mode);
+    }
+  }
+  
+  // 2: overrideBatteryLow() == true , batteryVoltage <= BATTERYLOW
+  // Set values so overrideBatteryLow() will return true
+  hw.o3 = ON;
+  // Set battery so batteryVoltage <= BATTERYLOW
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t((BATTERYLOW/2)/float(BVSCALE) + .5);
+  }
+  for (i = 0; i < numDayParts; i++) {
+    mode = dayParts[i];
+    for (j = 0; j < numDayParts; j++) {
+      timeOfDay.currentDayPart = dayParts[i];
+      statemap();
+      EXPECT_EQ(dayParts[i], timeOfDay.getDayPart());
+      EXPECT_EQ(dayParts[i], mode);
+    }
+  }
+
+  // 3: overrideBatteryLow() == false, batteryVoltage >= BATTERYLOW
+  // Set values so overrideBatteryLow() will return false
+  hw.o3 = OFF;
+  hw.o7 = OFF;
+  // Set battery so batteryVoltage >= BATTERYLOW
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t((12.0)/float(BVSCALE) + .5);
+  }
+  for (i = 0; i < numDayParts; i++) {
+    mode = dayParts[i];
+    for (j = 0; j < numDayParts; j++) {
+      timeOfDay.currentDayPart = dayParts[i];
+      statemap();
+      EXPECT_EQ(dayParts[i], timeOfDay.getDayPart());
+      EXPECT_EQ(dayParts[i], mode);
+    }
+  }
+
+  // 4: overrideBatteryLow() == false, batteryVoltage <= BATTERYLOW
+  hw.o3 = OFF;
+  hw.o7 = OFF;
+  // Set battery so batteryVoltage <= BATTERYLOW
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t((BATTERYLOW/2)/float(BVSCALE) + .5);
+  }
+  for (i = 0; i < numDayParts; i++) {
+    mode = dayParts[i];
+    for (j = 0; j < numDayParts; j++) {
+      timeOfDay.currentDayPart = dayParts[i];
+      statemap();
+      EXPECT_EQ(dayParts[i], timeOfDay.getDayPart());
+      EXPECT_EQ(MODE_BATTERYLOW, mode);
+    }
+  }
+
+  releaseArduinoMock();
+  releaseSerialMock();
+  releaseIRrecvMock();
+  releaseEEPROMMock();
 }
