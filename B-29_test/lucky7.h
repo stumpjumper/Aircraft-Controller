@@ -80,8 +80,6 @@ public:
   void on() {*p_lightLevel = onLightLevel; paused = true; lightMode = LIGHT_ON;};
   void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
   void resume() {paused = false; lightMode = LIGHT_FLASHING;}
-  void toggle();
-    
   virtual void update() = 0;
 
   uint8_t & operator()(void) {return *p_lightLevel;};
@@ -357,7 +355,6 @@ class UpDownMotor
 {
 private:
   FRIEND_TEST(UpDownMotorTest, Setup);
-  FRIEND_TEST(UpDownMotorTest, GetInMotorUpDownMode);
   FRIEND_TEST(UpDownMotorTest, MotorUpStop);
   FRIEND_TEST(UpDownMotorTest, MotorDownStop);
   FRIEND_TEST(UpDownMotorTest, MotorUpStart);
@@ -393,9 +390,6 @@ public:
   void motorUpdate();
 
   void motorStop() {motorUpStop(); motorDownStop();};
-
-  bool getInMotorUpMode() {return inMotorUpMode;};
-  bool getInMotorDownMode() {return inMotorDownMode;};
 };
 
 class  IRrecvMock;
@@ -411,7 +405,7 @@ private:
   FRIEND_TEST(Lucky7Test, Loop);
   FRIEND_TEST(Lucky7Test, Photocell1and2andBatteryVoltage);
   FRIEND_TEST(Lucky7Test, OutputMoveTo);
-  
+
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
   uint8_t aveptr;
