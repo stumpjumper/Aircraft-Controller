@@ -79,8 +79,12 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_DIR)/include/arduino-mock/*.h
 
 all : $(TESTS)
 
+MY_TESTBASE_1=B29_unittest
+MY_TEST_1= B29Test.ResetTimeoutOverride
+MY_TEST_2= B29Test.ResetTimeoutBatteryLow
+MY_TEST_3= B29Test.Statemap
 mytest: $(TESTS)
-	./B29_unittest --gtest_filter=B29Test.UpdateLights
+	./$(MY_TESTBASE_1) --gtest_filter=$(MY_TEST_3)
 
 test : $(TESTS)
 	for t in $(TESTS); do ./$$t; done;
