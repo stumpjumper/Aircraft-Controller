@@ -17,6 +17,20 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   lightMode = LIGHT_FLASHING;
 };
 
+void Light::toggle() {
+  switch (lightMode) {
+  case LIGHT_MODE_NOTSET:
+  case LIGHT_FLASHING:
+    break;
+  case LIGHT_OFF:
+    on();
+    break;
+  case LIGHT_ON:
+    off();
+    break;
+  }
+}
+
 OnOffLight::OnOffLight() {;}
 OnOffLight::~OnOffLight() {;}
 
@@ -198,18 +212,24 @@ void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
   photocellAvgValueMax = initialValueMax;
   photocellAvgValueCurrent = 0;
 
+  updateAverageTestMode = false;
 }
 
 
 TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
 {
+  if (updateAverageTestMode) {
+    return getDayPart();
+  }
+  
   // Take reading every 30 seconds and record
-  if (millis() >= update30secTimeout) {
+  if (millis() >= update30secTimeout &&
+      photocellValuesIndex < PHOTOCELLVALUESSIZE) {
     photocellValues[photocellValuesIndex] = lightLevel;
     photocellValuesIndex++;
     update30secTimeout = millis() + LUCKY7_TIME30SEC;
   }
-
+  
   const uint8_t photocellValuesCount = photocellValuesIndex;
 
   // At five minutes
@@ -309,6 +329,10 @@ uint16_t TimeOfDay::getNightDayThreshold()
 TimeOfDay::DayPart TimeOfDay::getDayPart()
 {
   return currentDayPart;
+}
+
+void TimeOfDay::setUpdateAverageTestMode(bool testModeFlag) {
+  updateAverageTestMode = testModeFlag;
 }
 
 void UpDownMotor::setup(uint8_t & oUp, uint8_t & oDown)

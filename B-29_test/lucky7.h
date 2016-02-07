@@ -80,6 +80,8 @@ public:
   void on() {*p_lightLevel = onLightLevel; paused = true; lightMode = LIGHT_ON;};
   void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
   void resume() {paused = false; lightMode = LIGHT_FLASHING;}
+  void toggle();
+    
   virtual void update() = 0;
 
   uint8_t & operator()(void) {return *p_lightLevel;};
@@ -232,7 +234,7 @@ public:
 class SlowBlinkingLight : public BlinkingLight
 {
   // A slow blinking light
-
+  
 private:
   static const uint32_t onLengthValue  = 2000;
   static const uint32_t offLengthValue = 10;
@@ -248,23 +250,23 @@ public:
 class FastSlowBlinkingLight
 {
   // A fast or slow blinking light, use can choose.
-
+  
 public:
   enum Speed {
     NOTSET = 0,
     FAST,
     SLOW };
-
+  
 private:
   FRIEND_TEST(FastSlowBlinkingLight, Constructor);
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
   FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
   FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
-
+  
   // Do not implement to make sure are never called
   FastSlowBlinkingLight(Light & other); 
   FastSlowBlinkingLight & operator=(const Light &rhs);
-
+  
   FastBlinkingLight fastLight;
   SlowBlinkingLight slowLight;
   BlinkingLight * p_currentLight;
@@ -276,10 +278,10 @@ public:
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
              uint8_t maxLightLevelValue);
-
+  
   void setToFast() {p_currentLight = &fastLight; blinkSpeed = FAST;};
   void setToSlow() {p_currentLight = &slowLight; blinkSpeed = SLOW;};
-
+  
   bool getPaused() {return p_currentLight->getPaused();};
   Light::MODE getLightMode() {return p_currentLight->getLightMode();};
   Speed getSpeed() {return blinkSpeed;};
@@ -287,7 +289,7 @@ public:
   void off() {fastLight.off(); slowLight.off();};
   void resume() {fastLight.resume(); slowLight.resume();};
   void update() {p_currentLight->update();};
-
+  
   uint8_t & operator()(void) {return (*p_currentLight)();};
   
   //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;};
@@ -297,36 +299,39 @@ public:
 class TimeOfDay
 {
 public:
-
- enum DayPart {
-   EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
-   NIGHT      = 'N', // Light level below threshhold and EVENING timed out
-   PREDAWN    = 'P', // Starts at (nightStart + lengthOfNight - predawnLength)
-   MORNING    = 'M', // Light level above threshhold, MORNING timer started, dayStart set
-   DAY        = 'D', // Light level above threshhold and MORNING timed out
+  
+  enum DayPart {
+    EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
+    NIGHT      = 'N', // Light level below threshhold and EVENING timed out
+    PREDAWN    = 'P', // Starts at (nightStart + lengthOfNight - predawnLength)
+    MORNING    = 'M', // Light level above threshhold, MORNING timer started, dayStart set
+    DAY        = 'D', // Light level above threshhold and MORNING timed out
   } ;
   
   void setup(uint16_t initialValueMin, uint16_t initialValueMax,
-        uint8_t nightDayThresholdPercentageValue);
-
+             uint8_t nightDayThresholdPercentageValue);
+  
   DayPart updateAverage(const uint16_t lightLevel);
   DayPart getDayPart();
   uint16_t getNightDayThreshold();
-
+  
   uint16_t getPhotocellAvgValueMin() {return photocellAvgValueMin;};
   uint16_t getPhotocellAvgValueMax() {return photocellAvgValueMax;};
   uint16_t getPhotocellAvgValueCurrent() {return photocellAvgValueCurrent;};
-
+  
+  void setUpdateAverageTestMode(bool testModeFlag);
+  
   // Primarily used to get access to private variables for testing
-
-
+  
+  
 private:
   FRIEND_TEST(TimeOfDayTest, setup);
   FRIEND_TEST(TimeOfDayTest, Constructor);
   FRIEND_TEST(TimeOfDayTest, getNightDayThreshold);
   FRIEND_TEST(TimeOfDayTest, UpdatePhotocellAvgValues);
   FRIEND_TEST(TimeOfDayTest, UpdateTimeOfDay);
-
+  FRIEND_TEST(B29Test, Statemap);
+  
   uint16_t photocellAvgValueCurrent;
   uint16_t photocellAvgValueMin;
   uint16_t photocellAvgValueMax;
@@ -339,22 +344,22 @@ private:
   uint32_t eveningLength;
   uint32_t morningLength;
   uint32_t predawnLength;
+  bool     updateAverageTestMode;
   
-
 #define PHOTOCELLVALUESSIZE LUCKY7_TIME5MIN/LUCKY7_TIME30SEC
   uint16_t photocellValues[PHOTOCELLVALUESSIZE];
   uint8_t  photocellValuesIndex;
-
+  
   void updatePhotocellAvgValues(uint16_t photocellAvgValue);
   void updateTimeOfDay();
   DayPart currentDayPart;
-  
 };
 
 class UpDownMotor
 {
 private:
   FRIEND_TEST(UpDownMotorTest, Setup);
+  FRIEND_TEST(UpDownMotorTest, GetInMotorUpDownMode);
   FRIEND_TEST(UpDownMotorTest, MotorUpStop);
   FRIEND_TEST(UpDownMotorTest, MotorDownStop);
   FRIEND_TEST(UpDownMotorTest, MotorUpStart);
@@ -362,10 +367,10 @@ private:
   FRIEND_TEST(UpDownMotorTest, MotorUpUpdate);
   FRIEND_TEST(UpDownMotorTest, MotorDownUpdate);
   FRIEND_TEST(UpDownMotorTest, MotorUpdate);
-
+  
   uint8_t * p_outputUp;
   uint8_t * p_outputDown;
-
+  
   bool inMotorUpMode;
   bool inMotorDownMode;
 
@@ -390,6 +395,9 @@ public:
   void motorUpdate();
 
   void motorStop() {motorUpStop(); motorDownStop();};
+
+  bool getInMotorUpMode() {return inMotorUpMode;};
+  bool getInMotorDownMode() {return inMotorDownMode;};
 };
 
 class  IRrecvMock;
@@ -405,7 +413,8 @@ private:
   FRIEND_TEST(Lucky7Test, Loop);
   FRIEND_TEST(Lucky7Test, Photocell1and2andBatteryVoltage);
   FRIEND_TEST(Lucky7Test, OutputMoveTo);
-
+  FRIEND_TEST(B29Test, Statemap);
+  
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
   uint8_t aveptr;
