@@ -518,22 +518,21 @@ uint32_t Lucky7::irLoop() {
   return rv;
 }
 
-uint16_t Lucky7::photocell1() {
+uint16_t Lucky7::photocell(uint16_t * pc) {
     uint16_t sum = 0;
     uint8_t i;
     for (i = 0; i < AVECNT; i++) {
-        sum += pc1[i];
+        sum += pc[i];
     }
     return (uint16_t)(sum/AVECNT);
 }
 
+uint16_t Lucky7::photocell1() {
+  return photocell(pc1);
+}
+
 uint16_t Lucky7::photocell2() {
-    uint32_t sum = 0;
-    uint8_t i;
-    for (i = 0; i < AVECNT; i++) {
-        sum += pc2[i];
-    }
-    return (uint16_t)(sum/AVECNT);
+  return photocell(pc2);
 }
 
 float Lucky7::batteryVoltage() {

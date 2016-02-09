@@ -415,6 +415,7 @@ private:
   FRIEND_TEST(Lucky7Test, OutputMoveTo);
   FRIEND_TEST(B29Test, Statemap);
   
+  uint16_t photocell(uint16_t * pc);
   uint32_t irTimeout;
   uint16_t pc1[AVECNT], pc2[AVECNT], bc[AVECNT];
   uint8_t aveptr;
