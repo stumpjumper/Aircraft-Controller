@@ -79,12 +79,15 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_DIR)/include/arduino-mock/*.h
 
 all : $(TESTS)
 
-MY_TESTBASE_1=B29_unittest
-MY_TEST_1= B29Test.ResetTimeoutOverride
-MY_TEST_2= B29Test.ResetTimeoutBatteryLow
-MY_TEST_3= B29Test.Statemap
+MY_TESTEXE_A=B29_unittest
+MY_TEST_1=B29Test.ResetTimeoutOverride
+MY_TEST_2=B29Test.ResetTimeoutBatteryLow
+MY_TEST_3=B29Test.Statemap
+
+MY_TESTEXE_B=integration_test
+MY_TEST_4=Integration.CycleThroughDay
 mytest: $(TESTS)
-	./$(MY_TESTBASE_1) --gtest_filter=$(MY_TEST_3)
+	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_4)
 
 test : $(TESTS)
 	for t in $(TESTS); do ./$$t; done;
@@ -206,7 +209,7 @@ light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
 # old compile line:
 #	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/light_unittest.cpp
 
-depend: $(SRCS)
+depend: 
 	pwd
 	makedepend -f depend --  -I../include/arduino-mock -I../../gtest-1.7.0/include \
 	-I../../gmock-1.7.0/include -- $(SRCS)
