@@ -37,6 +37,7 @@ int analogRead(uint8_t a) {
   assert (arduinoMock != NULL);
   return arduinoMock->analogRead(a);
 }
+
 void analogReference(uint8_t mode) {
   UNUSED(mode);
 }
