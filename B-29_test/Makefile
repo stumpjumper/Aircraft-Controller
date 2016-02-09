@@ -53,11 +53,11 @@ CXXFLAGS += -g -Wall -Wextra -pthread \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-TESTS = B29_unittest timeofday_unittest updownmotor_unittest lucky7_unittest \
-	light_unittest
+TESTS = integration_test B29_unittest timeofday_unittest updownmotor_unittest \
+	lucky7_unittest light_unittest
 
-SRCS = B29_unittest.cpp timeofday_unittest.cpp updownmotor_unittest.cpp \
-	lucky7_unittest.cpp light_unittest.cpp lucky7.cpp
+SRCS = integration_test.cpp B29_unittest.cpp timeofday_unittest.cpp \
+	updownmotor_unittest.cpp lucky7_unittest.cpp light_unittest.cpp lucky7.cpp
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -158,6 +158,12 @@ B-29.a : lucky7.o B-29.o
 .cpp.o:
 	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $*.cpp
 
+integration_test : integration_test.o \
+				B-29.a \
+				gmock_main.a  \
+				arduino_mock_all.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+#----------
 B29_unittest : B29_unittest.o \
 				B-29.a \
 				gmock_main.a  \
@@ -200,7 +206,7 @@ light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
 # old compile line:
 #	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/light_unittest.cpp
 
-depend: 
+depend: $(SRCS)
 	pwd
 	makedepend -f depend --  -I../include/arduino-mock -I../../gtest-1.7.0/include \
 	-I../../gmock-1.7.0/include -- $(SRCS)
