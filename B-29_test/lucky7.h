@@ -1,4 +1,3 @@
-
 #ifndef LUCKY7_H
 #define LUCKY7_H
 #include "Arduino.h"
@@ -414,6 +413,7 @@ private:
   FRIEND_TEST(Lucky7Test, Photocell1and2andBatteryVoltage);
   FRIEND_TEST(Lucky7Test, OutputMoveTo);
   FRIEND_TEST(B29Test, Statemap);
+  FRIEND_TEST(Integration, CycleThroughDay);
   
   uint16_t photocell(uint16_t * pc);
   uint32_t irTimeout;
