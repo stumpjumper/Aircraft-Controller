@@ -17,52 +17,131 @@ void releaseSerialMock() {
   }
 }
 
+// Serial.print(78, BIN) gives "1001110"
+// Serial.print(78, OCT) gives "116"
+// Serial.print(78, DEC) gives "78"
+// Serial.print(78, HEX) gives "4E"
+// Serial.println(1.23456, 0) gives "1"
+// Serial.println(1.23456, 2) gives "1.23"
+// Serial.println(1.23456, 4) gives "1.2346"
+
+void printDouble(double num, int digits) {
+  std::streamsize ss = std::cout.precision();
+  std::cout << std::setprecision(digits) << std::fixed << num;
+  std::cout.unsetf(std::ios::fixed);
+  std::cout.precision (ss);
+}
+
+template<typename T> void printBase(T num, int base) {
+  switch (base) {
+  case BIN:
+    assert (! "Need to implement this");
+    break;
+  case OCT:
+    std::cout << std::oct;
+    break;
+  case DEC:
+    std::cout << std::dec;
+    break;
+  case HEX: 
+    std::cout << std::hex;
+    break;
+  }
+  std::cout << num << std::dec;
+}
+
+bool Serial_::printToCout = false;
+
+void Serial_::setPrintToCout(bool flag) {
+  printToCout = flag;
+}
+
 size_t Serial_::print(const char *s) {
+  if (printToCout) {
+    std::cout << s;
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(s);
 }
 
 size_t Serial_::print(char c) {
+  if (printToCout) {
+    std::cout << c;
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(c);
 }
 
 size_t Serial_::print(unsigned char c, int base) {
+  if (printToCout) {
+    printBase(c, base);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(c, base);
 }
 
 size_t Serial_::print(int num, int base) {
+  if (printToCout) {
+    printBase(num, base);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(num, base);
 }
 
 size_t Serial_::print(unsigned int num, int base) {
+  if (printToCout) {
+    printBase(num, base);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(num, base);
 }
 
 size_t Serial_::print(long num, int base) {
+  if (printToCout) {
+    printBase(num, base);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(num, base);
 }
 
 size_t Serial_::print(unsigned long num, int base) {
+  if (printToCout) {
+    printBase(num, base);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(num, base);
 }
 
 size_t Serial_::print(double num, int digits) {
+  if (printToCout) {
+    printDouble(num, digits);
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->print(num, digits);
 }
 
 size_t Serial_::println(const char *s) {
+  if (printToCout) {
+      std::cout << s << std::endl;
+      return 0;
+    }
   assert (gSerialMock != NULL);
   return gSerialMock->println(s);
 }
 
 size_t Serial_::println(char c) {
+  if (printToCout) {
+      std::cout << c << std::endl;
+      return 0;
+    }
   assert (gSerialMock != NULL);
   return gSerialMock->println(c);
 }
@@ -98,6 +177,10 @@ size_t Serial_::println(double num, int digits) {
 }
 
 size_t Serial_::println(void) {
+  if (printToCout) {
+    std::cout << std::endl;
+    return 0;
+  }
   assert (gSerialMock != NULL);
   return gSerialMock->println();
 }
