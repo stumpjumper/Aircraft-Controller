@@ -18,24 +18,25 @@
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 #-#GTEST_DIR = ./googletest
-GTEST_DIR = ../../gtest-1.7.0
+GTEST_DIR = $(HOME)/Google\ Drive/GDrive\ projects/gtest-1.7.0
 
 # Points to the root of Google Mock, relative to where this file is.
 # Remember to tweak this if you move this file
-GMOCK_DIR = ../../gmock-1.7.0
+GMOCK_DIR = $(HOME)/Google\ Drive/GDrive\ projects/gmock-1.7.0
 
 # Points to the root of Arduino mock, relative to where this file is.
 # Remember to tweak this if you move this file.
-ARDUINO_MOCK_DIR = ..
+ARDUINO_MOCK_DIR = ../arduino-mock
+ARDUINO_MOCK_INCLUDE_DIR = $(ARDUINO_MOCK_DIR)/include/arduino-mock
 ARDUINO_DIR = /Applications/Arduino.app/Contents/Java
 AVR_TOOLS_DIR =   $(ARDUINO_DIR)/hardware/tools/avr/avr/include
 ARDUINO_VAR_PATH =$(ARDUINO_DIR)/hardware/arduino/avr/variants/standard
 
 
 # Where to find test code.
-TEST_DIR = .
+TEST_DIR = tests
 # Where to find src code.
-SRC_DIR = .
+SRC_DIR = src
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -53,11 +54,13 @@ CXXFLAGS += -g -Wall -Wextra -pthread \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-TESTS = integration_test B29_unittest timeofday_unittest updownmotor_unittest \
-	lucky7_unittest light_unittest
+UNIT_TESTS = B29_unittest timeofday_unittest \
+	updownmotor_unittest lucky7_unittest light_unittest
+INTEGRATION_TESTS = integration_test
+TESTS = $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
-SRCS = integration_test.cpp B29_unittest.cpp timeofday_unittest.cpp \
-	updownmotor_unittest.cpp lucky7_unittest.cpp light_unittest.cpp lucky7.cpp
+TEST_SRCS = integration_test.cpp B29_unittest.cpp timeofday_unittest.cpp \
+	updownmotor_unittest.cpp lucky7_unittest.cpp light_unittest.cpp 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -73,7 +76,7 @@ GMOCK_HEADERS = $(GMOCK_DIR)/include/gmock/*.h \
 
 # Arduino Mock headers.
 # Usually you shouldn't change this definition.
-ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_DIR)/include/arduino-mock/*.h
+ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 # House-keeping build targets.
 
@@ -89,7 +92,10 @@ MY_TEST_4=Integration.CycleThroughDay
 mytest: $(TESTS)
 	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_4)
 
-test : $(TESTS)
+test : $(UNIT_TESTS)
+	for t in $(UNIT_TESTS); do ./$$t; done;
+
+itest : $(INTEGRATION_TESTS)
 	for t in $(TESTS); do ./$$t; done;
 
 clean :
@@ -144,12 +150,12 @@ arduino_mock_all.a : ArduinoMockAll.o
 
 
 lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
-	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
-		lucky7.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
+		$(SRC_DIR)/lucky7.cpp
 
 B-29.o : $(SRC_DIR)/B-29.cpp
-	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c \
-		B-29.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
+		$(SRC_DIR)/B-29.cpp
 
 B-29.a : lucky7.o B-29.o 
 	$(AR) $(ARFLAGS) $@ $^
@@ -158,8 +164,8 @@ B-29.a : lucky7.o B-29.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-.cpp.o:
-	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $*.cpp
+%.o: $(TEST_DIR)/%.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(SRC_DIR) $(CXXFLAGS) -c $<
 
 integration_test : integration_test.o \
 				B-29.a \
@@ -209,10 +215,12 @@ light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
 # old compile line:
 #	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/light_unittest.cpp
 
+#.PHONY: depend
+
 depend: 
 	pwd
-	makedepend -f depend --  -I../include/arduino-mock -I../../gtest-1.7.0/include \
-	-I../../gmock-1.7.0/include -- $(SRCS)
+	makedepend -f depend --  -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
+	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
 
 
 include depend
