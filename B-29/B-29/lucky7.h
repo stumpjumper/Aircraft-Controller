@@ -1,7 +1,11 @@
 #ifndef LUCKY7_H
 #define LUCKY7_H
 #include "Arduino.h"
-#include "Serial.h"
+#ifndef DOING_UNIT_TESTING
+ #define FRIEND_TEST(a, b)
+#else
+ #include "Serial.h"
+#endif
 
 #define OFF 0
 #define ON  255
@@ -209,9 +213,9 @@ public:
   virtual ~BlinkingLight();
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             uint32_t onLengthValue,
-             uint32_t offLengthValue,
-             uint8_t  maxLightLevelValue);
+             const uint32_t onLengthValue,
+             const uint32_t offLengthValue,
+             const uint8_t  maxLightLevelValue);
 };
 
 class FastBlinkingLight : public BlinkingLight
@@ -227,7 +231,7 @@ public:
   virtual ~FastBlinkingLight();
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             uint8_t maxLightLevelValue);
+             const uint8_t maxLightLevelValue);
 };
 
 class SlowBlinkingLight : public BlinkingLight
@@ -243,7 +247,7 @@ public:
   virtual ~SlowBlinkingLight();
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             uint8_t maxLightLevelValue);
+             const uint8_t maxLightLevelValue);
 };
 
 class FastSlowBlinkingLight
@@ -276,7 +280,7 @@ public:
   ~FastSlowBlinkingLight();
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             uint8_t maxLightLevelValue);
+             const uint8_t maxLightLevelValue);
   
   void setToFast() {p_currentLight = &fastLight; blinkSpeed = FAST;};
   void setToSlow() {p_currentLight = &slowLight; blinkSpeed = SLOW;};
@@ -307,16 +311,17 @@ public:
     DAY        = 'D', // Light level above threshhold and MORNING timed out
   } ;
   
-  void setup(uint16_t initialValueMin, uint16_t initialValueMax,
-             uint8_t nightDayThresholdPercentageValue);
+  void setup(const uint16_t initialValueMin, const uint16_t initialValueMax,
+             const uint8_t nightDayThresholdPercentageValue);
   
   DayPart updateAverage(const uint16_t lightLevel);
   DayPart getDayPart();
   uint16_t getNightDayThreshold();
   
-  uint16_t getPhotocellAvgValueMin() {return photocellAvgValueMin;};
-  uint16_t getPhotocellAvgValueMax() {return photocellAvgValueMax;};
-  uint16_t getPhotocellAvgValueCurrent() {return photocellAvgValueCurrent;};
+  uint16_t getPhotocellAvgValueMin()    {return photocellAvgValueMin;};
+  uint16_t getPhotocellAvgValueMax()    {return photocellAvgValueMax;};
+  uint16_t getPhotocellAvgValueCurrent(){return photocellAvgValueCurrent;};
+  uint32_t getLengthOfNight()           {return lengthOfNight;};
   
   void setUpdateAverageTestMode(bool testModeFlag);
   

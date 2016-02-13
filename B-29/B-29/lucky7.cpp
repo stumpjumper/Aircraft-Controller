@@ -1,6 +1,10 @@
 #include "lucky7.h"
 #include "pins_arduino.h"
-#include <IRremote.h>
+#ifdef DOING_UNIT_TESTING
+  #include <IRremote.h>
+#else
+  #include "IRremote.h"
+#endif
 
 IRrecv irRecv(IR);
 decode_results irResults;
@@ -43,9 +47,9 @@ BlinkingLight::BlinkingLight() {;}
 BlinkingLight::~BlinkingLight() {;}
 void BlinkingLight::setup(uint8_t & lightLevelVariable,
                           const uint8_t onLightLevelValue,
-                          uint32_t onLengthValue,
-                          uint32_t offLengthValue,
-                          uint8_t maxLightLevelValue)
+                          const uint32_t onLengthValue,
+                          const uint32_t offLengthValue,
+                          const uint8_t maxLightLevelValue)
 {
   FlashingLight::setup(lightLevelVariable, onLightLevelValue, 1, onLengthValues, 
                        offLengthValues, maxLightLevelValues);
@@ -58,7 +62,7 @@ FastBlinkingLight::FastBlinkingLight() {;}
 FastBlinkingLight::~FastBlinkingLight() {;}
 void FastBlinkingLight::setup(uint8_t  & lightLevelVariable,
                               const uint8_t onLightLevelValue,
-                              uint8_t maxLightLevelValue)
+                              const uint8_t maxLightLevelValue)
 {
   BlinkingLight::setup(lightLevelVariable, // Where the light level will be stored
                        onLightLevelValue, // Brightness when light is constant on
@@ -71,7 +75,7 @@ SlowBlinkingLight::SlowBlinkingLight() {;}
 SlowBlinkingLight::~SlowBlinkingLight() {;}
 void SlowBlinkingLight::setup(uint8_t  & lightLevelVariable,
                               const uint8_t onLightLevelValue,
-                              uint8_t maxLightLevelValue)
+                              const uint8_t maxLightLevelValue)
 {
   BlinkingLight::setup(lightLevelVariable, // Where the light level will be stored
                        onLightLevelValue, // Brightness when light is constant on
@@ -84,7 +88,7 @@ FastSlowBlinkingLight::FastSlowBlinkingLight() : p_currentLight(NULL),blinkSpeed
 FastSlowBlinkingLight::~FastSlowBlinkingLight() {;}
 void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
                                   const uint8_t onLightLevel,
-                                  uint8_t maxLightLevelValue)
+                                  const uint8_t maxLightLevelValue)
 {
   fastLight.setup(lightLevelVariable, onLightLevel, maxLightLevelValue);
   slowLight.setup(lightLevelVariable, onLightLevel, maxLightLevelValue);
@@ -190,8 +194,9 @@ void FlashingLight::setup(uint8_t & lightLevelVariable,
                    offLengthValues, maxLightLevelValues, NULL);
 }
 
-void TimeOfDay::setup(uint16_t initialValueMin, uint16_t initialValueMax,
-                 uint8_t nightDayThresholdPercentageValue )
+void TimeOfDay::setup(const uint16_t initialValueMin,
+                      const uint16_t initialValueMax,
+                      const uint8_t nightDayThresholdPercentageValue )
 {
   uint32_t now = millis();
   update30secTimeout = now + LUCKY7_TIME30SEC;
@@ -350,7 +355,7 @@ void UpDownMotor::setup(uint8_t & oUp, uint8_t & oDown)
 }
 
 void UpDownMotor::motorUpStart() {
-    //Serial.print("In UpDownMotor::motorUpStart() \n");
+    //Serial.print(F("In UpDownMotor::motorUpStart() \n"));
     motorDownStop();
     if (!inMotorUpMode) {
       motorUpStartTime = millis();
@@ -358,7 +363,7 @@ void UpDownMotor::motorUpStart() {
     inMotorUpMode = true;
 }
 void UpDownMotor::motorDownStart() {
-    //Serial.print("In UpDownMotor::motorDownStart() \n");
+    //Serial.print(F("In UpDownMotor::motorDownStart() \n"));
     motorUpStop();
     if (!inMotorDownMode) {
       motorDownStartTime = millis();
@@ -379,8 +384,8 @@ void UpDownMotor::motorDownStop() {
 void UpDownMotor::motorUpdate() {
     if ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown) )
     {
-      Serial.print("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n");
-      Serial.print("       Calling motorUpStop() and  motorDownStop()\n");
+      Serial.print(F("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n"));
+      Serial.print(F("       Calling motorUpStop() and  motorDownStop()\n"));
       motorUpStop();
       motorDownStop();
       return;
@@ -594,33 +599,4 @@ void Lucky7::outputMoveTo(const uint8_t outputPin, uint8_t & currentValue, uint8
   }
   currentValue = targetValue;
 }
-
-void Lucky7::boardLight(BoardLightMode mode, void (lightOn)(), void (lightOff)()) {
-  uint32_t now10ms = millis() / 100;
-  
-  switch (mode) {
-  case LIGHT_ON:
-    lightOn();
-    break;
-  case LIGHT_OFF:
-    lightOff();
-    break;
-  case LIGHT_SLOW_BLINK:
-    if (now10ms % 10 == 0) {
-      lightOn();
-    } else {
-      lightOff();
-    }
-    break;
-  case LIGHT_FAST_BLINK:
-    if (now10ms % 20 == 0) {
-      lightOn();
-    } else {
-      lightOff();
-    }
-    break;
-  }
-}
-
-
 
