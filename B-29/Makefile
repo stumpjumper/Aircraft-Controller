@@ -117,7 +117,12 @@ depends :
 	pwd
 	makedepend -f depend --  -IB-29 -Itests -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
 	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
-
+	sed -e 's#^tests/##p' -e 's#^B-29/##p' depend > depend_tmp
+	mv depend_tmp depend
+	sed -e 's|Google Drive|Google\\ Drive|p' depend > depend_tmp
+	mv depend_tmp depend
+	sed -e 's|GDrive projects|GDrive\\ projects|p' depend > depend_tmp
+	mv depend_tmp depend
 
 # Builds gtest.a and gtest_main.a.
 
@@ -164,8 +169,7 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 		$(SRC_DIR)/lucky7.cpp
 
 B-29.o : $(SRC_DIR)/B-29.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
-		$(SRC_DIR)/B-29.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 B-29.a : lucky7.o B-29.o 
 	$(AR) $(ARFLAGS) $@ $^
@@ -175,6 +179,9 @@ B-29.a : lucky7.o B-29.o
 # function.
 
 %.o: $(TEST_DIR)/%.cpp
+	@echo "----------------"
+	@echo Building $@
+	@echo "----------------"
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(SRC_DIR) $(CXXFLAGS) -c $<
 
 integration_test : integration_test.o \
