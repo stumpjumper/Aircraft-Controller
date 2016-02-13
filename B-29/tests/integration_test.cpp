@@ -88,16 +88,36 @@ TEST_F(Integration, CycleThroughDay) {
 
   const uint16_t volts12 = uint16_t(12.0/float(BVSCALE) + .5);
   const uint16_t volts14 = uint16_t(14.0/float(BVSCALE) + .5);
-
+  
   for (uint8_t j = 0; j < AVECNT; j++) {
     hw.pc1[j] = 0;
     hw.pc2[j] = 0;
     hw.bc[j] = volts12;
   }
-
+  
   arduinoMock->setMillisRaw(0);
-
+  
   setup();
+  for (uint32_t i = 0; i < 2000; i++) {
+    arduinoMock->addMillisRaw(1);
+    for (uint8_t j = 0; j < AVECNT; j++) {
+      hw.pc1[j] = 0;
+      hw.pc2[j] = 0;
+      hw.bc[j] = volts14;
+    }
+    loop();
+  }
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+  for (uint32_t i = 0; i < 2; i++) {
+    arduinoMock->addMillisRaw(1);
+    for (uint8_t j = 0; j < AVECNT; j++) {
+      hw.pc1[j] = 0;
+      hw.pc2[j] = 0;
+      hw.bc[j] = volts14;
+    }
+    loop();
+  }
+  EXPECT_EQ(MODE_DAY, mode);
   for (uint32_t i = 0; i < 3600000; i++) {
     arduinoMock->addMillisRaw(10);
     for (uint8_t j = 0; j < AVECNT; j++) {
@@ -132,5 +152,4 @@ TEST_F(Integration, CycleThroughDay) {
   releaseEEPROMMock();
 
 }
-
 
