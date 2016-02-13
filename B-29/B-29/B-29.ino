@@ -66,20 +66,20 @@ enum Coll {
   COLL_OFF2
 } ;
 
-#define TIMEOUTSTATUS          1000        //   1 sec in milliseconds
-#define TIMEOUTEVENING         14400000U   //   4 hours in milliseconds
+#define TIMEOUTSTATUS              1000  //   1 sec in milliseconds
+#define TIMEOUTEVENING         14400000U //   4 hours in milliseconds
 
-#define TIMEOUTOVERRIDE        600000      //  10 minutes
+#define TIMEOUTOVERRIDE          600000  //  10 minutes
 
-#define TIMEOUTCOLLISIONON     50          // .05 sec
-#define TIMEOUTCOLLISIONSHORT  250         // .25 sec
-#define TIMEOUTCOLLISIONLONG   2100        // 2.1 sec
-#define TIMEOUTTAXI            300000      //   5 minutes
-#define TIMEOUTBATTERYLOW      30000       //  30 sec
-#define TIMEOUTBATTERYLOWFLASH 100         //  .1 sec
-#define BATTERYLOW             11.8        // Volts  
-#define MILLISIN30DAYS         2592000000U //  30 days
-//                          2,592,000,000
+#define TIMEOUTCOLLISIONON           50  // .05 sec
+#define TIMEOUTCOLLISIONSHORT       250  // .25 sec
+#define TIMEOUTCOLLISIONLONG       2100  // 2.1 sec
+#define TIMEOUTTAXI              300000  //   5 minutes
+#define TIMEOUTBATTERYLOW         30000  //  30 sec
+#define TIMEOUTBATTERYLOWFLASH      100  //  .1 sec
+#define BATTERYLOW                 11.8  // Volts  
+#define MILLISIN30DAYS       2592000000U //  30 days
+//                        2,592,000,000
  
 uint32_t timeoutStatus;
 uint32_t timeoutBatteryLow;
@@ -534,6 +534,7 @@ void setup() {
 
     // Initial put in battery low mode to let levels settle down
     // but set timout short so will statup almost right away.
+    //std::cout << "Hello" << std::endl;
     timeoutBatteryLow = 2000; // 2 Seconds to "warm up"
     setBatteryLow();
     mode = MODE_BATTERYLOW;
