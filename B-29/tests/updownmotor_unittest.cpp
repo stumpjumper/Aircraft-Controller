@@ -1,4 +1,3 @@
-
 #include "updownmotor_unittest.h"
 
 void UpDownMotorTest::SetUp()
