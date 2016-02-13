@@ -133,7 +133,7 @@ protected:
   bool     decaying;        // Flag if in on or decay mode
   uint32_t decayStartTime;  // Keep track of when decay started.
   uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
-  size_t   numIntervals;    // Length of onLenth, decayLength & maxLightLevels
+  uint8_t  numIntervals;    // Length of onLenth, decayLength & maxLightLevels.
 
   uint32_t * onLength;      // How long to stay on for, for each interval
   uint32_t * decayLength;   // How long to decay for, for each interval
@@ -146,7 +146,7 @@ public:
 
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             const size_t numberOfValues,
+             const uint8_t numberOfValues,
              uint32_t * onLengthValues,
              uint32_t * decayLengthValues,
              uint8_t  * maxLightLevelValues,
@@ -170,7 +170,7 @@ public:
 
   void setup(uint8_t & lightLevelVariable,
              const uint8_t onLightLevel,
-             const size_t numberOfValues,
+             const uint8_t numberOfValues,
              uint32_t * onLengthValues,
              uint32_t * offLengthValues,
              uint8_t  * maxLightLevelValues);

@@ -92,7 +92,7 @@ DecayLight::DecayLight() :
 DecayLight::~DecayLight() {;}
 void DecayLight::setup(uint8_t  & lightLevelVariable,
                        const uint8_t onLightLevelValue,
-                       const size_t numberOfValues,
+                       const uint8_t numberOfValues,
                        uint32_t * onLengthValues,
                        uint32_t * decayLengthValues,
                        uint8_t  * maxLightLevelValues,
@@ -114,7 +114,7 @@ void DecayLight::setup(uint8_t  & lightLevelVariable,
 
 void DecayLight::update()
 {
-  size_t j;
+  uint8_t j;
 
   uint32_t changeTimeDelta = 0;
   
@@ -156,7 +156,7 @@ void DecayLight::update()
       //std::cerr << "time " << int(time) << std::endl;
       // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
       *p_lightLevel =
-        int(float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5);
+        uint8_t(float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5);
       //std::cerr << "lightLevel " << int(lightLevel) << std::endl;
     }
   }
@@ -177,7 +177,7 @@ FlashingLight::FlashingLight() {;}
 FlashingLight::~FlashingLight() {;}
 void FlashingLight::setup(uint8_t & lightLevelVariable,
                           const uint8_t onLightLevelValue,
-                          const size_t numberOfValues,
+                          const uint8_t numberOfValues,
                           uint32_t * onLengthValues,
                           uint32_t * offLengthValues,
                           uint8_t  * maxLightLevelValues)
