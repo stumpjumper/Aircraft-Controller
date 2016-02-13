@@ -7,11 +7,11 @@ using std::setw;
 const uint8_t onLightLevelValue = ON-2;
 const uint8_t maxLightLevelValue = 199;
 
-TEST(OnOffLight, Constructor) {
+TEST(Light, Constructor) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   EXPECT_EQ(NULL, light1.p_lightLevel);
   EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.lightMode);
   light1.setup(lightVariable, onLightLevelValue);
@@ -23,11 +23,11 @@ TEST(OnOffLight, Constructor) {
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.lightMode);
 }
 
-TEST(OnOffLight, Toggle) {
+TEST(Light, Toggle) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.getLightMode());
   light1.toggle();
   EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.getLightMode());
@@ -88,11 +88,11 @@ TEST(OnOffLight, Toggle) {
 }
 
 
-TEST(OnOffLight, LightModes) {
+TEST(Light, LightModes) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.getLightMode());
 
   light1.setup(lightVariable, onLightLevelValue);
@@ -112,11 +112,11 @@ TEST(OnOffLight, LightModes) {
 
 }
 
-TEST(OnOffLight, On) {
+TEST(Light, On) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(false, light1.getPaused());
@@ -131,11 +131,11 @@ TEST(OnOffLight, On) {
   EXPECT_EQ(true, light1.getPaused());
 }
 
-TEST(OnOffLight, Off) {
+TEST(Light, Off) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
@@ -150,11 +150,11 @@ TEST(OnOffLight, Off) {
   EXPECT_EQ(true, light1.getPaused());
 }
 
-TEST(OnOffLight, FunctionCallOperatorGetValue) {
+TEST(Light, FunctionCallOperatorGetValue) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
@@ -174,11 +174,11 @@ TEST(OnOffLight, FunctionCallOperatorGetValue) {
     
 }
 
-TEST(OnOffLight, FunctionCallOperatorSetValue) {
+TEST(Light, FunctionCallOperatorSetValue) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
@@ -198,11 +198,11 @@ TEST(OnOffLight, FunctionCallOperatorSetValue) {
     
 }
 
-TEST(OnOffLight, Resume) {
+TEST(Light, Resume) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
@@ -255,11 +255,11 @@ TEST(OnOffLight, Resume) {
   EXPECT_EQ(false, light1.getPaused());
 }
 
-TEST(OnOffLight, Update) {
+TEST(Light, Update) {
 
   uint8_t lightVariable;
 
-  OnOffLight light1;
+  Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);

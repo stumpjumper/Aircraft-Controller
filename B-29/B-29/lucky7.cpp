@@ -19,28 +19,6 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   *p_lightLevel = OFF; // Set the initial light level
   paused = false;
   lightMode = LIGHT_FLASHING;
-};
-
-void Light::toggle() {
-  switch (lightMode) {
-  case LIGHT_MODE_NOTSET:
-  case LIGHT_FLASHING:
-    break;
-  case LIGHT_OFF:
-    on();
-    break;
-  case LIGHT_ON:
-    off();
-    break;
-  }
-}
-
-OnOffLight::OnOffLight() {;}
-OnOffLight::~OnOffLight() {;}
-
-void OnOffLight::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
-{
-  Light::setup(lightLevelVariable, onLightLevelValue);
 }
 
 BlinkingLight::BlinkingLight() {;}
@@ -56,6 +34,20 @@ void BlinkingLight::setup(uint8_t & lightLevelVariable,
   onLengthValues[0] = onLengthValue;
   offLengthValues[0] = offLengthValue;
   maxLightLevelValues[0] = maxLightLevelValue;
+}
+
+void Light::toggle() {
+  switch (lightMode) {
+  case LIGHT_MODE_NOTSET:
+  case LIGHT_FLASHING:
+    break;
+  case LIGHT_OFF:
+    on();
+    break;
+  case LIGHT_ON:
+    off();
+    break;
+  }
 }
 
 FastBlinkingLight::FastBlinkingLight() {;}

@@ -43,7 +43,7 @@ class Lucky7;
 
 class Light
 {
-  // Abstract base class for lights
+  // Base class for lights, and one that just do OnOff on it own
 public:
   enum MODE {
     LIGHT_MODE_NOTSET = -1,
@@ -52,17 +52,21 @@ public:
     LIGHT_FLASHING};
 
 private:
-  FRIEND_TEST(OnOffLight, Constructor);
-  FRIEND_TEST(OnOffLight, On);
-  FRIEND_TEST(OnOffLight, Off);
-  FRIEND_TEST(OnOffLight, FunctionCallOperatorGetValue);
-  FRIEND_TEST(OnOffLight, FunctionCallOperatorSetValue);
-  FRIEND_TEST(OnOffLight, Resume);
-  FRIEND_TEST(OnOffLight, Update);
+  FRIEND_TEST(Light, Constructor);
+  FRIEND_TEST(Light, On);
+  FRIEND_TEST(Light, Off);
+  FRIEND_TEST(Light, FunctionCallOperatorGetValue);
+  FRIEND_TEST(Light, FunctionCallOperatorSetValue);
+  FRIEND_TEST(Light, Resume);
+  FRIEND_TEST(Light, Update);
 
   // Do not implement to make sure are never called
   Light(Light & other); 
   Light & operator=(const Light &rhs);
+
+public:
+  Light();
+  virtual ~Light();
 
 protected:
   uint8_t onLightLevel;
@@ -72,11 +76,9 @@ protected:
 
 public:
 
-  Light();
-  virtual ~Light();
-
   void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
-  
+  void update() {;};
+
   bool getPaused() {return paused;};
   Light::MODE getLightMode() {return lightMode;};
   
@@ -84,24 +86,9 @@ public:
   void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
   void resume() {paused = false; lightMode = LIGHT_FLASHING;}
   void toggle();
-    
-  virtual void update() = 0;
 
   uint8_t & operator()(void) {return *p_lightLevel;};
-  //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;};
-
-
-};
-
-class OnOffLight : public Light
-{
-public:
-  OnOffLight();
-  virtual ~OnOffLight();
-
-  void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
-
-  void update() {;};
+  //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;}
 };
 
 

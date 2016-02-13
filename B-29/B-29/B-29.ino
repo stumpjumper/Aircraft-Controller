@@ -103,8 +103,8 @@ uint32_t decayTauInMilliseconds[1] = {450};
 DecayLight ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
 DecayLight position ; // Position      : Wing Tips (2), Tail (1)
 DecayLight formation; // Formation     : Wing Top (6), Fuselage Top (3)
-OnOffLight landing  ; // Landing       : Wing Bottom Retractable Landing Lights (2)
-OnOffLight illum    ; // Illumination  : Wheel Wells (3)
+Light landing  ; // Landing       : Wing Bottom Retractable Landing Lights (2)
+Light illum    ; // Illumination  : Wheel Wells (3)
 // Light objects to control each status light on the board
 FastSlowBlinkingLight blueLight; // Blue light on Aurdino board
 FastSlowBlinkingLight redLight ; // Red light on Aurdino board
