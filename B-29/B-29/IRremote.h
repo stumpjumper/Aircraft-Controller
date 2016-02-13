@@ -16,8 +16,6 @@
 #ifndef IRremote_h
 #define IRremote_h
 
-Put in here so will not compile
-
 // The following are compile-time library options.
 // If you change them, recompile the library.
 // If DEBUG is defined, a lot of debugging output will be printed during decoding.
@@ -60,12 +58,10 @@ class IRrecv
 {
 public:
   IRrecv(int recvpin);
-  virtual ~IRrecv();
-
   void blink13(int blinkflag);
-  virtual int decode(decode_results *results);
-  virtual void enableIRIn();
-  virtual void resume();
+  int decode(decode_results *results);
+  void enableIRIn();
+  void resume();
 private:
   // These are called by decode
   int getRClevel(decode_results *results, int *offset, int *used, int t1);
