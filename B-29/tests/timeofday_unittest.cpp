@@ -300,10 +300,11 @@ TEST(TimeOfDayTest, UpdateTimeOfDay) {
     arduinoMock->addMillisMins(addMins[i]);
     tod.updatePhotocellAvgValues(photocellValueArray[i]);
     tod.updateTimeOfDay();
-    EXPECT_EQ(char(dayPartArray[i]), char(tod.getDayPart()))  << "i = " << int(i);
-    EXPECT_EQ(nightStartArray   [i], tod.nightStart)    << "i = " << int(i);
-    EXPECT_EQ(dayStartArray     [i], tod.dayStart)      << "i = " << int(i);
-    EXPECT_EQ(lengthOfNightArray[i], tod.lengthOfNight) << "i = " << int(i);
+    EXPECT_EQ(char(dayPartArray[i]), char(tod.getDayPart())) << "i = " << int(i);
+    EXPECT_EQ(nightStartArray   [i], tod.nightStart)         << "i = " << int(i);
+    EXPECT_EQ(dayStartArray     [i], tod.dayStart)           << "i = " << int(i);
+    EXPECT_EQ(lengthOfNightArray[i], tod.lengthOfNight)      << "i = " << int(i);
+    EXPECT_EQ(tod.lengthOfNight    , tod.getLengthOfNight()) << "i = " << int(i);
   }
 
   releaseArduinoMock();
