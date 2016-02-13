@@ -36,7 +36,7 @@ ARDUINO_VAR_PATH =$(ARDUINO_DIR)/hardware/arduino/avr/variants/standard
 # Where to find test code.
 TEST_DIR = tests
 # Where to find src code.
-SRC_DIR = src
+SRC_DIR = B-29
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -45,7 +45,8 @@ CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GMOCK_DIR)/include \
 		-I$(ARDUINO_MOCK_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread \
+CXXFLAGS += -g -D DOING_UNIT_TESTING \
+		-Wall -Wextra -pthread \
 		-Wno-missing-field-initializers \
 		-Wno-missing-braces \
 		-Wno-unused-command-line-argument
@@ -86,17 +87,18 @@ MY_TESTEXE_A=B29_unittest
 MY_TEST_1=B29Test.ResetTimeoutOverride
 MY_TEST_2=B29Test.ResetTimeoutBatteryLow
 MY_TEST_3=B29Test.Statemap
+MY_TEST_4=B29Test.Setup
 
 MY_TESTEXE_B=integration_test
-MY_TEST_4=Integration.CycleThroughDay
+MY_TEST_5=Integration.CycleThroughDay
 mytest: $(TESTS)
-	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_4)
+	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_5)
 
-test : $(UNIT_TESTS)
+test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 	for t in $(UNIT_TESTS); do ./$$t; done;
 
-itest : $(INTEGRATION_TESTS)
-	for t in $(TESTS); do ./$$t; done;
+itest : $(UNIT_TESTS) $(INTEGRATION_TESTS)
+	for t in $(INTEGRATION_TESTS); do ./$$t; done;
 
 clean :
 	rm -f $(TESTS) gmock.a gtest_main.a gmock_main.a \
@@ -105,9 +107,17 @@ clean :
 cleandepend :
 	rm -f depend; touch depend
 
-
 format :
 	../script/codeformatter.sh
+
+kill:
+	echo "" > /dev/null
+
+depends : 
+	pwd
+	makedepend -f depend --  -IB-29 -Itests -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
+	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
+
 
 # Builds gtest.a and gtest_main.a.
 
@@ -173,10 +183,7 @@ integration_test : integration_test.o \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
-B29_unittest : B29_unittest.o \
-				B-29.a \
-				gmock_main.a  \
-				arduino_mock_all.a
+B29_unittest : B29_unittest.o B-29.a gmock_main.a arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
 timeofday_unittest : timeofday_unittest.o \
@@ -214,13 +221,5 @@ light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
 
 # old compile line:
 #	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/light_unittest.cpp
-
-#.PHONY: depend
-
-depend: 
-	pwd
-	makedepend -f depend --  -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
-	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
-
 
 include depend
