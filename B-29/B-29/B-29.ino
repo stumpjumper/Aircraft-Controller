@@ -1,7 +1,6 @@
 #include "lucky7.h"
 #include "RC65X.h"
 #include "RMYD065.h"
-//#include "IRremote.h"
 #include <EEPROM.h>
 
 // There's an interrupt collision with the IR routines and the PWM
@@ -83,9 +82,9 @@ enum Coll {
 //                          2,592,000,000
  
 uint32_t timeoutStatus;
-uint16_t lightThreshold;
 uint32_t timeoutBatteryLow;
 uint32_t timeoutOverride;
+//uint16_t lightThreshold;
 
 uint8_t  mode;
 uint16_t photocellLevel;
@@ -115,7 +114,7 @@ void resetTimeoutBatteryLow() {
   const uint32_t timeoutBatteryLowOld = timeoutBatteryLow;
   timeoutBatteryLow = time + TIMEOUTBATTERYLOW;
   if (timeoutBatteryLow < timeoutBatteryLowOld) {
-    Serial.print("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n");
+    Serial.print(F("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n"));
   }
 }
 
@@ -129,7 +128,7 @@ void resetTimeoutOverride() {
   const uint32_t timeoutOverrideOld = timeoutOverride;
   timeoutOverride   = time + TIMEOUTOVERRIDE;
   if (timeoutOverride < timeoutOverrideOld) {
-    Serial.print("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n");
+    Serial.print(F("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n"));
   }
 }
 
@@ -305,7 +304,7 @@ void setToMode( int targetMode) {
 }
 
 void processKey(uint32_t key) {
-  Serial.print("key ");
+  Serial.print(F("key "));
   Serial.println(key, HEX);
   switch (key) {
   case '0':
@@ -313,21 +312,21 @@ void processKey(uint32_t key) {
   case RC65X_KEYDOWN: // Control wheel down
   case RM_YD065_KEY0:
   case RM_YD065_KEYDOWN:
-    Serial.print("Got remote \"0\"\n");
+    Serial.print(F("Got remote \"0\"\n"));
     setToMode(MODE_OVERRIDE);
     allOff();
     break;
   case '1':
   case RC65X_KEY1:
   case RM_YD065_KEY1:
-    Serial.print("Got remote \"1\"\n");
+    Serial.print(F("Got remote \"1\"\n"));
     setToMode(MODE_OVERRIDE);
     ident.toggle();
     break;
   case '2':
   case RC65X_KEY2:
   case RM_YD065_KEY2:
-    Serial.print("Got remote \"2\"\n");
+    Serial.print(F("Got remote \"2\"\n"));
     setToMode(MODE_OVERRIDE);
     landing.toggle();
     break;
@@ -339,21 +338,21 @@ void processKey(uint32_t key) {
   case '4':
   case RC65X_KEY4:
   case RM_YD065_KEY4:
-    Serial.print("Got remote \"4\"\n");
+    Serial.print(F("Got remote \"4\"\n"));
     setToMode(MODE_OVERRIDE);
     illum.toggle();
     break;
   case '5':
   case RC65X_KEY5:
   case RM_YD065_KEY5:
-    Serial.print("Got remote \"5\"\n");
+    Serial.print(F("Got remote \"5\"\n"));
     setToMode(MODE_OVERRIDE);
     position.toggle();
     break;
   case '6':
   case RC65X_KEY6:
   case RM_YD065_KEY6:
-    Serial.print("Got remote \"6\"\n");
+    Serial.print(F("Got remote \"6\"\n"));
     setToMode(MODE_OVERRIDE);
     formation.toggle();
     break;
@@ -365,25 +364,25 @@ void processKey(uint32_t key) {
   case 'B':
   case RC65X_KEYRED:
   case RM_YD065_KEYRED:
-    Serial.print("Got remote \"B\"\n");
+    Serial.print(F("Got remote \"B\"\n"));
     setToMode(MODE_BATTERYLOW);
     break;
-  case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
-  case RC65X_KEYTVINPUT:
-  case RM_YD065_KEYINPUT:
-    Serial.print("Got remote \"R\"\n");
-    uint16_t val;
-    val = hw.photocell2();
-    EEPROM.write(LIGHTTHRESHOLDADDRESSH, (val >> 8));
-    EEPROM.write(LIGHTTHRESHOLDADDRESSL, (val & 0xFF));
-    lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
-    break;
+// case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
+// case RC65X_KEYTVINPUT:
+// case RM_YD065_KEYINPUT:
+//   Serial.print(F("Got remote \"R\"\n"));
+//   uint16_t val;
+//   val = hw.photocell2();
+//   EEPROM.write(LIGHTTHRESHOLDADDRESSH, (val >> 8));
+//   EEPROM.write(LIGHTTHRESHOLDADDRESSL, (val & 0xFF));
+//   lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
+//   break;
   case '8':
   case RC65X_KEY8:
   case RC65X_KEYUP: // Control wheel up
   case RM_YD065_KEY8:
   case RM_YD065_KEYUP:
-    Serial.print("Got remote \"8\"\n");
+    Serial.print(F("Got remote \"8\"\n"));
     setToMode(MODE_OVERRIDE);
     allLightsOn();
     break;
@@ -391,14 +390,14 @@ void processKey(uint32_t key) {
   case RC65X_KEYCHANUP:
   case RM_YD065_KEYVOLUMEUP:
   case RM_YD065_KEYPROGUP:
-    Serial.print("Got remote \"U\"\n");
+    Serial.print(F("Got remote \"U\"\n"));
     upDownMotor.motorUpStart();
     break;
   case 'D':
   case RC65X_KEYCHANDOWN:
   case RM_YD065_KEYVOLUMEDOWN:
   case RM_YD065_KEYPROGDOWN:
-    Serial.print("Got remote \"D\"\n");
+    Serial.print(F("Got remote \"D\"\n"));
     upDownMotor.motorDownStart();
     break;
   }
@@ -437,31 +436,43 @@ void statemap() {
 }
 
 void status() {
-    char buffer[40];
+    char buffer[60];
     if (millis() > timeoutStatus) {
-        // Serial.print("\x1B[0;0f\x1B[K"); // home
-        // Serial.print("\x1B[0J"); // clear
+        timeoutStatus = millis() + TIMEOUTSTATUS;
+        // Serial.print(F("\x1B[0;0f\x1B[K")); // home
+        // Serial.print(F("\x1B[0J")); // clear
 
         Serial.print(millis());
-
-        timeoutStatus = millis() + TIMEOUTSTATUS;
-        Serial.print(" lightLevel:");
+        Serial.print(F(" lL:"));
         Serial.print(hw.photocell2());
-        Serial.print(" ");
-        Serial.print("lightThreshold:");
-        Serial.print(lightThreshold);
-        Serial.print(" ");
-        Serial.print("mode:");
+        Serial.print(F(" pMax:"));
+        Serial.print(timeOfDay.getPhotocellAvgValueMax());
+        Serial.print(F(" pMin:"));
+        Serial.print(timeOfDay.getPhotocellAvgValueMin());
+        Serial.print(F(" pAVC:"));
+        Serial.print(timeOfDay.getPhotocellAvgValueCurrent());
+        Serial.print(F(" loN:"));
+        Serial.print(timeOfDay.getLengthOfNight()/3600000);
+        Serial.print(F(" m:"));
         Serial.print((char)mode);
         if (mode == MODE_BATTERYLOW) {
-          Serial.print(" timeoutBatteryLow: ");
+          Serial.print(F(" tBL: "));
           Serial.print(uint32_t(timeoutBatteryLow));
         }
-        sprintf(buffer," output:%3d %3d %3d %3d %3d %3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7);
+        if (mode == MODE_OVERRIDE) {
+          Serial.print(F(" tOr: "));
+          Serial.print(uint32_t(timeoutOverride));
+        }
+        //              123456789 123456789 123456789 123456789 
+        sprintf(buffer," lts:%3d %3d %3d %3d %3d %3d %3d,%3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
         Serial.print(buffer);
 
-        Serial.print(" ");
-        Serial.print("volt:");
+        Serial.print(F(" r:"));
+        Serial.print(redLight.getLightMode());
+        Serial.print(F(" b:"));
+        Serial.print(blueLight.getLightMode());
+
+        Serial.print(F(" v:"));
         Serial.print(hw.batteryVoltage(),2);
 
         Serial.println();
@@ -469,7 +480,7 @@ void status() {
 
     // Reset after 30 days continuous running
     if (millis() > MILLISIN30DAYS) {
-       asm volatile ("  jmp 0"); 
+      asm volatile ("  jmp 0"); 
     }
 }
 
@@ -508,20 +519,24 @@ void setup() {
 
 
     Serial.begin(115200);
-    Serial.println("NMNSH B-29 Lighting Controller setup");
+    Serial.println(F("NMNSH B-29 Lighting Controller setup"));
 
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
 
     setupLightingAndMotorChannels();
       
-    lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
+    //lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
 
     timeoutStatus = 0;
     timeoutOverride = 0;
-    timeoutBatteryLow = 2000; // Initial timeout is 2 seconds to let levels settle down but statup almost right away.
+    timeoutBatteryLow = 2000; 
 
-    setToMode(MODE_DAY);
+    // Initial put in battery low mode to let levels settle down
+    // but set timout short so will statup almost right away.
+    timeoutBatteryLow = 2000; // 2 Seconds to "warm up"
+    setBatteryLow();
+    mode = MODE_BATTERYLOW;
 }
 
 void loop() {
