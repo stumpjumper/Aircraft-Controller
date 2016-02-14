@@ -89,11 +89,12 @@ MY_TEST_A2=B29Test.ResetTimeoutBatteryLow
 MY_TEST_A3=B29Test.Statemap
 MY_TEST_A4=B29Test.Setup
 MY_TEST_A5=B29Test.UpdateLights
+MY_TEST_A6=B29Test.ProcessKey
 
 MY_TESTEXE_B=integration_test
 MY_TEST_B1=Integration.CycleThroughDay
 mytest: $(TESTS)
-	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A5)
+	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A6)
 
 test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 	for t in $(UNIT_TESTS); do ./$$t; done;
