@@ -29,8 +29,7 @@ void BlinkingLight::setup(uint8_t & lightLevelVariable,
                           const uint32_t offLengthValue,
                           const uint8_t maxLightLevelValue)
 {
-  FlashingLight::setup(lightLevelVariable, onLightLevelValue, 1, onLengthValues, 
-                       offLengthValues, maxLightLevelValues);
+  FlashingLight::setup(lightLevelVariable, onLightLevelValue, 1, onLengthValues,                        offLengthValues, maxLightLevelValues);
   onLengthValues[0] = onLengthValue;
   offLengthValues[0] = offLengthValue;
   maxLightLevelValues[0] = maxLightLevelValue;
