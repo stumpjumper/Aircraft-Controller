@@ -1,0 +1,16 @@
+Free dynamic memory:
+1066
+1088 from combining Light and OnOffLight
+1095 from getting ride of two variables that were size_t, made them uint8_t
+1095 after deleting on/off/saveState and moveto code.  Looks like compiler is good at optimizing out unused code
+1095 after some minor code weeks in printing, including saving millis() to const variable and using 4 times
+
+//         Mode              Red          Blue
+// ---------------------  ----------   ----------
+// MODE_OVERRIDE   = 'O'  slow blink   fast blink
+// MODE_BATTERYLOW = 'B'  fast blink   slow blink
+// MODE_EVENING    = 'E'  off          slow blink
+// MODE_NIGHT      = 'N'  off          on
+// MODE_PREDAWN    = 'P'  slow blink   on
+// MODE_MORNING    = 'M'  slow blink   off
+// MODE_DAY        = 'D'  on           off
