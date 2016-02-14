@@ -190,6 +190,7 @@ private:
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
   FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
   FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
+  FRIEND_TEST(B29Test, UpdateLights);
 
   uint32_t onLengthValues[1];
   uint32_t offLengthValues[1];
@@ -209,9 +210,9 @@ class FastBlinkingLight : public BlinkingLight
 {
   // A fast blinking light
 
-private:
-  static const uint32_t onLengthValue  = 1000;
-  static const uint32_t offLengthValue = 10;
+public:                                        // 4 Hz
+  static const uint32_t onLengthValue  = 125; // On for 1/8 of a second
+  static const uint32_t offLengthValue = 125; // Off for 1/8 of a second
   
 public:
   FastBlinkingLight();
@@ -225,9 +226,9 @@ class SlowBlinkingLight : public BlinkingLight
 {
   // A slow blinking light
   
-private:
-  static const uint32_t onLengthValue  = 2000;
-  static const uint32_t offLengthValue = 10;
+public:
+  static const uint32_t onLengthValue  = 1000; // On for .88 seconds
+  static const uint32_t offLengthValue = 1000; // Off for .12 second
   
 public:
   SlowBlinkingLight();
@@ -249,9 +250,10 @@ public:
   
 private:
   FRIEND_TEST(FastSlowBlinkingLight, Constructor);
+  FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
   FRIEND_TEST(FastSlowBlinkingLight, SetToFast);
   FRIEND_TEST(FastSlowBlinkingLight, SetToSlow);
-  FRIEND_TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue);
+  FRIEND_TEST(B29Test, UpdateLights);
   
   // Do not implement to make sure are never called
   FastSlowBlinkingLight(Light & other); 
