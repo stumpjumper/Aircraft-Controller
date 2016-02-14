@@ -67,9 +67,9 @@ enum Coll {
 } ;
 
 #define TIMEOUTSTATUS              1000  //   1 sec in milliseconds
-#define TIMEOUTEVENING         14400000U //   4 hours in milliseconds
+#define TIMEOUTEVENING         18000000U //   5 hours in milliseconds
 
-#define TIMEOUTOVERRIDE          600000  //  10 minutes
+#define TIMEOUTOVERRIDE          300000  //   5 minutes
 
 #define TIMEOUTCOLLISIONON           50  // .05 sec
 #define TIMEOUTCOLLISIONSHORT       250  // .25 sec
@@ -94,10 +94,10 @@ TimeOfDay   timeOfDay   = TimeOfDay();
 UpDownMotor upDownMotor = UpDownMotor();
 
 // Decay settings for identification, position and formation lights
-uint32_t decayOnLengths[1]         = {250};
-uint32_t decayDecayLengths[1]      = {1100-250};
-uint8_t  decayMaxLightLevels[1]    = {ON};
-uint32_t decayTauInMilliseconds[1] = {450};
+uint32_t decayOnLengths[1]         = {250};  // On for .25 seconds
+uint32_t decayDecayLengths[1]      = {1500}; // Decay for 1.5
+uint8_t  decayMaxLightLevels[1]    = {ON};  
+uint32_t decayTauInMilliseconds[1] = {50};  // Half-life = .05 seconds
 
 // Light objects to control each channel
 DecayLight ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
@@ -209,11 +209,7 @@ void setNight() {
   redLight .off();
   blueLight.on();
 
-  ident.on();
-  landing.on();
-  illum.on();
-  position.resume();
-  formation.on();
+  allOff();
 }
 
 void setPreDawn() {
@@ -400,11 +396,21 @@ void processKey(uint32_t key) {
     Serial.print(F("Got remote \"D\"\n"));
     upDownMotor.motorDownStart();
     break;
+  case 'P':
+  case RC65X_KEYPLAY:
+  case RC65X_KEYSELECT:
+  case RM_YD065_KEYPLAY:
+  case RM_YD065_KEYOK:
+    Serial.print(F("Got remote \"P\"\n"));
+    const uint16_t lightLevel = hw.photocell2();
+    const TimeOfDay::DayPart dayPart = timeOfDay.updateAverage(lightLevel);
+    setToMode(dayPart);
+    break;
   }
 }
 
 void statemap() {
-  float batteryVoltage = hw.batteryVoltage();
+  const float batteryVoltage = hw.batteryVoltage();
   if ((mode != MODE_BATTERYLOW) &&
       ! overrideBatteryLow()    &&
       batteryVoltage <= BATTERYLOW) {
@@ -412,7 +418,7 @@ void statemap() {
   }
 
   const uint16_t lightLevel = hw.photocell2();
-  TimeOfDay::DayPart dayPart = timeOfDay.updateAverage(lightLevel);
+  const TimeOfDay::DayPart dayPart = timeOfDay.updateAverage(lightLevel);
 
   switch (mode) {
   case MODE_BATTERYLOW:
@@ -437,12 +443,13 @@ void statemap() {
 
 void status() {
     char buffer[60];
-    if (millis() > timeoutStatus) {
-        timeoutStatus = millis() + TIMEOUTSTATUS;
+    const uint32_t time = millis();
+    if (time > timeoutStatus) {
+        timeoutStatus = time + TIMEOUTSTATUS;
         // Serial.print(F("\x1B[0;0f\x1B[K")); // home
         // Serial.print(F("\x1B[0J")); // clear
 
-        Serial.print(millis());
+        Serial.print(time);
         Serial.print(F(" lL:"));
         Serial.print(hw.photocell2());
         Serial.print(F(" pMax:"));
@@ -457,11 +464,11 @@ void status() {
         Serial.print((char)mode);
         if (mode == MODE_BATTERYLOW) {
           Serial.print(F(" tBL: "));
-          Serial.print(uint32_t(timeoutBatteryLow));
+          Serial.print(uint32_t(timeoutBatteryLow-time));
         }
         if (mode == MODE_OVERRIDE) {
           Serial.print(F(" tOr: "));
-          Serial.print(uint32_t(timeoutOverride));
+          Serial.print(uint32_t(timeoutOverride)-time);
         }
         //              123456789 123456789 123456789 123456789 
         sprintf(buffer," lts:%3d %3d %3d %3d %3d %3d %3d,%3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
@@ -479,7 +486,7 @@ void status() {
     }
 
     // Reset after 30 days continuous running
-    if (millis() > MILLISIN30DAYS) {
+    if (time > MILLISIN30DAYS) {
       asm volatile ("  jmp 0"); 
     }
 }
