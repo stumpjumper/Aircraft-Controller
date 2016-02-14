@@ -7,6 +7,12 @@ using std::setw;
 const uint8_t onLightLevelValue = ON-2;
 const uint8_t maxLightLevelValue = 199;
 
+const uint32_t fastOnLengthValue  = FastBlinkingLight::onLengthValue;
+const uint32_t fastOffLengthValue = FastBlinkingLight::offLengthValue;
+
+const uint32_t slowOnLengthValue  = SlowBlinkingLight::onLengthValue;
+const uint32_t slowOffLengthValue = SlowBlinkingLight::offLengthValue;
+
 TEST(Light, Constructor) {
 
   uint8_t lightVariable;
@@ -865,9 +871,9 @@ TEST(FastBlinkingLight, Constructor)
   EXPECT_EQ(false, light1.getPaused());
 
   EXPECT_EQ(0,    light1.changeTime);
-  EXPECT_EQ(1000, light1.onLength[0]);
-  EXPECT_EQ(10  , light1.decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.maxLightLevel[0]);
+  EXPECT_EQ(fastOnLengthValue , light1.onLength[0]);
+  EXPECT_EQ(fastOffLengthValue, light1.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.maxLightLevel[0]);
 }
 
 TEST(SlowBlinkingLight, Constructor)
@@ -884,9 +890,9 @@ TEST(SlowBlinkingLight, Constructor)
   EXPECT_EQ(false, light1.getPaused());
 
   EXPECT_EQ(0,    light1.changeTime);
-  EXPECT_EQ(2000, light1.onLength[0]);
-  EXPECT_EQ(10  , light1.decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.maxLightLevel[0]);
+  EXPECT_EQ(slowOnLengthValue , light1.onLength[0]);
+  EXPECT_EQ(slowOffLengthValue, light1.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.maxLightLevel[0]);
 }
 
 TEST(FastSlowBlinkingLight, Constructor)
@@ -912,14 +918,14 @@ TEST(FastSlowBlinkingLight, Constructor)
   EXPECT_EQ(false, light1.slowLight.getPaused());
   
   EXPECT_EQ(0,    light1.fastLight.changeTime);
-  EXPECT_EQ(1000, light1.fastLight.onLength[0]);
-  EXPECT_EQ(10  , light1.fastLight.decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.fastLight.maxLightLevel[0]);
+  EXPECT_EQ(fastOnLengthValue , light1.fastLight.onLength[0]);
+  EXPECT_EQ(fastOffLengthValue, light1.fastLight.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.fastLight.maxLightLevel[0]);
   
   EXPECT_EQ(0,    light1.slowLight.changeTime);
-  EXPECT_EQ(2000, light1.slowLight.onLength[0]);
-  EXPECT_EQ(10  , light1.slowLight.decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.slowLight.maxLightLevel[0]);
+  EXPECT_EQ(slowOnLengthValue , light1.slowLight.onLength[0]);
+  EXPECT_EQ(slowOffLengthValue, light1.slowLight.decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.slowLight.maxLightLevel[0]);
 }
 
 TEST(FastSlowBlinkingLight, SetToFast)
@@ -934,9 +940,9 @@ TEST(FastSlowBlinkingLight, SetToFast)
   light1.setToFast();
   
   EXPECT_EQ(0,    light1.p_currentLight->changeTime);
-  EXPECT_EQ(1000, light1.p_currentLight->onLength[0]);
-  EXPECT_EQ(10  , light1.p_currentLight->decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.p_currentLight->maxLightLevel[0]);
+  EXPECT_EQ(fastOnLengthValue , light1.p_currentLight->onLength[0]);
+  EXPECT_EQ(fastOffLengthValue, light1.p_currentLight->decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.p_currentLight->maxLightLevel[0]);
   EXPECT_EQ(FastSlowBlinkingLight::FAST , light1.getSpeed());
 }
 
@@ -952,9 +958,9 @@ TEST(FastSlowBlinkingLight, SetToSlow)
   light1.setToSlow();
   
   EXPECT_EQ(0,    light1.p_currentLight->changeTime);
-  EXPECT_EQ(2000, light1.p_currentLight->onLength[0]);
-  EXPECT_EQ(10  , light1.p_currentLight->decayLength[0]);
-  EXPECT_EQ(maxLightLevelValue , light1.p_currentLight->maxLightLevel[0]);
+  EXPECT_EQ(slowOnLengthValue , light1.p_currentLight->onLength[0]);
+  EXPECT_EQ(slowOffLengthValue, light1.p_currentLight->decayLength[0]);
+  EXPECT_EQ(maxLightLevelValue, light1.p_currentLight->maxLightLevel[0]);
   EXPECT_EQ(FastSlowBlinkingLight::SLOW , light1.getSpeed());
 }
 
