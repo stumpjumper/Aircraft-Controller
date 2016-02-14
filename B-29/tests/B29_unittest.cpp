@@ -329,7 +329,25 @@ TEST_F(B29Test, UpdateLights) {
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
+
+  // Override aircraft light setup so timeing is correct for tests below
+  decayOnLengths[0]         = 250;
+  decayDecayLengths[0]      = 1100-250;
+  decayMaxLightLevels[0]    = ON;
+  decayTauInMilliseconds[0] = 450;
+
   setupLightingAndMotorChannels();
+
+  // Override red and blue light's setup so timeing is correct for tests below
+  blueLight.slowLight.onLengthValues [0] = 2000;
+  blueLight.slowLight.offLengthValues[0] =   10;
+  blueLight.fastLight.onLengthValues [0] = 1000;
+  blueLight.fastLight.offLengthValues[0] =   10;
+
+  redLight .slowLight.onLengthValues [0] = 2000;
+  redLight .slowLight.offLengthValues[0] =   10;
+  redLight .fastLight.onLengthValues [0] = 1000;
+  redLight .fastLight.offLengthValues[0] =   10;
 
   // On construction, all lights and motors are off
   EXPECT_EQ(OFF, ident());
@@ -342,7 +360,8 @@ TEST_F(B29Test, UpdateLights) {
   EXPECT_EQ(OFF, blueLight());
   EXPECT_EQ(OFF, redLight());
 
-  // At time = 200 msecs decay lights are not yet decaying as their on-time is 250 msecs
+  // At time = 200 msecs decay lights are not yet decaying as their
+  //   on-time is 250 msecs
   // on/off lights are whatever they are set to
   // Fast blinking lights are still on as have 1000 msec on time
   // Motor has 2 second delay before it starts
@@ -755,13 +774,13 @@ TEST_F(B29Test, SetNight) {
   arduinoMock->setMillisRaw(1);
   updateLights();
 
-  EXPECT_EQ(ON, ident());
-  EXPECT_EQ(ON, position());
-  EXPECT_EQ(ON, formation());
-  EXPECT_EQ(ON, landing());
-  EXPECT_EQ(ON, illum());
+  EXPECT_EQ(OFF, ident());
+  EXPECT_EQ(OFF, position());
+  EXPECT_EQ(OFF, formation());
+  EXPECT_EQ(OFF, landing());
+  EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(false, position.getPaused());
+  EXPECT_EQ(true, position.getPaused());
 
   checkNightStatusLights();
 
