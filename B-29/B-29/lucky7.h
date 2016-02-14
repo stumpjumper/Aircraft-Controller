@@ -290,8 +290,16 @@ public:
 
 class TimeOfDay
 {
+private:
+  FRIEND_TEST(TimeOfDayTest, setup);
+  FRIEND_TEST(TimeOfDayTest, Constructor);
+  FRIEND_TEST(TimeOfDayTest, getNightDayThreshold);
+  FRIEND_TEST(TimeOfDayTest, UpdatePhotocellAvgValues);
+  FRIEND_TEST(TimeOfDayTest, UpdateTimeOfDay);
+  FRIEND_TEST(B29Test, Statemap);
+  FRIEND_TEST(B29Test, ProcessKey);
+
 public:
-  
   enum DayPart {
     EVENING    = 'E', // Light level below threshhold, EVENING timer started, nightStart set.
     NIGHT      = 'N', // Light level below threshhold and EVENING timed out
@@ -318,13 +326,6 @@ public:
   
   
 private:
-  FRIEND_TEST(TimeOfDayTest, setup);
-  FRIEND_TEST(TimeOfDayTest, Constructor);
-  FRIEND_TEST(TimeOfDayTest, getNightDayThreshold);
-  FRIEND_TEST(TimeOfDayTest, UpdatePhotocellAvgValues);
-  FRIEND_TEST(TimeOfDayTest, UpdateTimeOfDay);
-  FRIEND_TEST(B29Test, Statemap);
-  
   uint16_t photocellAvgValueCurrent;
   uint16_t photocellAvgValueMin;
   uint16_t photocellAvgValueMax;
