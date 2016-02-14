@@ -535,8 +535,8 @@ void checkStatusLightsAllOff() {
 
 
 void checkOverrideStatusLights() {
-  EXPECT_EQ(ON, redLight());
-  EXPECT_EQ(ON, blueLight());
+  //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
+  //EXPECT_EQ(ON, blueLight()); // Flashing light could be OFF
   EXPECT_EQ(false, redLight.getPaused());
   EXPECT_EQ(false, blueLight.getPaused());
 
@@ -547,8 +547,8 @@ void checkOverrideStatusLights() {
 }
 
 void checkBatteryLowStatusLights() {
-  EXPECT_EQ(ON, redLight());
-  EXPECT_EQ(ON, blueLight());
+  //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
+  //EXPECT_EQ(ON, blueLight()); // Flashing light could be OFF
   EXPECT_EQ(false, redLight.getPaused());
   EXPECT_EQ(false, blueLight.getPaused());
 
@@ -559,7 +559,7 @@ void checkBatteryLowStatusLights() {
 }
 
 void checkEveningStatusLights() {
-  EXPECT_EQ(ON , blueLight());
+  //EXPECT_EQ(ON , blueLight());  // Flashing light could be OFF
   EXPECT_EQ(true , redLight.getPaused());
   EXPECT_EQ(false, blueLight.getPaused());
 
@@ -580,7 +580,7 @@ void checkNightStatusLights() {
 }
 
 void checkPreDawnStatusLights() {
-  EXPECT_EQ(ON, redLight());
+  //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
   EXPECT_EQ(true , blueLight.getPaused());
   EXPECT_EQ(false, redLight.getPaused());
 
@@ -591,13 +591,12 @@ void checkPreDawnStatusLights() {
 }
 
 void checkMorningStatusLights() {
-  EXPECT_EQ(ON , redLight());
+  //EXPECT_EQ(ON , redLight());  // Flashing light could be OFF
   EXPECT_EQ(OFF, blueLight());
   EXPECT_EQ(false, redLight.getPaused());
   EXPECT_EQ(true , blueLight.getPaused());
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
-  EXPECT_EQ(OFF, blueLight());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 }
 
@@ -1034,6 +1033,8 @@ TEST_F(B29Test, ProcessKey) {
     .Times(AtLeast(1));
   EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"D\"\n")))
     .Times(AtLeast(1));
+  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"P\"\n")))
+    .Times(AtLeast(1));
 
   // EEPROMMock * eepromMock  = EEPROMMockInstance();
   // EXPECT_CALL(*eepromMock, write(_,_))
@@ -1088,39 +1089,77 @@ TEST_F(B29Test, ProcessKey) {
     
   //-------------------------------------------------------
   // '8' : allLightsOn
+  // 'P' : Play
   //-------------------------------------------------------
 
-  redLight.off();
-  blueLight.off();
-  checkStatusLightsAllOff();
-    
-  mode = MODE_NOTSET;
-  processKey('8');
-  EXPECT_EQ(MODE_OVERRIDE, mode);
-  testAllLightsOn();
-  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
-    
-  // Move lights to new state
-  time += 10000;
-  arduinoMock->setMillisRaw(time); 
-  updateLights();
+  typedef void (*check_status_function)(void);
+  check_status_function checkStatus[] =
+    {checkEveningStatusLights , checkNightStatusLights,
+     checkPreDawnStatusLights , checkMorningStatusLights,
+     checkDayStatusLights};
 
-  checkOverrideStatusLights();
+  size_t i;
+
+  TimeOfDay::DayPart dayParts[] = {TimeOfDay::EVENING, TimeOfDay::NIGHT  ,
+                                   TimeOfDay::PREDAWN, TimeOfDay::MORNING,
+                                   TimeOfDay::DAY                         };
+  size_t numDayParts = sizeof(dayParts)/sizeof(TimeOfDay::DayPart);
+  assert (numDayParts == 5);
+
+  timeOfDay.setUpdateAverageTestMode(true); // Allows us to test statemap easily
+
+  for (i = 0; i < numDayParts; i++) {
+
+    //-----------------------
+    // '8' : allLightsOn
+    //-----------------------
+    timeOfDay.currentDayPart = dayParts[i];
+
+    redLight.off();
+    blueLight.off();
+    checkStatusLightsAllOff();
     
-  redLight.off();
-  blueLight.off();
-  processKey('0');
-  EXPECT_EQ(MODE_OVERRIDE, mode);
-  testAllLightsOn();
-  EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
+    mode = MODE_NOTSET;
+    processKey('8');
+    EXPECT_EQ(MODE_OVERRIDE, mode);
+    testAllLightsOn();
+    EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
+    
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+    
+    checkOverrideStatusLights();
+    
+    redLight.off();
+    blueLight.off();
+    processKey('0');
+    EXPECT_EQ(MODE_OVERRIDE, mode);
+    testAllLightsOn();
+    EXPECT_EQ(TIMEOUTOVERRIDE + time, timeoutOverride);
+    
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+    
+    checkStatusLightsAllOff();
 
-  // Move lights to new state
-  time += 10000;
-  arduinoMock->setMillisRaw(time); 
-  updateLights();
+    //-----------------------
+    // 'P' : Play
+    //-----------------------
+    redLight.off();
+    blueLight.off();
+    processKey('P');
+    EXPECT_EQ(dayParts[i], mode);
 
-  
-  checkStatusLightsAllOff();
+    // Move lights to new state
+    time += 10000;
+    arduinoMock->setMillisRaw(time); 
+    updateLights();
+    checkStatus[i]();
+  }
 
   //-------------------------------------------------------
   // '1','2','4','5','6' : toggle o1, toggle o2, toggle o3
