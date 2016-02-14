@@ -68,7 +68,7 @@ TEST_SRCS = integration_test.cpp B29_unittest.cpp timeofday_unittest.cpp \
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 		$(GTEST_DIR)/include/gtest/internal/*.h
 
-# All Google Mock headers. Note that all Google Test headers are
+# All Google Mock headers. Note that all Google Test headeArs are
 # included here too, as they are included by Google Mock headers.
 # Usually you shouldn't change this definition.
 GMOCK_HEADERS = $(GMOCK_DIR)/include/gmock/*.h \
@@ -84,15 +84,16 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 all : $(TESTS)
 
 MY_TESTEXE_A=B29_unittest
-MY_TEST_1=B29Test.ResetTimeoutOverride
-MY_TEST_2=B29Test.ResetTimeoutBatteryLow
-MY_TEST_3=B29Test.Statemap
-MY_TEST_4=B29Test.Setup
+MY_TEST_A1=B29Test.ResetTimeoutOverride
+MY_TEST_A2=B29Test.ResetTimeoutBatteryLow
+MY_TEST_A3=B29Test.Statemap
+MY_TEST_A4=B29Test.Setup
+MY_TEST_A5=B29Test.UpdateLights
 
 MY_TESTEXE_B=integration_test
-MY_TEST_5=Integration.CycleThroughDay
+MY_TEST_B1=Integration.CycleThroughDay
 mytest: $(TESTS)
-	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_5)
+	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A5)
 
 test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 	for t in $(UNIT_TESTS); do ./$$t; done;
@@ -119,10 +120,12 @@ depends :
 	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
 	sed -e 's#^tests/##p' -e 's#^B-29/##p' depend > depend_tmp
 	mv depend_tmp depend
-	sed -e 's|Google Drive|Google\\ Drive|p' depend > depend_tmp
+#       =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-=
+	sed -e 's|Google Drive|Google\\ Drive|g' depend > depend_tmp
 	mv depend_tmp depend
-	sed -e 's|GDrive projects|GDrive\\ projects|p' depend > depend_tmp
+	sed -e 's|GDrive projects|GDrive\\ projects|g' depend > depend_tmp
 	mv depend_tmp depend
+#       =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-=
 
 # Builds gtest.a and gtest_main.a.
 
