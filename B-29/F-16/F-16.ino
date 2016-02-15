@@ -72,16 +72,16 @@ Lucky7    hw        = Lucky7();
 TimeOfDay timeOfDay = TimeOfDay(); 
 
 // Decay settings for position lights
-uint32_t positionOnLengths[1]          = {250};  // On for .25 seconds
-uint32_t positionDecayLengths[1]       = {1500}; // Decay for 1.5
+uint32_t positionOnLengths[1]          = {100};  // On for .1 seconds
+uint32_t positionDecayLengths[1]       = {1100}; // Decay for 1.1
 uint8_t  positionMaxLightLevels[1]     = {ON};  
-uint32_t positionTauInMilliseconds[1]  = {50};  // Half-life = .05 seconds
+uint32_t positionTauInMilliseconds[1]  = {175};  // Half-life = .2 seconds
 
 // Decay settings for collision lights
 uint32_t collisionOnLengths[2]         = {50,50};   // On : .05s, .05s
-uint32_t collisionDecayLengths[2]      = {250,2100};// Off: .25s, then 2.1 sec
-uint8_t  collisionMaxLightLevels[2]    = {ON};      // Full power
-uint32_t collisionTauInMilliseconds[2] = {0,0};     // On/Off, no decay
+uint32_t collisionDecayLengths[2]      = {250,1500};// Off: .25s, then 1.75 sec
+uint8_t  collisionMaxLightLevels[2]    = {ON,ON};      // Full power
+uint32_t  collisionTauInMilliseconds[2]= {0,0};     // On/Off, no decay
 
 // Decay settings for taxi lights during day and night
 uint32_t taxiDayOnLengths[1]           = {300000}; // On 5 minutes
@@ -138,9 +138,9 @@ void allLightsOff() {
 
 void updateLights() {
   // no need to hammer this
-  const uint32_t time = millis();
-  if (time > timeoutUpdateLights) {
-    timeoutUpdateLights = time + 10;
+  // const uint32_t time = millis();
+  // if (time > timeoutUpdateLights) {
+  //   timeoutUpdateLights = time + 10;
     
     taxi     .update();
     position .update();
@@ -149,7 +149,7 @@ void updateLights() {
 
     blueLight.update();
     redLight .update();
-  }
+//   }
 }
 
 void allOff() {
@@ -417,15 +417,15 @@ void status() {
         // Serial.print(F("\x1B[0J")); // clear
 
         Serial.print(time);
-        Serial.print(F(" lL:"));
+        Serial.print(F(" p:"));
         Serial.print(hw.photocell2());
-        Serial.print(F(" pMax:"));
+        Serial.print(F(" pMx:"));
         Serial.print(timeOfDay.getPhotocellAvgValueMax());
-        Serial.print(F(" pMin:"));
+        Serial.print(F(" pMn:"));
         Serial.print(timeOfDay.getPhotocellAvgValueMin());
-        Serial.print(F(" pAVC:"));
+        Serial.print(F(" pAv:"));
         Serial.print(timeOfDay.getPhotocellAvgValueCurrent());
-        Serial.print(F(" loN:"));
+        Serial.print(F(" lN:"));
         Serial.print(timeOfDay.getLengthOfNight()/3600000);
         Serial.print(F(" m:"));
         Serial.print((char)mode);
@@ -437,11 +437,14 @@ void status() {
           Serial.print(F(" tOr: "));
           Serial.print(uint32_t(timeoutOverride)-time);
         }
-        //              123456789 123456789 123456789 123456789 
-        sprintf(buffer," lts:%3d %3d %3d %3d %3d %3d %3d,%3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
+        sprintf(buffer,
+                //        1         2         3         4         5         6
+                //23456789 123456789 123456789 123456789 123456789 123456789 
+                "|1:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
+                hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
         Serial.print(buffer);
 
-        Serial.print(F(" r:"));
+        Serial.print(F("r:"));
         Serial.print(redLight.getLightMode());
         Serial.print(F(" b:"));
         Serial.print(blueLight.getLightMode());
@@ -478,7 +481,7 @@ void setupLightingAndMotorChannels()
                   taxiDayMaxLightLevels, taxiDayTauInMilliseconds);
   position .setup(hw.o5, ON, 1, positionOnLengths, positionDecayLengths,
                   positionMaxLightLevels, positionTauInMilliseconds);
-  collision.setup(hw.o6, ON, 1, collisionOnLengths, collisionDecayLengths,
+  collision.setup(hw.o6, ON, 2, collisionOnLengths, collisionDecayLengths,
                   collisionMaxLightLevels, collisionTauInMilliseconds);
   floods   .setup(hw.o7, ON);
 
