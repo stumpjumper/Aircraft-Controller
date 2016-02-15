@@ -36,7 +36,7 @@ ARDUINO_VAR_PATH =$(ARDUINO_DIR)/hardware/arduino/avr/variants/standard
 # Where to find test code.
 TEST_DIR = tests
 # Where to find src code.
-SRC_DIR = B-29
+SRC_DIR = src
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -55,13 +55,14 @@ CXXFLAGS += -g -D DOING_UNIT_TESTING \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-UNIT_TESTS = B29_unittest timeofday_unittest \
+UNIT_TESTS = F16_unittest B29_unittest timeofday_unittest \
 	updownmotor_unittest lucky7_unittest light_unittest
 INTEGRATION_TESTS = integration_test
 TESTS = $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
-TEST_SRCS = integration_test.cpp B29_unittest.cpp timeofday_unittest.cpp \
-	updownmotor_unittest.cpp lucky7_unittest.cpp light_unittest.cpp 
+TEST_SRCS = integration_test.cpp F16_unittest.cpp B29_unittest.cpp \
+	timeofday_unittest.cpp updownmotor_unittest.cpp lucky7_unittest.cpp \
+	light_unittest.cpp 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -81,7 +82,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 # House-keeping build targets.
 
-all : $(TESTS)
+all : $(TESTS) F-16.o
 
 MY_TESTEXE_A=B29_unittest
 MY_TEST_A1=B29Test.ResetTimeoutOverride
@@ -91,10 +92,13 @@ MY_TEST_A4=B29Test.Setup
 MY_TEST_A5=B29Test.UpdateLights
 MY_TEST_A6=B29Test.ProcessKey
 
-MY_TESTEXE_B=integration_test
-MY_TEST_B1=Integration.CycleThroughDay
+MY_TESTEXE_B=light_unittest
+MY_TEST_B1=DecayLight.Update2
+
+MY_TESTEXE_C=integration_test
+MY_TEST_C1=Integration.CycleThroughDay
 mytest: $(TESTS)
-	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A6)
+	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_B1)
 
 test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 	for t in $(UNIT_TESTS); do ./$$t; done;
@@ -117,9 +121,9 @@ kill:
 
 depends : 
 	pwd
-	makedepend -f depend --  -IB-29 -Itests -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
+	makedepend -f depend --  -I$(SRC_DIR) -Itests -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
 	-I$(GMOCK_DIR)/include -I$(TEST_DIR) -- $(TEST_DIR)/*.cpp $(SRC_DIR)/*.cpp
-	sed -e 's#^tests/##p' -e 's#^B-29/##p' depend > depend_tmp
+	sed -e 's#^tests/##p' -e 's#^src/##p' depend > depend_tmp
 	mv depend_tmp depend
 #       =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-= Hack =-=
 	sed -e 's|Google Drive|Google\\ Drive|g' depend > depend_tmp
@@ -197,6 +201,9 @@ integration_test : integration_test.o \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
+F16_unittest : F16_unittest.o B-29.a gmock_main.a arduino_mock_all.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+#----------
 B29_unittest : B29_unittest.o B-29.a gmock_main.a arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
@@ -205,35 +212,26 @@ timeofday_unittest : timeofday_unittest.o \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
-
 #----------
 updownmotor_unittest : updownmotor_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
 #----------
 lucky7_unittest : lucky7_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
 #----------
 light_unittest : light_unittest.o \
 				B-29.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
 #----------
-
 light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
 				$(GTEST_HEADERS)
-
-# old compile line:
-#	$(CXX) $(CPPFLAGS) -I../include/arduino-mock $(CXXFLAGS) -c $(TEST_DIR)/light_unittest.cpp
 
 include depend
