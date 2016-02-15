@@ -4,6 +4,7 @@ Free dynamic memory:
 1095 from getting ride of two variables that were size_t, made them uint8_t
 1095 after deleting on/off/saveState and moveto code.  Looks like compiler is good at optimizing out unused code
 1095 after some minor code weeks in printing, including saving millis() to const variable and using 4 times
+1091 after adding support for timeoutUpdateLights.  Added a uint32_t and some logic
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
