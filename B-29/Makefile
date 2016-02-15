@@ -175,7 +175,10 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 B-29.o : $(SRC_DIR)/B-29.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-29.a : lucky7.o B-29.o 
+F-16.o : $(SRC_DIR)/F-16.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
+B-29.a : lucky7.o B-29.o F-16.o 
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
