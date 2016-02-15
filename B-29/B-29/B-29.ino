@@ -43,11 +43,6 @@
 //     Interior
 //     Tail Illumination
 
-enum {
-  LIGHTTHRESHOLDADDRESSH,
-  LIGHTTHRESHOLDADDRESSL
-} ;
-
 enum Mode {
   MODE_NOTSET     = 0,
   MODE_OVERRIDE   = 'O',
@@ -74,30 +69,28 @@ enum Coll {
 #define TIMEOUTCOLLISIONON           50  // .05 sec
 #define TIMEOUTCOLLISIONSHORT       250  // .25 sec
 #define TIMEOUTCOLLISIONLONG       2100  // 2.1 sec
-#define TIMEOUTTAXI              300000  //   5 minutes
 #define TIMEOUTBATTERYLOW         30000  //  30 sec
 #define TIMEOUTBATTERYLOWFLASH      100  //  .1 sec
 #define BATTERYLOW                 11.8  // Volts  
 #define MILLISIN30DAYS       2592000000U //  30 days
 //                        2,592,000,000
  
-uint32_t timeoutStatus;
-uint32_t timeoutBatteryLow;
-uint32_t timeoutOverride;
-//uint16_t lightThreshold;
+uint32_t timeoutStatus = 0;
+uint32_t timeoutBatteryLow = 0;
+uint32_t timeoutOverride = 0;
+uint32_t timeoutUpdateLights = 0;
 
-uint8_t  mode;
-uint16_t photocellLevel;
+uint8_t  mode = MODE_NOTSET;
 
 Lucky7      hw          = Lucky7();
 TimeOfDay   timeOfDay   = TimeOfDay(); 
 UpDownMotor upDownMotor = UpDownMotor();
 
 // Decay settings for identification, position and formation lights
-uint32_t decayOnLengths[1]         = {250};  // On for .25 seconds
-uint32_t decayDecayLengths[1]      = {1500}; // Decay for 1.5
+uint32_t decayOnLengths[1]         = {750};  // On for .25 seconds
+uint32_t decayDecayLengths[1]      = {750}; // Decay for 1.5
 uint8_t  decayMaxLightLevels[1]    = {ON};  
-uint32_t decayTauInMilliseconds[1] = {50};  // Half-life = .05 seconds
+uint32_t decayTauInMilliseconds[1] = {40};  // Half-life = .05 seconds
 
 // Light objects to control each channel
 DecayLight ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
@@ -149,15 +142,21 @@ void allLightsOff() {
 }
 
 void updateLights() {
-  ident.update();
-  landing.update();
-  illum.update();
-  position.update();
-  formation.update();
-  upDownMotor.motorUpdate();
+  // no need to hammer this
+  const uint32_t time = millis();
+  if (time > timeoutUpdateLights) {
+    timeoutUpdateLights = time + 10;
 
-  blueLight.update();
-  redLight.update();
+    ident.update();
+    landing.update();
+    illum.update();
+    position.update();
+    formation.update();
+    upDownMotor.motorUpdate();
+    
+    blueLight.update();
+    redLight.update();
+  }
 }
 
 void allOff() {
@@ -363,16 +362,6 @@ void processKey(uint32_t key) {
     Serial.print(F("Got remote \"B\"\n"));
     setToMode(MODE_BATTERYLOW);
     break;
-// case 'R': // Re-read photocell values?  Reset photocell values?  Reset 
-// case RC65X_KEYTVINPUT:
-// case RM_YD065_KEYINPUT:
-//   Serial.print(F("Got remote \"R\"\n"));
-//   uint16_t val;
-//   val = hw.photocell2();
-//   EEPROM.write(LIGHTTHRESHOLDADDRESSH, (val >> 8));
-//   EEPROM.write(LIGHTTHRESHOLDADDRESSL, (val & 0xFF));
-//   lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
-//   break;
   case '8':
   case RC65X_KEY8:
   case RC65X_KEYUP: // Control wheel up
@@ -533,15 +522,13 @@ void setup() {
 
     setupLightingAndMotorChannels();
       
-    //lightThreshold = (EEPROM.read(LIGHTTHRESHOLDADDRESSH) << 8) + EEPROM.read(LIGHTTHRESHOLDADDRESSL);
-
     timeoutStatus = 0;
     timeoutOverride = 0;
+    timeoutUpdateLights = 0;
     timeoutBatteryLow = 2000; 
 
     // Initial put in battery low mode to let levels settle down
     // but set timout short so will statup almost right away.
-    //std::cout << "Hello" << std::endl;
     timeoutBatteryLow = 2000; // 2 Seconds to "warm up"
     setBatteryLow();
     mode = MODE_BATTERYLOW;
@@ -551,20 +538,25 @@ void loop() {
     input();        // 1) Call hw.loop() and ask Lucky7 hardware to set all
                     //    hardware output levels based on software output 
                     //    levels (0-255)
-                    // 2) Read remote control and serial port. If find something:
-                    //    2a) Put in MODE_OVERRIDE if find something on either, 
-                    //        remote control has precedence
-                    //    2b) Call procdss key to set MODE_* and optionally set 
-                    //        some output levels (0-255) and/or (re)set timers 
-                    //        and/or re(set) eprom data (like photo sensor
-                    //        threshold)
-    statemap();     // 1) Read battery, MODE_BATTERYLOW if low
-                    // 2) Walk through statemap using case on MODE_* and timers
-                    //    2a) Change MODE_* as needed based on timers and sensor
-                    //        thresholds via setToMode();
-                    //    2b) Maybe initiallize some levels and times.
-    updateLights(); // Set the software output levels (0-255) on the outputs.
+                    // 2) Read IR and serial port. If find something:
+                    //    2a) Put in MODE_OVERRIDE if find something on either,
+                    //        IR port or serial port, IR has precedence
+                    //    2b) Call procdssKey to set correct MODE_* and
+                    //        optionally set set output levels (On/OFF)
+                    //        and/or (re)set timers.
+    statemap();     // 1) Read battery and put in MODE_BATTERYLOW if needed
+                    // 2) Get dayPart from TimeOfDay class.
+                    //    Pass it the photocell level, which is used to figure
+                    //    out what the time of day is
+                    // 3) If MODE_BATTERYLOW or MODE_OVERRIDE, see if should
+                    //    exit these based on new battery level and/or
+                    //    timeout counters.  Reset counters as needed.
+                    //    3a) If exit, change MODE_* as needed based on
+                    //        setToMode(dayPart)
+                    // 4) If not MODE_BATTERYLOW or MODE_OVERRIDE, 
+                    //    simply call setToMode(dayPart)
+    updateLights(); // Loop over the Light objects and call update on them,
+                    // but only do this every 10 millis, not every 1 millis
     status();       // Print to serial port, reset board if running for 30 days.
-
 }
 
