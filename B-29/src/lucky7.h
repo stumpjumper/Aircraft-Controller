@@ -125,6 +125,7 @@ class DecayLight: public Light
 private:
   FRIEND_TEST(DecayLight, Constructor);
   FRIEND_TEST(DecayLight, Update);
+  FRIEND_TEST(DecayLight, Update2);
   FRIEND_TEST(DecayLight, UpdateWithTauNULL);
   FRIEND_TEST(DecayLight, UpdateCalledInfrequently);
 
