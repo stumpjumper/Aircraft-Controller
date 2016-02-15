@@ -439,15 +439,15 @@ void status() {
         // Serial.print(F("\x1B[0J")); // clear
 
         Serial.print(time);
-        Serial.print(F(" lL:"));
+        Serial.print(F(" p:"));
         Serial.print(hw.photocell2());
-        Serial.print(F(" pMax:"));
+        Serial.print(F(" pMx:"));
         Serial.print(timeOfDay.getPhotocellAvgValueMax());
-        Serial.print(F(" pMin:"));
+        Serial.print(F(" pMn:"));
         Serial.print(timeOfDay.getPhotocellAvgValueMin());
-        Serial.print(F(" pAVC:"));
+        Serial.print(F(" pAv:"));
         Serial.print(timeOfDay.getPhotocellAvgValueCurrent());
-        Serial.print(F(" loN:"));
+        Serial.print(F(" lN:"));
         Serial.print(timeOfDay.getLengthOfNight()/3600000);
         Serial.print(F(" m:"));
         Serial.print((char)mode);
@@ -459,11 +459,14 @@ void status() {
           Serial.print(F(" tOr: "));
           Serial.print(uint32_t(timeoutOverride)-time);
         }
-        //              123456789 123456789 123456789 123456789 
-        sprintf(buffer," lts:%3d %3d %3d %3d %3d %3d %3d,%3d %3d",hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
+        sprintf(buffer,
+                //        1         2         3         4         5         6
+                //23456789 123456789 123456789 123456789 123456789 123456789 
+                "|1:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
+                hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
         Serial.print(buffer);
 
-        Serial.print(F(" r:"));
+        Serial.print(F("r:"));
         Serial.print(redLight.getLightMode());
         Serial.print(F(" b:"));
         Serial.print(blueLight.getLightMode());
