@@ -449,6 +449,7 @@ TEST_F(B29Test, UpdateLights) {
 
   // At time = 45201 ms, motor has just turned off
   arduinoMock->setMillisRaw(45201);
+  timeoutUpdateLights = 0;
   updateLights();
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
@@ -615,6 +616,7 @@ TEST_F(B29Test, SetOverride) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -638,7 +640,7 @@ TEST_F(B29Test, SetOverride) {
 
   setOverride();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(OFF, ident());
@@ -659,6 +661,7 @@ TEST_F(B29Test, SetBatteryLow) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -682,7 +685,7 @@ TEST_F(B29Test, SetBatteryLow) {
 
   setBatteryLow();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(OFF, ident());
@@ -703,6 +706,7 @@ TEST_F(B29Test, SetEvening) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -726,7 +730,7 @@ TEST_F(B29Test, SetEvening) {
 
   setEvening();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(ON, ident());
@@ -747,6 +751,7 @@ TEST_F(B29Test, SetNight) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -770,7 +775,7 @@ TEST_F(B29Test, SetNight) {
 
   setNight();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(OFF, ident());
@@ -791,6 +796,7 @@ TEST_F(B29Test, SetPreDawn) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -814,7 +820,7 @@ TEST_F(B29Test, SetPreDawn) {
 
   setPreDawn();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(ON, ident());
@@ -835,6 +841,7 @@ TEST_F(B29Test, SetMorning) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -858,7 +865,7 @@ TEST_F(B29Test, SetMorning) {
 
   setMorning();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(ON, ident());
@@ -880,6 +887,7 @@ TEST_F(B29Test, SetDay) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
   setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
 
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
@@ -902,7 +910,7 @@ TEST_F(B29Test, SetDay) {
 
   setDay();
 
-  arduinoMock->setMillisRaw(1);
+  arduinoMock->setMillisRaw(11);
   updateLights();
 
   EXPECT_EQ(ON, ident());
