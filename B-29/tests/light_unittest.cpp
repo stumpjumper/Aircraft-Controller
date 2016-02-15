@@ -489,6 +489,67 @@ TEST(DecayLight, Update)
   releaseArduinoMock();
 }
 
+TEST(DecayLight, Update2)
+{
+  const uint8_t intervals = 4*10;
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(intervals);
+  
+  uint8_t lightVariable;
+
+  //                                    ---------------- Starts here
+  //                                   \/
+  uint32_t onLengths     [2] = {  50,   50};
+  uint32_t decayLengths  [2] = {1000, 4000};
+  uint8_t  maxLightLevels[2] = {ON, ON};
+  uint32_t tauInMillisec [2] = {0,0};
+  const uint8_t  numIntervals = sizeof(maxLightLevels)/sizeof(uint8_t);
+  assert (numIntervals == 2);
+
+  //                             On       Off          On         Off
+  //                           --50--,--- 4000 ---,--  50 --,---- 1000 ----
+  //                                  50      4050      4100      5100
+  //                           0, 49, 50, 150 4049,4050,4099,4100,4200,5099,5100
+  const uint16_t timeSteps[10]=   {49,  1,100,3899,   1,  49,   1, 100, 899,1};
+  const uint8_t      level[10]={ON,ON,OFF,OFF, OFF,   ON, ON, OFF, OFF, OFF};
+  const bool      decaying[10]={false,false,true,true,true,false,false,true,true,true};
+
+  DecayLight light1;
+  light1.setup(lightVariable,
+               onLightLevelValue,
+               numIntervals,
+               onLengths,
+               decayLengths,
+               maxLightLevels,
+               tauInMillisec);
+
+  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
+  
+  uint32_t timeMS = 0;
+  uint8_t i;
+  uint8_t j;
+  for (i = 0; i < intervals; i++) {
+    j = i % sizeof(decaying)/sizeof(bool);
+    arduinoMock->setMillisRaw(timeMS);
+    light1.update();
+    // std::cerr << "i, j, millis, decaying, lightLevel = "
+    //           << int(i) << ", " << int(j) << ", "
+    //           << int(timeMS) << ", " << light1.decaying << ", "  << int(light1())
+    //           << std::endl;
+    EXPECT_EQ(level[j]   , light1())
+      << "i,j = " << int(i) << ", " << int(j) << std::endl;
+    EXPECT_EQ(decaying[j], light1.decaying)
+      << "i,j = " << int(i) << ", " << int(j) << std::endl;
+    
+    timeMS += timeSteps[j];
+  }
+
+  releaseArduinoMock();
+}
+
 TEST(DecayLight, UpdateWithTauNULL)
 {
   const uint8_t intervals = 3*24;
