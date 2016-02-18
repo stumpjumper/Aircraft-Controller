@@ -11,31 +11,32 @@
 // Output 8 is the red led on the board
 // Output 13 is the blue led on the board
 
-
 // Output mapping to lights/motors
 // Lights:
 // 
-//  01 Identification:
+//  Output types: (d)  = dimable, (nd) = not dimable
+//
+//  01 Identification (d):
 //     Mid-Fuselete Bottom Identification (3)
 // 
-//  05 Position
+//  05 Position (nd):
 //     Wing Tips (2)
 //     Tail (1)
 // 
-//  06 Formation:
+//  06 Formation (d):
 //     Wing Top (6)
 //     Fuselage Top (3)
 // 
-//  04 Illumination:
+//  04 Illumination (nd):
 //     Wheel Wells (3)
 // 
-//  02 Landing:
+//  02 Landing (nd):
 //     Wing Bottom Retractable Landing Lights (2)
 // 
 // Motors:
-//  03 Retractable Landing Light Motor Up
+//  03 Retractable Landing Light Motor Up (nd)
 //     Motor Up (1)
-//  07 Retractable Landing Light Motor Down
+//  07 Retractable Landing Light Motor Down (nd)
 //     Motor Down (1)
 // 
 // Others:
@@ -86,18 +87,25 @@ Lucky7      hw          = Lucky7();
 TimeOfDay   timeOfDay   = TimeOfDay(); 
 UpDownMotor upDownMotor = UpDownMotor();
 
-// Decay settings for identification, position and formation lights
-uint32_t decayOnLengths[1]         = {750};  // On for .25 seconds
-uint32_t decayDecayLengths[1]      = {750}; // Decay for 1.5
-uint8_t  decayMaxLightLevels[1]    = {ON};  
-uint32_t decayTauInMilliseconds[1] = {40};  // Half-life = .05 seconds
+// Decay settings for position lights
+// Note: Added .01 sec to on & decay lengths so will not be in sync with F-16
+uint32_t positionOnLengths[1]          =    {110}; // On for .11 seconds
+uint32_t positionDecayLengths[1]       =   {1110}; // Decay for 1.11
+uint8_t  positionMaxLightLevels[1]     =     {ON}; // Full on when on  
+uint32_t positionTauInMilliseconds[1]  =    {175}; // Half-life = .05 seconds
+
+// Decay settings for taxi lights during day and night
+uint32_t   landingDayOnLengths[1]      = {300000}; // On 5 minutes
+uint32_t   landingDayDecayLengths[1]   = {300000}; // Off for 5 minutes
+uint8_t    landingDayMaxLightLevels[1] =     {ON}; // Full on when on  
+uint32_t * landingDayTauInMilliseconds =     NULL; // On/Off, no decay
 
 // Light objects to control each channel
-DecayLight ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
+Light      ident    ; // Identification: Mid-Fuselete Bottom Identification (3)
 DecayLight position ; // Position      : Wing Tips (2), Tail (1)
-DecayLight formation; // Formation     : Wing Top (6), Fuselage Top (3)
-Light landing  ; // Landing       : Wing Bottom Retractable Landing Lights (2)
-Light illum    ; // Illumination  : Wheel Wells (3)
+Light      formation; // Formation     : Wing Top (6), Fuselage Top (3)
+DecayLight landing  ; // Landing       : Wing Bot Retractable Landing Lights (2)
+Light      illum    ; // Illumination  : Wheel Wells (3)
 // Light objects to control each status light on the board
 FastSlowBlinkingLight blueLight; // Blue light on Aurdino board
 FastSlowBlinkingLight redLight ; // Red light on Aurdino board
@@ -229,7 +237,7 @@ void setMorning() {
   blueLight.off();
 
   ident.on();
-  landing.on();
+  landing.resume();
   illum.on();
   position.resume();
   formation.on();
@@ -240,7 +248,7 @@ void setDay() {
   blueLight.off();
 
   ident.on();
-  landing.on();
+  landing.resume();
   illum.off();
   position.resume();
   formation.on();
@@ -499,14 +507,13 @@ void input() {
 
 void setupLightingAndMotorChannels()
 {
-  ident     .setup(hw.o1, ON, 1, decayOnLengths, decayDecayLengths,
-                   decayMaxLightLevels, decayTauInMilliseconds);
-  landing   .setup(hw.o2, ON);
+  ident     .setup(hw.o1, ON);
+  landing   .setup(hw.o2, ON, 1, landingDayOnLengths, landingDayDecayLengths,
+                   landingDayMaxLightLevels, landingDayTauInMilliseconds);
   illum     .setup(hw.o4, ON);
-  position  .setup(hw.o5, ON, 1, decayOnLengths, decayDecayLengths,
-                   decayMaxLightLevels, decayTauInMilliseconds);
-  formation .setup(hw.o6, ON, 1, decayOnLengths, decayDecayLengths,
-                   decayMaxLightLevels, decayTauInMilliseconds);
+  position  .setup(hw.o5, ON, 1, positionOnLengths, positionDecayLengths,
+                   positionMaxLightLevels, positionTauInMilliseconds);
+  formation .setup(hw.o6, ON);
 
   upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
 
