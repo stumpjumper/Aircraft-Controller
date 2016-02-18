@@ -1,3 +1,10 @@
+To-Do:
+* Rename resume() to flash()
+* Make toggle cycle through flashing
+* Set min and max photocell values to value initially read in
+* Have 5 day rolling average of min and max photocell values
+
+
 Free dynamic memory in bytes
 B-29
 ====
