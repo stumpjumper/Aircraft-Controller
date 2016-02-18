@@ -41,6 +41,17 @@
 
 class Lucky7;
 
+// Light class hierarchy
+// class Light
+// class DecayLight        : public Light
+// class FlashingLight     : public DecayLight
+// class BlinkingLight     : public FlashingLight
+// class FastBlinkingLight : public BlinkingLight
+// class SlowBlinkingLight : public BlinkingLight
+// class FastSlowBlinkingLight
+//   FastBlinkingLight fastLight;
+//   SlowBlinkingLight slowLight;
+
 class Light
 {
   // Base class for lights, and one that just does On/Off.
@@ -59,6 +70,7 @@ private:
   FRIEND_TEST(Light, FunctionCallOperatorSetValue);
   FRIEND_TEST(Light, Resume);
   FRIEND_TEST(Light, Update);
+  //  virtual void resume(){;};
 
   // Do not implement to make sure are never called
   Light(Light & other); 
