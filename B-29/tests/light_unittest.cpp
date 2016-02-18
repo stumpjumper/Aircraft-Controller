@@ -62,10 +62,9 @@ TEST(Light, Toggle) {
   EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
   EXPECT_EQ(OFF, light1());
 
-  light1.resume();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
   light1.toggle();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
+  EXPECT_EQ(onLightLevelValue, light1());
 
   light1.off();
   EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
@@ -86,10 +85,10 @@ TEST(Light, Toggle) {
   EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
   EXPECT_EQ(onLightLevelValue, light1());
 
-  light1.resume();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
   light1.toggle();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
+  EXPECT_EQ(OFF, light1());
+
 
 }
 
@@ -107,14 +106,17 @@ TEST(Light, LightModes) {
   light1.on();
   EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
 
-  light1.resume();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
 
   light1.off();
   EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
-  light1.resume();
-  EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
+  light1.toggle();
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
+  light1.toggle();
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
+
+  light1.update();
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
 }
 
@@ -202,63 +204,6 @@ TEST(Light, FunctionCallOperatorSetValue) {
     EXPECT_EQ(i, lightVariable);
   }
     
-}
-
-TEST(Light, Resume) {
-
-  uint8_t lightVariable;
-
-  Light light1;
-  light1.setup(lightVariable, onLightLevelValue);
-
-  EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
-  EXPECT_EQ(false, light1.getPaused());
-
-  // paused = true case
-  light1.paused = true;
-  EXPECT_EQ(true, light1.getPaused());
-
-  *light1.p_lightLevel = OFF;
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  light1.resume();
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
-
-  light1.paused = true;
-  EXPECT_EQ(true, light1.getPaused());
-
-  *light1.p_lightLevel = ON;
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  light1.resume();
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
-
-  // paused = false case
-  light1.paused = false;
-  EXPECT_EQ(false, light1.getPaused());
-
-  *light1.p_lightLevel = OFF;
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  light1.resume();
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
-
-  light1.paused = false;
-  EXPECT_EQ(false, light1.getPaused());
-
-  *light1.p_lightLevel = ON;
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  light1.resume();
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
 }
 
 TEST(Light, Update) {
