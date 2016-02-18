@@ -230,6 +230,11 @@ TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
 
   // At five minutes
   if (millis() >= update5minTimeout) {
+#ifdef DOING_UNIT_TESTING
+    // Can easily happen during testing.  If you hit this, look into setting
+    // the updateAverageTestMode flag via setUpdateAverageTestMode(true);
+    assert(photocellValuesCount > 2);
+#endif
     // Throw out high and low
     uint8_t minIndex = 0;
     uint8_t maxIndex = 0;
@@ -256,6 +261,7 @@ TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
       }
     }
     // Average
+    // NOTE: If photocellValuesCount < 3 numValues could be 0
     const uint16_t avg = (uint16_t)(sum/numValues);
     updatePhotocellAvgValues(avg);
     updateTimeOfDay();
