@@ -331,10 +331,12 @@ TEST_F(B29Test, UpdateLights) {
 
 
   // Override aircraft light setup so timeing is correct for tests below
-  decayOnLengths[0]         = 250;
-  decayDecayLengths[0]      = 1100-250;
-  decayMaxLightLevels[0]    = ON;
-  decayTauInMilliseconds[0] = 450;
+  positionOnLengths[0]         = 250;
+  positionDecayLengths[0]      = 1100-250;
+  positionMaxLightLevels[0]    = ON;
+  positionTauInMilliseconds[0] = 450;
+
+  // Landing is on for 5 minutes, off for 5 minutes during the day
 
   setupLightingAndMotorChannels();
 
@@ -363,21 +365,23 @@ TEST_F(B29Test, UpdateLights) {
   // At time = 200 msecs decay lights are not yet decaying as their
   //   on-time is 250 msecs
   // on/off lights are whatever they are set to
+  // possitiona nd landing should be ready to delay blink
   // Fast blinking lights are still on as have 1000 msec on time
   // Motor has 2 second delay before it starts
   arduinoMock->setMillisRaw(200);
-  landing.on();
+  ident.on();
   illum.on();
+  formation.on();
   upDownMotor.motorUpStart();
   redLight.setToFast();
   blueLight.setToFast();
 
   updateLights();
-  EXPECT_EQ(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
-  EXPECT_EQ(decayMaxLightLevels[0], position());
-  EXPECT_EQ(decayMaxLightLevels[0], formation());
+  EXPECT_EQ(positionMaxLightLevels[0], position());
+  EXPECT_EQ(ON, formation());
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
   EXPECT_EQ(ON, blueLight());
@@ -391,11 +395,11 @@ TEST_F(B29Test, UpdateLights) {
 
   arduinoMock->setMillisRaw(250+450);
   updateLights();
-  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), ident()); 
+  EXPECT_EQ(ON, ident()); 
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
-  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), position());
-  EXPECT_EQ(int(decayMaxLightLevels[0]*.368+.5), formation());
+  EXPECT_EQ(int(positionMaxLightLevels[0]*.368+.5), position());
+  EXPECT_EQ(ON, formation());
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
   EXPECT_EQ(ON, blueLight());
@@ -408,11 +412,11 @@ TEST_F(B29Test, UpdateLights) {
 
   arduinoMock->setMillisRaw(1000);
   updateLights();
-  EXPECT_GT(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
-  EXPECT_GT(decayMaxLightLevels[0], position());
-  EXPECT_GT(decayMaxLightLevels[0], formation());
+  EXPECT_GT(positionMaxLightLevels[0], position());
+  EXPECT_EQ(ON, formation());
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
   EXPECT_EQ(OFF, blueLight());
@@ -425,11 +429,11 @@ TEST_F(B29Test, UpdateLights) {
 
   arduinoMock->setMillisRaw(1100);
   updateLights();
-  EXPECT_EQ(decayMaxLightLevels[0], ident());
+  EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
-  EXPECT_EQ(decayMaxLightLevels[0], position());
-  EXPECT_EQ(decayMaxLightLevels[0], formation());
+  EXPECT_EQ(positionMaxLightLevels[0], position());
+  EXPECT_EQ(ON, formation());
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
   EXPECT_EQ(ON, blueLight());
