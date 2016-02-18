@@ -1,10 +1,16 @@
-Free dynamic memory:
-1066
-1088 from combining Light and OnOffLight
-1095 from getting ride of two variables that were size_t, made them uint8_t
-1095 after deleting on/off/saveState and moveto code.  Looks like compiler is good at optimizing out unused code
-1095 after some minor code weeks in printing, including saving millis() to const variable and using 4 times
-1091 after adding support for timeoutUpdateLights.  Added a uint32_t and some logic
+Free dynamic memory in bytes
+B-29
+====
+1066:
+1088: from combining Light and OnOffLight
+1095: from getting ride of two variables that were size_t, made them uint8_t
+1095: after deleting on/off/saveState and moveto code.  Looks like compiler is good at optimizing out unused code
+1095: after some minor code weeks in printing, including saving millis() to const variable and using 4 times
+1091: after adding support for timeoutUpdateLights.  Added a uint32_t and some logic
+1084: after changing formation and illumination from DelayLight to Light and landing from Light to DelayLight and adding control parameters for landing, which adds 2 uint32_t and 1 uint8_t (9 bytes)
+
+F-16:
+1067: First version based on B-29.ino and loaded onto aircraft.
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
