@@ -43,7 +43,7 @@ class Lucky7;
 
 class Light
 {
-  // Base class for lights, and one that just do OnOff on it own
+  // Base class for lights, and one that just does On/Off.
 public:
   enum MODE {
     LIGHT_MODE_NOTSET = -1,
@@ -84,7 +84,6 @@ public:
   
   void on() {*p_lightLevel = onLightLevel; paused = true; lightMode = LIGHT_ON;};
   void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
-  void resume() {paused = false; lightMode = LIGHT_FLASHING;}
   void toggle();
 
   uint8_t & operator()(void) {return *p_lightLevel;};
@@ -153,6 +152,7 @@ public:
              uint8_t  * maxLightLevelValues,
              uint32_t * tauInMilliseconds);
   
+  void resume() {paused = false; lightMode = LIGHT_FLASHING;}
   void update();
   bool getDecaying() {return decaying;};
 };
