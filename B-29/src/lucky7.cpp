@@ -16,9 +16,23 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
 {
   p_lightLevel = &lightLevelVariable;
   onLightLevel = onLightLevelValue;
-  *p_lightLevel = OFF; // Set the initial light level
-  paused = false;
-  lightMode = LIGHT_FLASHING;
+  off();
+}
+
+void Light::toggle() {
+  switch (lightMode) {
+  case LIGHT_MODE_NOTSET:
+  case LIGHT_FLASHING:
+    // off();
+    break;
+  case LIGHT_OFF:
+    on();
+    break;
+  case LIGHT_ON:
+    off();
+    // resume();
+    break;
+  }
 }
 
 BlinkingLight::BlinkingLight() {;}
@@ -33,20 +47,6 @@ void BlinkingLight::setup(uint8_t & lightLevelVariable,
   onLengthValues[0] = onLengthValue;
   offLengthValues[0] = offLengthValue;
   maxLightLevelValues[0] = maxLightLevelValue;
-}
-
-void Light::toggle() {
-  switch (lightMode) {
-  case LIGHT_MODE_NOTSET:
-  case LIGHT_FLASHING:
-    break;
-  case LIGHT_OFF:
-    on();
-    break;
-  case LIGHT_ON:
-    off();
-    break;
-  }
 }
 
 FastBlinkingLight::FastBlinkingLight() {;}
@@ -98,6 +98,12 @@ void DecayLight::setup(uint8_t  & lightLevelVariable,
                        uint32_t * tauInMilliseconds)
 {
   Light::setup(lightLevelVariable, onLightLevelValue);
+
+  // Overide call to off() made in Light::setup since we want this light
+  // to be in flashing mode right away
+  *p_lightLevel = OFF; // Set the initial light level
+  paused = false;
+  lightMode = LIGHT_FLASHING;
 
   onLength = onLengthValues;
   decayLength = decayLengthValues;
