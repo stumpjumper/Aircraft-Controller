@@ -11,12 +11,10 @@
 // Output 8 is the red led on the board
 // Output 13 is the blue led on the board
 
-
 // Output mapping to lights/motors
 // Lights:
 //
-//  Output types
-//  (d)  = dimable, (nd) = not dimable
+//  Output types: (d)  = dimable, (nd) = not dimable
 //
 //  01 Not Used (d)
 //  02 Taxi (nd)
@@ -75,19 +73,19 @@ TimeOfDay timeOfDay = TimeOfDay();
 uint32_t positionOnLengths[1]          = {100};  // On for .1 seconds
 uint32_t positionDecayLengths[1]       = {1100}; // Decay for 1.1
 uint8_t  positionMaxLightLevels[1]     = {ON};  
-uint32_t positionTauInMilliseconds[1]  = {175};  // Half-life = .2 seconds
+uint32_t positionTauInMilliseconds[1]  = {100};  // Half-life = .1 seconds
 
 // Decay settings for collision lights
 uint32_t collisionOnLengths[2]         = {50,50};   // On : .05s, .05s
-uint32_t collisionDecayLengths[2]      = {250,1500};// Off: .25s, then 1.75 sec
+uint32_t collisionDecayLengths[2]      = {250,1500};// Off: .25s, then 1.75 s
 uint8_t  collisionMaxLightLevels[2]    = {ON,ON};      // Full power
-uint32_t  collisionTauInMilliseconds[2]= {0,0};     // On/Off, no decay
+uint32_t * collisionTauInMilliseconds  = NULL;     // On/Off, no decay
 
 // Decay settings for taxi lights during day and night
 uint32_t taxiDayOnLengths[1]           = {300000}; // On 5 minutes
 uint32_t taxiDayDecayLengths[1]        = {300000}; // Off for 5 minutes
 uint8_t  taxiDayMaxLightLevels[1]      = {ON};  
-uint32_t taxiDayTauInMilliseconds[1]   = {0};      // On/Off, no decay
+uint32_t * taxiDayTauInMilliseconds    = NULL;     // On/Off, no decay
 
 // Light objects to control each channel
 DecayLight taxi     ; // Taxi          : Landing lighs on rear wheels (2)
@@ -138,9 +136,9 @@ void allLightsOff() {
 
 void updateLights() {
   // no need to hammer this
-  // const uint32_t time = millis();
-  // if (time > timeoutUpdateLights) {
-  //   timeoutUpdateLights = time + 10;
+  const uint32_t time = millis();
+  if (time > timeoutUpdateLights) {
+    timeoutUpdateLights = time + 10;
     
     taxi     .update();
     position .update();
@@ -149,7 +147,7 @@ void updateLights() {
 
     blueLight.update();
     redLight .update();
-//   }
+  }
 }
 
 void allOff() {
@@ -192,7 +190,7 @@ void setEvening() {
   taxi     .on();
   position .resume();
   collision.resume();
-  floods   .resume();
+  floods   .on();
 }
 
 void setNight() {
@@ -210,7 +208,7 @@ void setPreDawn() {
   taxi     .on();
   position .resume();
   collision.resume();
-  floods   .resume();
+  floods   .on();
 }
 
 void setMorning() {
@@ -221,7 +219,7 @@ void setMorning() {
   taxi     .resume();
   position .resume();
   collision.resume();
-  floods   .resume();
+  floods   .on();
 }
 
 void setDay() {
