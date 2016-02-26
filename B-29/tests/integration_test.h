@@ -13,6 +13,9 @@ public:
   void setAnalogReadValue(int pin, uint16_t pinValue);
   uint16_t getAnalogReadValue(int pin);
 
+  void setAnalogReadPhotocellValues(uint16_t pinValues);
+  void setAnalogReadVoltageValue(const float voltage);
+
 protected:
   virtual void SetUp();
   //virtual void TearDown();
