@@ -17,24 +17,35 @@ void Integration::SetUp() {
 
 void Integration::setAnalogReadValue(int pin, uint16_t pinValue) {
   switch (pin) {
-  case A0:
-    pc1Value = pinValue;
   case A4:
-    pc2Value = pinValue;
+    pc1Value = pinValue;
   case A5:
+    pc2Value = pinValue;
+  case A0:
     bcValue = pinValue;
   default:
     ADD_FAILURE() << "We should never get here.";
   }
 }
 
+void Integration::setAnalogReadPhotocellValues(uint16_t pinValues) {
+  pc1Value = pinValues;
+  pc2Value = pinValues;
+}
+
+void Integration::setAnalogReadVoltageValue(const float voltage) {
+  bcValue = uint16_t(voltage/float(BVSCALE) + .5);
+}
+
+
+
 uint16_t Integration::getAnalogReadValue(int pin) {
   switch (pin) {
-  case A0:
-    return pc1Value;
   case A4:
-    return pc2Value;
+    return pc1Value;
   case A5:
+    return pc2Value;
+  case A0:
     return bcValue;
   default:
     ADD_FAILURE() << "We should never get here.";
@@ -86,63 +97,46 @@ TEST_F(Integration, CycleThroughDay) {
 
   Serial.setPrintToCout(true);
 
-  const uint16_t volts12 = uint16_t(12.0/float(BVSCALE) + .5);
-  const uint16_t volts14 = uint16_t(14.0/float(BVSCALE) + .5);
-  
-  for (uint8_t j = 0; j < AVECNT; j++) {
-    hw.pc1[j] = 0;
-    hw.pc2[j] = 0;
-    hw.bc[j] = volts12;
-  }
+  setAnalogReadPhotocellValues(1000);
+  setAnalogReadVoltageValue(12.0);
   
   arduinoMock->setMillisRaw(0);
   
   setup();
   for (uint32_t i = 0; i < 2000; i++) {
     arduinoMock->addMillisRaw(1);
-    for (uint8_t j = 0; j < AVECNT; j++) {
-      hw.pc1[j] = 0;
-      hw.pc2[j] = 0;
-      hw.bc[j] = volts14;
-    }
     loop();
   }
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   for (uint32_t i = 0; i < 2; i++) {
     arduinoMock->addMillisRaw(1);
-    for (uint8_t j = 0; j < AVECNT; j++) {
-      hw.pc1[j] = 0;
-      hw.pc2[j] = 0;
-      hw.bc[j] = volts14;
-    }
     loop();
   }
   EXPECT_EQ(MODE_DAY, mode);
-  for (uint32_t i = 0; i < 3600000; i++) {
+  // Go for 1 hours
+  for (uint32_t i = 0; i < 360000; i++) {
+  // Go for 10 hours
+  // for (uint32_t i = 0; i < 3600000; i++) {
     arduinoMock->addMillisRaw(10);
-    for (uint8_t j = 0; j < AVECNT; j++) {
-      hw.pc1[j] = 0;
-      hw.pc2[j] = 0;
-      hw.bc[j] = volts14;
-    }
     loop();
   }
-  for (uint32_t i = 0; i < 2888000; i++) {
+  setAnalogReadPhotocellValues(0);  // Night time
+  // Go for 8 hours
+  for (uint32_t i = 0; i < 100; i++) {
     arduinoMock->addMillisRaw(10);
-    for (uint8_t j = 0; j < AVECNT; j++) {
-      hw.pc1[j] = 1000;
-      hw.pc2[j] = 1000;
-      hw.bc[j] = volts14;
-    }
     loop();
   }
-  for (uint32_t i = 0; i < 1444000; i++) {
+  myIRKey = uint32_t('0');
+  arduinoMock->addMillisRaw(10);
+  loop();
+  myIRKey = 0;
+  for (uint32_t i = 0; i < 2880000; i++) {
     arduinoMock->addMillisRaw(10);
-    for (uint8_t j = 0; j < AVECNT; j++) {
-      hw.pc1[j] = 0;
-      hw.pc2[j] = 0;
-      hw.bc[j] = volts14;
-    }
+    loop();
+  }
+  // Go for 8 hours
+  for (uint32_t i = 0; i < 1440000; i++) {
+    arduinoMock->addMillisRaw(10);
     loop();
   }
    
@@ -152,4 +146,7 @@ TEST_F(Integration, CycleThroughDay) {
   releaseEEPROMMock();
 
 }
+
+// TEST_F(Integration, TestNightMode) {
+// }
 
