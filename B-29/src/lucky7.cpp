@@ -506,6 +506,10 @@ uint32_t Lucky7::loop() {
   pc2[i] = analogRead(A5);
   bc[i]  = analogRead(A0);
 
+  // std::cout << "analogRead(A4) pc1[" << int(i) << "] =" << pc1[i] << std::endl;
+  // std::cout << "analogRead(A5) pc2[" << int(i) << "] =" << pc2[i] << std::endl;
+  // std::cout << "analogRead(A0)  bc[" << int(i) << "] =" << bc[i] << std::endl;
+  
   rv = irLoop();
   return rv;
 }
@@ -527,12 +531,13 @@ uint32_t Lucky7::irLoop() {
 }
 
 uint16_t Lucky7::photocell(uint16_t * pc) {
-    uint16_t sum = 0;
-    uint8_t i;
-    for (i = 0; i < AVECNT; i++) {
-        sum += pc[i];
-    }
-    return (uint16_t)(sum/AVECNT);
+  uint16_t sum = 0;
+  uint8_t i;
+  for (i = 0; i < AVECNT; i++) {
+    //std::cout << "pc[" << int(i) << "] =" << pc[i] << std::endl;
+    sum += pc[i];
+  }
+  return (uint16_t)(sum/AVECNT);
 }
 
 uint16_t Lucky7::photocell1() {
@@ -544,12 +549,13 @@ uint16_t Lucky7::photocell2() {
 }
 
 float Lucky7::batteryVoltage() {
-    uint32_t sum = 0;
-    uint8_t i;
-    for (i = 0; i < AVECNT; i++) {
-        sum += bc[i];
-    }
-    return (float)(sum/AVECNT)*BVSCALE;
+  uint32_t sum = 0;
+  uint8_t i;
+  for (i = 0; i < AVECNT; i++) {
+    //std::cout << "bc[" << int(i) << "] =" << bc[i] << std::endl;
+    sum += bc[i];
+  }
+  return (float)(sum/AVECNT)*BVSCALE;
 }
 
 void Lucky7::o1MoveTo(uint8_t targetValue, const uint16_t stepDelay) {
