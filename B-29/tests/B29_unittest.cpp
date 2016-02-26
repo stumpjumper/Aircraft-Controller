@@ -376,7 +376,7 @@ TEST_F(B29Test, UpdateLights) {
   redLight.setToFast();
   blueLight.setToFast();
 
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
@@ -394,7 +394,7 @@ TEST_F(B29Test, UpdateLights) {
   // Motor still not started
 
   arduinoMock->setMillisRaw(250+450);
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, ident()); 
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
@@ -411,7 +411,7 @@ TEST_F(B29Test, UpdateLights) {
   // Motor still not started
 
   arduinoMock->setMillisRaw(1000);
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
@@ -428,7 +428,7 @@ TEST_F(B29Test, UpdateLights) {
   // Motor still not started
 
   arduinoMock->setMillisRaw(1100);
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
@@ -441,20 +441,20 @@ TEST_F(B29Test, UpdateLights) {
 
   // At time = 5000 ms motor has turned on
   arduinoMock->setMillisRaw(5000);
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
 
   // At time = 45200 ms, motor is just about turned off
   arduinoMock->setMillisRaw(45200);
-  updateLights();
+  updateChannels();
   EXPECT_EQ(ON, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
 
   // At time = 45201 ms, motor has just turned off
   arduinoMock->setMillisRaw(45201);
   timeoutUpdateLights = 0;
-  updateLights();
+  updateChannels();
   EXPECT_EQ(OFF, hw.o3); 
   EXPECT_EQ(OFF, hw.o7);           
   
@@ -470,7 +470,7 @@ TEST_F(B29Test, Setup) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller setup"))
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -629,7 +629,7 @@ TEST_F(B29Test, SetOverride) {
   setOverride();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(OFF, ident());
   EXPECT_EQ(OFF, position());
@@ -682,7 +682,7 @@ TEST_F(B29Test, SetBatteryLow) {
   setBatteryLow();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(OFF, ident());
   EXPECT_EQ(OFF, position());
@@ -735,7 +735,7 @@ TEST_F(B29Test, SetEvening) {
   setEvening();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, position());
@@ -789,7 +789,7 @@ TEST_F(B29Test, SetNight) {
   setNight();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(OFF, ident());
   EXPECT_EQ(OFF, position());
@@ -843,7 +843,7 @@ TEST_F(B29Test, SetPreDawn) {
   setPreDawn();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, position());
@@ -896,7 +896,7 @@ TEST_F(B29Test, SetMorning) {
   setMorning();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, position());
@@ -952,7 +952,7 @@ TEST_F(B29Test, SetDay) {
   setDay();
 
   arduinoMock->setMillisRaw(11);
-  updateLights();
+  updateChannels();
 
   EXPECT_EQ(ON, ident());
   EXPECT_EQ(ON, position());
@@ -1018,7 +1018,7 @@ TEST_F(B29Test, SetToMode) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     
     checkStatus[i]();
     
@@ -1029,7 +1029,7 @@ TEST_F(B29Test, SetToMode) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     
     checkStatusLightsAllOff();
     
@@ -1123,7 +1123,7 @@ TEST_F(B29Test, ProcessKey) {
   // Move lights to new state
   time += 10000;
   arduinoMock->setMillisRaw(time); 
-  updateLights();
+  updateChannels();
     
   checkOverrideStatusLights();
     
@@ -1137,7 +1137,7 @@ TEST_F(B29Test, ProcessKey) {
   // Move lights to new state
   time += 10000;
   arduinoMock->setMillisRaw(time); 
-  updateLights();
+  updateChannels();
   
   checkStatusLightsAllOff();
     
@@ -1182,7 +1182,7 @@ TEST_F(B29Test, ProcessKey) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     
     checkOverrideStatusLights();
     
@@ -1196,7 +1196,7 @@ TEST_F(B29Test, ProcessKey) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     
     checkStatusLightsAllOff();
 
@@ -1211,7 +1211,7 @@ TEST_F(B29Test, ProcessKey) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     checkStatus[i]();
   }
 
@@ -1246,7 +1246,7 @@ TEST_F(B29Test, ProcessKey) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     EXPECT_EQ(ON,(*p_lights[i])()) << msg;
     
     checkOverrideStatusLights();
@@ -1260,7 +1260,7 @@ TEST_F(B29Test, ProcessKey) {
     // Move lights to new state
     time += 10000;
     arduinoMock->setMillisRaw(time); 
-    updateLights();
+    updateChannels();
     EXPECT_EQ(OFF,(*p_lights[i])())  << msg;
     
     checkStatusLightsAllOff();
@@ -1283,7 +1283,7 @@ TEST_F(B29Test, ProcessKey) {
   // Move lights to new state
   time += 10000;
   arduinoMock->setMillisRaw(time);
-  updateLights();
+  updateChannels();
     
 
   checkBatteryLowStatusLights();
@@ -1298,7 +1298,7 @@ TEST_F(B29Test, ProcessKey) {
   // Move lights to new state
   time += 10000;
   arduinoMock->setMillisRaw(time); 
-  updateLights();
+  updateChannels();
   
   checkStatusLightsAllOff();
   
@@ -1317,15 +1317,15 @@ TEST_F(B29Test, ProcessKey) {
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   processKey('U');
-  updateLights();
+  updateChannels();
   EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
-  updateLights();
+  updateChannels();
   EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
-  updateLights();
+  updateChannels();
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   
@@ -1336,15 +1336,15 @@ TEST_F(B29Test, ProcessKey) {
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
   processKey('D');
-  updateLights();
+  updateChannels();
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
-  updateLights();
+  updateChannels();
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
-  updateLights();
+  updateChannels();
   EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
   EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
 
@@ -1378,7 +1378,7 @@ TEST_F(B29Test, Statemap) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller setup"))
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
     .Times(1);
   EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
     .Times(0);
