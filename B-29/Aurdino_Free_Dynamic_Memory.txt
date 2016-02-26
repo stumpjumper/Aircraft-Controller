@@ -1,11 +1,13 @@
 To-Do:
-* Rename resume() to flash()
+√ Ignore spurious IR signals
+√ Rename resume() to flash()
+√ Get rid of bool Light::paused as is redundant
 * Make toggle cycle through flashing
 * Set min and max photocell values to value initially read in
 * Have 5 day rolling average of min and max photocell values
-* Have delay turn of early, at 1 or 2 tau
+* Have delay turn off early, at 1 or 2 tau
 * Set length of evening based on percentage of length of previous night
-√ Ignore spurious IR signals (Volume up on DirecTV remote is key DE5526F7
+
 
 
 Free dynamic memory in bytes
