@@ -219,7 +219,7 @@ void setEvening() {
 void setNight() {
   redLight .off();
   blueLight.on();
-
+  
   allOff();
 }
 
@@ -542,8 +542,6 @@ void setupLightingAndMotorChannels()
 
 }
 void setup() {
-
-
     Serial.begin(115200);
     Serial.println(F("NMNSH B-29 Lighting Controller setup"));
 
