@@ -44,6 +44,10 @@
 //     Interior
 //     Tail Illumination
 
+#ifdef DOING_UNIT_TESTING
+  uint32_t myIRKey = 0;
+#endif
+
 enum Mode {
   MODE_NOTSET     = 0,
   MODE_OVERRIDE   = 'O',
@@ -237,7 +241,7 @@ void setMorning() {
   blueLight.off();
 
   ident.on();
-  landing.resume();
+  landing.on();
   illum.on();
   position.resume();
   formation.on();
@@ -439,7 +443,7 @@ void statemap() {
 }
 
 void status() {
-    char buffer[60];
+    char buffer[75];
     const uint32_t time = millis();
     if (time > timeoutStatus) {
         timeoutStatus = time + TIMEOUTSTATUS;
@@ -470,8 +474,21 @@ void status() {
         sprintf(buffer,
                 //        1         2         3         4         5         6
                 //23456789 123456789 123456789 123456789 123456789 123456789 
-                "|1:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
-                hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
+              //"|1:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
+              // hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
+                "|1:%1i:%3d|2:%1i:%3d|3:%3d|4:%1i:%3d|5:%1i:%3d|6:%1i:%3d|7:%3d,r:%3d|b:%3d|",
+                int(ident.getLightMode()), hw.o1,
+                int(landing.getLightMode()), hw.o2,
+                hw.o3,
+                int(illum.getLightMode()), hw.o4,
+                int(position.getLightMode()), hw.o5,
+                int(formation.getLightMode()), hw.o6,
+                hw.o7,
+                hw.o13,hw.o8);
+
+  upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
+        
+                
         Serial.print(buffer);
 
         Serial.print(F("r:"));
@@ -492,16 +509,19 @@ void status() {
 }
 
 void input() {
-    unsigned long irKey;
+    uint32_t irKey;
     irKey = hw.loop();
+#ifdef DOING_UNIT_TESTING
+    if (myIRKey != 0) {
+      irKey = myIRKey;
+    }
+#endif
     if (irKey) {
-        setToMode(MODE_OVERRIDE);
-        processKey(irKey);
+      processKey(irKey);
     }
 
     if (Serial.available()) {
-        setToMode(MODE_OVERRIDE);
-        processKey(Serial.read()); 
+      processKey(Serial.read()); 
     }
 }
 
@@ -551,7 +571,7 @@ void loop() {
                     // 2) Read IR and serial port. If find something:
                     //    2a) Put in MODE_OVERRIDE if find something on either,
                     //        IR port or serial port, IR has precedence
-                    //    2b) Call procdssKey to set correct MODE_* and
+                    //    2b) Call processKey to set correct MODE_* and
                     //        optionally set set output levels (On/OFF)
                     //        and/or (re)set timers.
     statemap();     // 1) Read battery and put in MODE_BATTERYLOW if needed
