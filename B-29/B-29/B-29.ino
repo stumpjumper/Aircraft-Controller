@@ -472,10 +472,6 @@ void status() {
           Serial.print(uint32_t(timeoutOverride)-time);
         }
         sprintf(buffer,
-                //        1         2         3         4         5         6
-                //23456789 123456789 123456789 123456789 123456789 123456789 
-              //"|1:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
-              // hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7,hw.o13,hw.o8);
                 "|1:%1i:%3d|2:%1i:%3d|3:%3d|4:%1i:%3d|5:%1i:%3d|6:%1i:%3d|7:%3d,r:%3d|b:%3d|",
                 int(ident.getLightMode()), hw.o1,
                 int(landing.getLightMode()), hw.o2,
@@ -486,9 +482,6 @@ void status() {
                 hw.o7,
                 hw.o13,hw.o8);
 
-  upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
-        
-                
         Serial.print(buffer);
 
         Serial.print(F("r:"));
