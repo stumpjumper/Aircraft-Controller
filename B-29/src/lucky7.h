@@ -70,7 +70,6 @@ private:
   FRIEND_TEST(Light, FunctionCallOperatorSetValue);
   FRIEND_TEST(Light, Resume);
   FRIEND_TEST(Light, Update);
-  //  virtual void resume(){;};
 
   // Do not implement to make sure are never called
   Light(Light & other); 
