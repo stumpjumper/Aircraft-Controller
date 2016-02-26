@@ -532,8 +532,6 @@ TEST_F(B29Test, AllOff) {
 void checkStatusLightsAllOff() {
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 }
@@ -542,8 +540,6 @@ void checkStatusLightsAllOff() {
 void checkOverrideStatusLights() {
   //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
   //EXPECT_EQ(ON, blueLight()); // Flashing light could be OFF
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
 
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
@@ -554,8 +550,6 @@ void checkOverrideStatusLights() {
 void checkBatteryLowStatusLights() {
   //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
   //EXPECT_EQ(ON, blueLight()); // Flashing light could be OFF
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
 
   EXPECT_EQ(FastSlowBlinkingLight::FAST, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
@@ -565,9 +559,6 @@ void checkBatteryLowStatusLights() {
 
 void checkEveningStatusLights() {
   //EXPECT_EQ(ON , blueLight());  // Flashing light could be OFF
-  EXPECT_EQ(true , redLight.getPaused());
-  EXPECT_EQ(false, blueLight.getPaused());
-
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
@@ -575,9 +566,6 @@ void checkEveningStatusLights() {
 }
 
 void checkNightStatusLights() {
-  EXPECT_EQ(true , redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
-
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(ON , blueLight());
@@ -586,9 +574,6 @@ void checkNightStatusLights() {
 
 void checkPreDawnStatusLights() {
   //EXPECT_EQ(ON, redLight());  // Flashing light could be OFF
-  EXPECT_EQ(true , blueLight.getPaused());
-  EXPECT_EQ(false, redLight.getPaused());
-
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
   EXPECT_EQ(ON, blueLight());
@@ -598,17 +583,12 @@ void checkPreDawnStatusLights() {
 void checkMorningStatusLights() {
   //EXPECT_EQ(ON , redLight());  // Flashing light could be OFF
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(false, redLight.getPaused());
-  EXPECT_EQ(true , blueLight.getPaused());
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 }
 
 void checkDayStatusLights() {
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
-
   EXPECT_EQ(ON , redLight());
   EXPECT_EQ(OFF, blueLight());
   EXPECT_EQ(Light::LIGHT_ON, redLight.getLightMode());
@@ -635,12 +615,16 @@ TEST_F(B29Test, SetOverride) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
 
   EXPECT_EQ(ON, redLight());
   EXPECT_EQ(ON, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, blueLight.getLightMode());
 
   setOverride();
 
@@ -653,7 +637,11 @@ TEST_F(B29Test, SetOverride) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   checkOverrideStatusLights();
 
@@ -680,12 +668,16 @@ TEST_F(B29Test, SetBatteryLow) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
 
   EXPECT_EQ(ON, redLight());
   EXPECT_EQ(ON, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, blueLight.getLightMode());
 
   setBatteryLow();
 
@@ -698,7 +690,11 @@ TEST_F(B29Test, SetBatteryLow) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   checkBatteryLowStatusLights();
 
@@ -725,12 +721,16 @@ TEST_F(B29Test, SetEvening) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
   setEvening();
 
@@ -743,7 +743,11 @@ TEST_F(B29Test, SetEvening) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
 
-  EXPECT_EQ(false, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
 
   checkEveningStatusLights();
 
@@ -770,12 +774,17 @@ TEST_F(B29Test, SetNight) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
+
 
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
   setNight();
 
@@ -788,7 +797,11 @@ TEST_F(B29Test, SetNight) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   checkNightStatusLights();
 
@@ -815,12 +828,17 @@ TEST_F(B29Test, SetPreDawn) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
 
   setPreDawn();
 
@@ -833,7 +851,11 @@ TEST_F(B29Test, SetPreDawn) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
 
-  EXPECT_EQ(false, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
 
   checkPreDawnStatusLights();
 
@@ -860,12 +882,16 @@ TEST_F(B29Test, SetMorning) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
   setMorning();
 
@@ -878,7 +904,12 @@ TEST_F(B29Test, SetMorning) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(ON, illum());
 
-  EXPECT_EQ(false, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+
 
   checkMorningStatusLights();
 
@@ -906,11 +937,17 @@ TEST_F(B29Test, SetDay) {
   EXPECT_EQ(OFF, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(true, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
+
   EXPECT_EQ(OFF, redLight());
   EXPECT_EQ(OFF, blueLight());
-  EXPECT_EQ(true, redLight.getPaused());
-  EXPECT_EQ(true, blueLight.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
 
   setDay();
 
@@ -923,7 +960,12 @@ TEST_F(B29Test, SetDay) {
   EXPECT_EQ(ON, landing());
   EXPECT_EQ(OFF, illum());
 
-  EXPECT_EQ(false, position.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
+  EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
+  EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
+  EXPECT_EQ(Light::LIGHT_FLASHING, landing.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
+
 
   checkDayStatusLights();
 

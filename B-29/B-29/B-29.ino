@@ -188,18 +188,18 @@ void allOff() {
 
 void setOverride() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.setToFast();
-  blueLight.resume();
+  blueLight.flash();
 
   allOff();
 }
 
 void setBatteryLow() {
   redLight .setToFast();
-  redLight .resume();
+  redLight .flash();
   blueLight.setToSlow();
-  blueLight.resume();
+  blueLight.flash();
 
   allOff();
 }
@@ -207,12 +207,12 @@ void setBatteryLow() {
 void setEvening() {
   redLight .off();
   blueLight.setToSlow();
-  blueLight.resume();
+  blueLight.flash();
 
   ident.on();
   landing.on();
   illum.on();
-  position.resume();
+  position.flash();
   formation.on();
 }
 
@@ -225,25 +225,25 @@ void setNight() {
 
 void setPreDawn() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.on();
 
   ident.on();
   landing.on();
   illum.on();
-  position.resume();
+  position.flash();
   formation.on();
 }
 
 void setMorning() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.off();
 
   ident.on();
   landing.on();
   illum.on();
-  position.resume();
+  position.flash();
   formation.on();
 }
 
@@ -252,9 +252,9 @@ void setDay() {
   blueLight.off();
 
   ident.on();
-  landing.resume();
+  landing.flash();
   illum.off();
-  position.resume();
+  position.flash();
   formation.on();
 }
 

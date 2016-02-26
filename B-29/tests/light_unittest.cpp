@@ -25,7 +25,6 @@ TEST(Light, Constructor) {
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(true, light1.paused);
   EXPECT_EQ(Light::LIGHT_OFF, light1.lightMode);
 }
 
@@ -127,7 +126,7 @@ TEST(Light, On) {
   Light light1;
   light1.setup(lightVariable, onLightLevelValue);
 
-  EXPECT_EQ(true, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
 
   *light1.p_lightLevel = OFF;
@@ -136,7 +135,7 @@ TEST(Light, On) {
   light1.on();
   EXPECT_EQ(onLightLevelValue, *light1.p_lightLevel);
   EXPECT_EQ(onLightLevelValue, lightVariable);
-  EXPECT_EQ(true, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
 }
 
 TEST(Light, Off) {
@@ -147,7 +146,7 @@ TEST(Light, Off) {
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
-  EXPECT_EQ(true, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
   *light1.p_lightLevel = ON;
   EXPECT_EQ(ON, *light1.p_lightLevel);
@@ -155,7 +154,8 @@ TEST(Light, Off) {
   light1.off();
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(true, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
+
 }
 
 TEST(Light, FunctionCallOperatorGetValue) {
@@ -214,31 +214,11 @@ TEST(Light, Update) {
   light1.setup(lightVariable, onLightLevelValue);
 
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
-  EXPECT_EQ(true, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
-  // paused = true
-  light1.paused = true;
-  EXPECT_EQ(true, light1.getPaused());
-
-  *light1.p_lightLevel = OFF;
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  light1.update();
-  EXPECT_EQ(OFF, *light1.p_lightLevel);
-  EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(true, light1.getPaused());
-
-  *light1.p_lightLevel = ON;
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  light1.update();
-  EXPECT_EQ(ON, *light1.p_lightLevel);
-  EXPECT_EQ(ON, lightVariable);
-  EXPECT_EQ(true, light1.getPaused());
-
-  // paused = false case
-  light1.paused = false;
-  EXPECT_EQ(false, light1.getPaused());
+  // lightMode = OFF
+  light1.lightMode = Light::LIGHT_OFF;
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
   *light1.p_lightLevel = OFF;
   EXPECT_EQ(OFF, *light1.p_lightLevel);
@@ -246,7 +226,7 @@ TEST(Light, Update) {
   light1.update();
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
 
   *light1.p_lightLevel = ON;
   EXPECT_EQ(ON, *light1.p_lightLevel);
@@ -254,7 +234,28 @@ TEST(Light, Update) {
   light1.update();
   EXPECT_EQ(ON, *light1.p_lightLevel);
   EXPECT_EQ(ON, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
+  EXPECT_EQ(Light::LIGHT_OFF, light1.getLightMode());
+
+  // lightMode = ON
+  light1.lightMode = Light::LIGHT_ON;
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
+
+  *light1.p_lightLevel = OFF;
+  EXPECT_EQ(OFF, *light1.p_lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
+  light1.update();
+  EXPECT_EQ(OFF, *light1.p_lightLevel);
+  EXPECT_EQ(OFF, lightVariable);
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
+
+
+  *light1.p_lightLevel = ON;
+  EXPECT_EQ(ON, *light1.p_lightLevel);
+  EXPECT_EQ(ON, lightVariable);
+  light1.update();
+  EXPECT_EQ(ON, *light1.p_lightLevel);
+  EXPECT_EQ(ON, lightVariable);
+  EXPECT_EQ(Light::LIGHT_ON, light1.getLightMode());
 }
 
 
@@ -284,7 +285,6 @@ TEST(DecayLight, Constructor)
 
   
   EXPECT_EQ(OFF  , *light1.p_lightLevel);
-  EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
   EXPECT_EQ(OFF  , lightVariable);
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
@@ -413,7 +413,7 @@ TEST(DecayLight, Update)
     arduinoMock->setMillisRaw(timeMS);
 
     if (i == 18)
-      light1.resume();
+      light1.flash();
 
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
@@ -577,7 +577,7 @@ TEST(DecayLight, UpdateWithTauNULL)
     arduinoMock->setMillisRaw(timeMS);
 
     if (i == 18)
-      light1.resume();
+      light1.flash();
 
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
@@ -748,7 +748,6 @@ TEST(FlashingLight, Constructor)
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF  , *light1.p_lightLevel);
   EXPECT_EQ(OFF  , lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
   
   EXPECT_EQ(true , light1.decaying);
@@ -774,7 +773,6 @@ TEST(BlinkingLight, Constructor)
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
 
   EXPECT_EQ(0,    light1.changeTime);
@@ -845,7 +843,7 @@ TEST(BlinkingLight, Update)
     arduinoMock->setMillisRaw(timeMS);
     
     if (i == 18)
-      light1.resume();
+      light1.flash();
     
     if (i < 18) {
       expectedLevel    = onLightLevelValue;
@@ -878,7 +876,6 @@ TEST(FastBlinkingLight, Constructor)
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
 
   EXPECT_EQ(0,    light1.changeTime);
@@ -898,7 +895,6 @@ TEST(SlowBlinkingLight, Constructor)
   EXPECT_EQ(onLightLevelValue, light1.onLightLevel);
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.getLightMode());
 
   EXPECT_EQ(0,    light1.changeTime);
@@ -922,13 +918,11 @@ TEST(FastSlowBlinkingLight, Constructor)
   EXPECT_EQ(onLightLevelValue, light1.fastLight.onLightLevel);
   EXPECT_EQ(OFF, *light1.fastLight.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.fastLight.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.fastLight.getLightMode());
   
   EXPECT_EQ(onLightLevelValue, light1.slowLight.onLightLevel);
   EXPECT_EQ(OFF, *light1.slowLight.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
-  EXPECT_EQ(false, light1.slowLight.getPaused());
   EXPECT_EQ(Light::LIGHT_FLASHING, light1.slowLight.getLightMode());
   
   EXPECT_EQ(0,    light1.fastLight.changeTime);

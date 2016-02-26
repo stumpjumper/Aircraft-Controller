@@ -30,7 +30,7 @@ void Light::toggle() {
     break;
   case LIGHT_ON:
     off();
-    // resume();
+    // flash();
     break;
   }
 }
@@ -102,7 +102,6 @@ void DecayLight::setup(uint8_t  & lightLevelVariable,
   // Overide call to off() made in Light::setup since we want this light
   // to be in flashing mode right away
   *p_lightLevel = OFF; // Set the initial light level
-  paused = false;
   lightMode = LIGHT_FLASHING;
 
   onLength = onLengthValues;
@@ -131,7 +130,7 @@ void DecayLight::update()
       decaying = false;
       intervalIndex++;
       j = intervalIndex % numIntervals;
-      if (! paused) {
+      if (lightMode == LIGHT_FLASHING) {
         *p_lightLevel = maxLightLevel[j];
       }
       changeTimeDelta = onLength[j];
@@ -149,7 +148,7 @@ void DecayLight::update()
     }
   }
 
-  if (decaying && ! paused) {
+  if (decaying && lightMode == LIGHT_FLASHING) {
     //std::cerr << "A" << std::endl;
     if (tau == NULL || tau[j] == 0) {
       //std::cerr << "B" << std::endl;

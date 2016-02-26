@@ -68,7 +68,6 @@ private:
   FRIEND_TEST(Light, Off);
   FRIEND_TEST(Light, FunctionCallOperatorGetValue);
   FRIEND_TEST(Light, FunctionCallOperatorSetValue);
-  FRIEND_TEST(Light, Resume);
   FRIEND_TEST(Light, Update);
 
   // Do not implement to make sure are never called
@@ -82,7 +81,6 @@ public:
 protected:
   uint8_t onLightLevel;
   uint8_t * p_lightLevel;
-  bool paused;
   Light::MODE lightMode;
 
 public:
@@ -90,11 +88,10 @@ public:
   void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
   void update() {;};
 
-  bool getPaused() {return paused;};
   Light::MODE getLightMode() {return lightMode;};
   
-  void on() {*p_lightLevel = onLightLevel; paused = true; lightMode = LIGHT_ON;};
-  void off() {*p_lightLevel = OFF; paused = true; lightMode = LIGHT_OFF;};
+  void on() {*p_lightLevel = onLightLevel; lightMode = LIGHT_ON;};
+  void off() {*p_lightLevel = OFF; lightMode = LIGHT_OFF;};
   void toggle();
 
   uint8_t & operator()(void) {return *p_lightLevel;};
@@ -163,7 +160,7 @@ public:
              uint8_t  * maxLightLevelValues,
              uint32_t * tauInMilliseconds);
   
-  void resume() {paused = false; lightMode = LIGHT_FLASHING;}
+  void flash() {lightMode = LIGHT_FLASHING;}
   void update();
   bool getDecaying() {return decaying;};
 };
@@ -286,12 +283,11 @@ public:
   void setToFast() {p_currentLight = &fastLight; blinkSpeed = FAST;};
   void setToSlow() {p_currentLight = &slowLight; blinkSpeed = SLOW;};
   
-  bool getPaused() {return p_currentLight->getPaused();};
   Light::MODE getLightMode() {return p_currentLight->getLightMode();};
   Speed getSpeed() {return blinkSpeed;};
   void on() {fastLight.on(); slowLight.on();};
   void off() {fastLight.off(); slowLight.off();};
-  void resume() {fastLight.resume(); slowLight.resume();};
+  void flash() {fastLight.flash(); slowLight.flash();};
   void update() {p_currentLight->update();};
   
   uint8_t & operator()(void) {return (*p_currentLight)();};

@@ -169,18 +169,18 @@ void allOff() {
 
 void setOverride() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.setToFast();
-  blueLight.resume();
+  blueLight.flash();
 
   allOff();
 }
 
 void setBatteryLow() {
   redLight .setToFast();
-  redLight .resume();
+  redLight .flash();
   blueLight.setToSlow();
-  blueLight.resume();
+  blueLight.flash();
 
   allOff();
 }
@@ -188,11 +188,11 @@ void setBatteryLow() {
 void setEvening() {
   redLight .off();
   blueLight.setToSlow();
-  blueLight.resume();
+  blueLight.flash();
   
   taxi     .on();
-  position .resume();
-  collision.resume();
+  position .flash();
+  collision.flash();
   floods   .on();
 }
 
@@ -205,23 +205,23 @@ void setNight() {
 
 void setPreDawn() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.on();
   
   taxi     .on();
-  position .resume();
-  collision.resume();
+  position .flash();
+  collision.flash();
   floods   .on();
 }
 
 void setMorning() {
   redLight .setToSlow();
-  redLight .resume();
+  redLight .flash();
   blueLight.off();
   
   taxi     .on();
-  position .resume();
-  collision.resume();
+  position .flash();
+  collision.flash();
   floods   .on();
 }
 
@@ -229,9 +229,9 @@ void setDay() {
   redLight  .on();
   blueLight.off();
   
-  taxi     .resume();
-  position .resume();
-  collision.resume();
+  taxi     .flash();
+  position .flash();
+  collision.flash();
   floods   .off();
 }
 
