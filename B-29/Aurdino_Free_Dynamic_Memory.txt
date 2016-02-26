@@ -3,6 +3,9 @@ To-Do:
 * Make toggle cycle through flashing
 * Set min and max photocell values to value initially read in
 * Have 5 day rolling average of min and max photocell values
+* Have delay turn of early, at 1 or 2 tau
+* Set length of evening based on percentage of length of previous night
+√ Ignore spurious IR signals (Volume up on DirecTV remote is key DE5526F7
 
 
 Free dynamic memory in bytes
@@ -15,6 +18,7 @@ B-29
 1095: after some minor code weeks in printing, including saving millis() to const variable and using 4 times
 1091: after adding support for timeoutUpdateLights.  Added a uint32_t and some logic
 1084: after changing formation and illumination from DelayLight to Light and landing from Light to DelayLight and adding control parameters for landing, which adds 2 uint32_t and 1 uint8_t (9 bytes)
+1064: 2016-02-22
 
 F-16:
 1067: First version based on B-29.ino and loaded onto aircraft.
