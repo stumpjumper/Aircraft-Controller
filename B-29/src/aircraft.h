@@ -3,11 +3,11 @@
 #include "lucky7.h"
 #include "RC65X.h"
 #include "RMYD065.h"
-#include <EEPROM.h>
 
 void serialPrintBanner();
 void setOverride();
 void setBatteryLow();
+void allOff();
 void setEvening();
 void setNight();
 void setPreDawn();
@@ -43,13 +43,6 @@ enum Mode {
   MODE_PREDAWN    = 'P',
   MODE_MORNING    = 'M',
   MODE_DAY        = 'D',
-} ;
-
-enum Coll {
-  COLL_ON1,
-  COLL_OFF1,
-  COLL_ON2,
-  COLL_OFF2
 } ;
 
 #define TIMEOUTSTATUS              1000  //   1 sec in milliseconds
@@ -93,6 +86,24 @@ void resetTimeoutOverride() {
   if (timeoutOverride < timeoutOverrideOld) {
     Serial.print(F("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n"));
   }
+}
+
+void setOverride() {
+  redLight .setToSlow();
+  redLight .flash();
+  blueLight.setToFast();
+  blueLight.flash();
+
+  allOff();
+}
+
+void setBatteryLow() {
+  redLight .setToFast();
+  redLight .flash();
+  blueLight.setToSlow();
+  blueLight.flash();
+
+  allOff();
 }
 
 void updateChannels() {

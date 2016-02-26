@@ -1,4 +1,5 @@
 #include "aircraft.h"
+#include <EEPROM.h>
 
 // There's an interrupt collision with the IR routines and the PWM
 // Outputs 1, 5, 6 can be dimmed
@@ -85,24 +86,6 @@ void updateAll() {
 
 void allOff() {
   allLightsOff();
-}
-
-void setOverride() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.setToFast();
-  blueLight.flash();
-
-  allOff();
-}
-
-void setBatteryLow() {
-  redLight .setToFast();
-  redLight .flash();
-  blueLight.setToSlow();
-  blueLight.flash();
-
-  allOff();
 }
 
 // -------------------- Time of Day Settings ----------------
