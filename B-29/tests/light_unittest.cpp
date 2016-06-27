@@ -1,8 +1,12 @@
 #include "lucky7.h"
 #include <gtest/gtest.h>
+#include <algorithm>    // std::max
+
 
 using std::setfill;
 using std::setw;
+using std::min;
+using std::max;
 
 const uint8_t onLightLevelValue = ON-2;
 const uint8_t maxLightLevelValue = 199;
@@ -26,6 +30,64 @@ TEST(Light, Constructor) {
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
   EXPECT_EQ(Light::LIGHT_OFF, light1.lightMode);
+}
+
+TEST(Light, SetOnLightLevel) {
+
+  uint8_t lightVariable;
+  uint8_t myOnLightLevelValue = ON;
+  
+
+  Light light1;
+  EXPECT_EQ(NULL, light1.p_lightLevel);
+  EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.lightMode);
+  light1.setup(lightVariable, myOnLightLevelValue);
+
+  EXPECT_EQ(myOnLightLevelValue, light1.onLightLevel);
+  EXPECT_EQ(OFF, light1());
+  light1.on();
+  EXPECT_EQ(myOnLightLevelValue, light1());
+
+  for (uint8_t i = 0; i <= 100; i+=10) {
+    myOnLightLevelValue = ON*i/100;
+    light1.setOnLightLevel(myOnLightLevelValue);
+    EXPECT_EQ(myOnLightLevelValue, light1());
+  }
+  EXPECT_EQ(ON, light1());
+
+}
+TEST(Light, IncrementOnLightLevel) {
+
+  uint8_t lightVariable;
+  uint8_t myOnLightLevelValue = ON;
+  
+
+  Light light1;
+  EXPECT_EQ(NULL, light1.p_lightLevel);
+  EXPECT_EQ(Light::LIGHT_MODE_NOTSET, light1.lightMode);
+  light1.setup(lightVariable, myOnLightLevelValue);
+
+  EXPECT_EQ(myOnLightLevelValue, light1.onLightLevel);
+  EXPECT_EQ(OFF, light1());
+  light1.on();
+  EXPECT_EQ(myOnLightLevelValue, light1());
+
+  myOnLightLevelValue = 0;
+  light1.setOnLightLevel(myOnLightLevelValue);
+  for (uint16_t i = 5; i <= ON+30; i+=5) {
+    light1.incrementOnLightLevel(5);
+    EXPECT_EQ(min(i,uint16_t(ON)), light1());
+  }
+  EXPECT_EQ(ON, light1());
+
+  myOnLightLevelValue = ON;
+  light1.setOnLightLevel(myOnLightLevelValue);
+  for (uint16_t i = 5; i <= ON+30; i+=5) {
+    light1.incrementOnLightLevel(-5);
+    EXPECT_EQ(max(int(OFF),int(ON-i)), light1());
+  }
+  EXPECT_EQ(OFF, light1());
+
 }
 
 TEST(Light, Toggle) {

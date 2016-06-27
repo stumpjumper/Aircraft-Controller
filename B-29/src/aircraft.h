@@ -89,6 +89,7 @@ void resetTimeoutOverride() {
 }
 
 void setOverride() {
+  Serial.println(F("In setOverride()"));
   redLight .setToSlow();
   redLight .flash();
   blueLight.setToFast();

@@ -19,6 +19,30 @@ void Light::setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue)
   off();
 }
 
+void Light::setOnLightLevel(const uint8_t onLightLevelValue)
+{
+  onLightLevel = onLightLevelValue;
+  if (LIGHT_ON == lightMode) {
+    on();
+  }
+}
+
+void Light::incrementOnLightLevel(const int16_t onLightLevelIncrement)
+{
+  int16_t onLightLevelValue = onLightLevel + onLightLevelIncrement;
+  if (onLightLevelValue > ON)
+  {
+    onLightLevelValue = ON;
+  }
+  else if (onLightLevelValue < OFF)
+  {
+    onLightLevelValue = OFF;
+  }
+  
+  setOnLightLevel(onLightLevelValue);
+}
+
+
 void Light::toggle() {
   switch (lightMode) {
   case LIGHT_MODE_NOTSET:

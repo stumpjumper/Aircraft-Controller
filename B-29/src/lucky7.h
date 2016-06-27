@@ -64,6 +64,8 @@ public:
 
 private:
   FRIEND_TEST(Light, Constructor);
+  FRIEND_TEST(Light, SetOnLightLevel);
+  FRIEND_TEST(Light, IncrementOnLightLevel);
   FRIEND_TEST(Light, On);
   FRIEND_TEST(Light, Off);
   FRIEND_TEST(Light, FunctionCallOperatorGetValue);
@@ -86,6 +88,9 @@ protected:
 public:
 
   void setup(uint8_t & lightLevelVariable, const uint8_t onLightLevelValue);
+  void setOnLightLevel(const uint8_t onLightLevelValue);
+  void incrementOnLightLevel(const int16_t onLightLevelIncrement);
+  
   void update() {;};
 
   Light::MODE getLightMode() {return lightMode;};

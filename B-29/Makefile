@@ -82,7 +82,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 # House-keeping build targets.
 
-all : $(TESTS) F-16.o
+all : $(TESTS) B-29.o F-16.o Adjustable.o
 
 MY_TESTEXE_A=B29_unittest
 MY_TEST_A1=B29Test.ResetTimeoutOverride
@@ -182,7 +182,10 @@ B-29.o : $(SRC_DIR)/B-29.cpp
 F-16.o : $(SRC_DIR)/F-16.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-29.a : lucky7.o B-29.o F-16.o 
+Adjustable.o : $(SRC_DIR)/Adjustable.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
+B-29.a : lucky7.o B-29.o F-16.o Adjustable.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
