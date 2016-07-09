@@ -70,6 +70,17 @@ void updateAll() {
   redLight .update();
 }
 
+void allLightsFlash() {
+  light1.flash();
+  light2.flash();
+  light3.flash();
+  light4.flash();
+  light5.flash();
+  light6.flash();
+  light7.flash();
+}
+
+
 void allOff() {
   Serial.println(F("In allOff()"));
   allLightsOff();
@@ -80,28 +91,38 @@ void setEvening() {
   redLight .off();
   blueLight.setToSlow();
   blueLight.flash();
+
+  allLightsFlash();
 }
 
 void setNight() {
   redLight .off();
   blueLight.on();
+
+  allLightsFlash();
 }
 
 void setPreDawn() {
   redLight .setToSlow();
   redLight .flash();
   blueLight.on();
+
+  allLightsFlash();
 }
 
 void setMorning() {
   redLight .setToSlow();
   redLight .flash();
   blueLight.off();
+
+  allLightsFlash();
 }
 
 void setDay() {
   redLight  .on();
   blueLight.off();
+
+  allLightsFlash();
 }
 
 void processKey(uint32_t key) {
