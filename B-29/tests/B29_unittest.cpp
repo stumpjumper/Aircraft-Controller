@@ -11,7 +11,34 @@ using ::testing::Return;
 
 void B29Test::SetUp()
 {
-  // setupLightingAndMotorChannels();
+  // All this so we can call setup() below
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, begin(_))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
+    .Times(1);
+  
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, pinMode(_,_))
+    .Times(11);
+
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(1);
+
+  IRrecvMock * irrecvMock = irrecvMockInstance();
+  EXPECT_CALL(*irrecvMock, enableIRIn())
+    .Times(1);
+
+  arduinoMock->setMillisRaw(0);
+  setup(); // Note: Will call setupLightingAndMotorChannels();
+
+  setupStatusLights();
+  setupLightingAndMotorChannels();
+
+  releaseSerialMock();
+  releaseArduinoMock();
+  releaseIRrecvMock();
+
 }
 
 TEST_F(B29Test, ArduinoMockMillis) {
@@ -90,10 +117,9 @@ TEST_F(B29Test, ResetTimeoutBatteryLow) {
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
-  
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
-  
+
   //                              ,   .  ,   .   ,   . ,  ,   .  ,  ,   .
   uint32_t times[] = {0,10U,100U,1000U,10000U,100000U,1000000U,10000000U,
                       // ,  ,   . ,  ,  ,   . ,  ,  ,   .
@@ -210,6 +236,7 @@ TEST_F(B29Test, OverrideBatteryLow) {
 
 TEST_F(B29Test, NameLightGroupsOnAndOff) {
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   EXPECT_EQ(OFF, hw.o1 );
@@ -310,6 +337,7 @@ void testAllLightsOff() {
 
 TEST_F(B29Test, AllLightsOn) {
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   testAllLightsOn();
@@ -317,6 +345,7 @@ TEST_F(B29Test, AllLightsOn) {
 
 TEST_F(B29Test, AllLightsOff) {
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   testAllLightsOff();
@@ -338,6 +367,7 @@ TEST_F(B29Test, UpdateLights) {
 
   // Landing is on for 5 minutes, off for 5 minutes during the day
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   // Override red and blue light's setup so timeing is correct for tests below
@@ -523,6 +553,7 @@ void testAllOff() {
 
 TEST_F(B29Test, AllOff) {
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   testAllOff();
@@ -598,7 +629,12 @@ void checkDayStatusLights() {
 TEST_F(B29Test, SetOverride) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, println("In setOverride()"))
+    .Times(1);
 
+
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -646,12 +682,14 @@ TEST_F(B29Test, SetOverride) {
   checkOverrideStatusLights();
 
   releaseArduinoMock();
+  releaseSerialMock();
 }
 
 TEST_F(B29Test, SetBatteryLow) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -705,6 +743,7 @@ TEST_F(B29Test, SetEvening) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -732,7 +771,7 @@ TEST_F(B29Test, SetEvening) {
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
-  setEvening();
+  setEveningInit();
 
   arduinoMock->setMillisRaw(11);
   updateChannels();
@@ -758,6 +797,7 @@ TEST_F(B29Test, SetNight) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -786,7 +826,7 @@ TEST_F(B29Test, SetNight) {
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
-  setNight();
+  setNightInit();
 
   arduinoMock->setMillisRaw(11);
   updateChannels();
@@ -812,6 +852,7 @@ TEST_F(B29Test, SetPreDawn) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -840,7 +881,7 @@ TEST_F(B29Test, SetPreDawn) {
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
 
-  setPreDawn();
+  setPreDawnInit();
 
   arduinoMock->setMillisRaw(11);
   updateChannels();
@@ -866,6 +907,7 @@ TEST_F(B29Test, SetMorning) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -893,7 +935,7 @@ TEST_F(B29Test, SetMorning) {
   EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
-  setMorning();
+  setMorningInit();
 
   arduinoMock->setMillisRaw(11);
   updateChannels();
@@ -921,6 +963,7 @@ TEST_F(B29Test, SetDay) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
 
+  setupStatusLights();
   setupLightingAndMotorChannels();
   timeoutUpdateLights = 0;
 
@@ -949,7 +992,7 @@ TEST_F(B29Test, SetDay) {
   EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
 
 
-  setDay();
+  setDayInit();
 
   arduinoMock->setMillisRaw(11);
   updateChannels();
@@ -975,11 +1018,14 @@ TEST_F(B29Test, SetDay) {
 TEST_F(B29Test, SetToMode) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
-
-
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
+  SerialMock  * serialMock  = serialMockInstance();
+  EXPECT_CALL(*serialMock, println("In setOverride()"))
+    .Times(1);
+  
+  setupStatusLights();
   setupLightingAndMotorChannels();
 
   Mode modes[7] = {MODE_OVERRIDE, MODE_BATTERYLOW, MODE_EVENING,
@@ -1000,7 +1046,7 @@ TEST_F(B29Test, SetToMode) {
   arduinoMock->setMillisRaw(time); 
   
   for (uint8_t i = 0; i < 7; i++) {
-    
+
     redLight.off();
     blueLight.off();
     checkStatusLightsAllOff();
@@ -1045,21 +1091,21 @@ TEST_F(B29Test, SetToMode) {
   EXPECT_EQ(TIMEOUTBATTERYLOW + 40000, timeoutBatteryLow);
 
   releaseArduinoMock();
+  releaseSerialMock();
 
 }
-
-
 
 TEST_F(B29Test, ProcessKey) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
-
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
+  EXPECT_CALL(*serialMock, println("In setOverride()"))
+    .Times(11);
 
   EXPECT_CALL(*serialMock, println(_,_))
     .Times(AtLeast(1));
@@ -1097,6 +1143,7 @@ TEST_F(B29Test, ProcessKey) {
   //   .WillOnce(Return(300))
   //   .WillOnce(Return(400));
   
+  setupStatusLights();
   setupLightingAndMotorChannels();
   Serial.begin(115200);
 
@@ -1367,7 +1414,6 @@ TEST_F(B29Test, Statemap) {
   ArduinoMock * arduinoMock = arduinoMockInstance();
   EXPECT_CALL(*arduinoMock, pinMode(_,_))
     .Times(11);
-
   EXPECT_CALL(*arduinoMock, millis())
     .Times(AtLeast(1));
 
@@ -1382,6 +1428,8 @@ TEST_F(B29Test, Statemap) {
     .Times(1);
   EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
     .Times(0);
+  EXPECT_CALL(*serialMock, println("In setOverride()"))
+    .Times(5);
 
   IRrecvMock * irrecvMock = irrecvMockInstance();
   EXPECT_CALL(*irrecvMock, enableIRIn())

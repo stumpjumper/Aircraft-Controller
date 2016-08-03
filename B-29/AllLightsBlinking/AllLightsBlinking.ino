@@ -65,9 +65,6 @@ void updateAll() {
   light5.update();
   light6.update();
   light7.update();
-
-  blueLight.update();
-  redLight .update();
 }
 
 void allLightsFlash() {
@@ -88,40 +85,22 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  redLight .off();
-  blueLight.setToSlow();
-  blueLight.flash();
-
   allLightsFlash();
 }
 
 void setNight() {
-  redLight .off();
-  blueLight.on();
-
   allLightsFlash();
 }
 
 void setPreDawn() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.on();
-
   allLightsFlash();
 }
 
 void setMorning() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.off();
-
   allLightsFlash();
 }
 
 void setDay() {
-  redLight  .on();
-  blueLight.off();
-
   allLightsFlash();
 }
 
@@ -208,7 +187,4 @@ void setupLightingAndMotorChannels()
   light5.setup(hw.o5, ON, ON);
   light6.setup(hw.o6, ON, ON);
   light7.setup(hw.o7, ON, ON);
-  
-  blueLight.setup(hw.o8 , ON, ON);
-  redLight .setup(hw.o13, ON, ON);
 }

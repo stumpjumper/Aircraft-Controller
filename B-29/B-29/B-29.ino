@@ -53,7 +53,7 @@ uint32_t positionTauInMilliseconds[1]  =    {175}; // Half-life = .05 seconds
 
 // Decay settings for taxi lights during day and night
 uint32_t   landingDayOnLengths[1]      = {300000}; // On 5 minutes
-uint32_t   landingDayDecayLengths[1]   = {300000}; // Off for 5 minutes
+uint32_t   landingDayDecayLengths[1]   = { 60000}; // Off for 1 minute (changed 7/18/2016, was 5 min)
 uint8_t    landingDayMaxLightLevels[1] =     {ON}; // Full on when on  
 uint32_t * landingDayTauInMilliseconds =     NULL; // On/Off, no decay
 
@@ -96,9 +96,6 @@ void updateAll() {
   position.update();
   formation.update();
   upDownMotor.motorUpdate();
-  
-  blueLight.update();
-  redLight.update();
 }
 
 void allOff() {
@@ -108,10 +105,6 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  redLight .off();
-  blueLight.setToSlow();
-  blueLight.flash();
-
   ident.on();
   landing.on();
   illum.on();
@@ -120,17 +113,10 @@ void setEvening() {
 }
 
 void setNight() {
-  redLight .off();
-  blueLight.on();
-  
   allOff();
 }
 
 void setPreDawn() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.on();
-
   ident.on();
   landing.on();
   illum.on();
@@ -139,10 +125,6 @@ void setPreDawn() {
 }
 
 void setMorning() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.off();
-
   ident.on();
   landing.on();
   illum.on();
@@ -151,9 +133,6 @@ void setMorning() {
 }
 
 void setDay() {
-  redLight  .on();
-  blueLight.off();
-
   ident.on();
   landing.flash();
   illum.off();
@@ -289,9 +268,5 @@ void setupLightingAndMotorChannels()
   formation .setup(hw.o6, ON);
 
   upDownMotor.setup(hw.o3, hw.o7); // Initialize with (up, down) outputs
-
-  blueLight .setup(hw.o8 , ON, ON);
-  redLight  .setup(hw.o13, ON, ON);
-
 }
 

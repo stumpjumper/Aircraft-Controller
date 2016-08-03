@@ -49,9 +49,6 @@ void updateAll() {
   light1.update();
   light5.update();
   light6.update();
-  
-  blueLight.update();
-  redLight .update();
 }
 
 void allOff() {
@@ -61,31 +58,18 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  redLight .off();
-  blueLight.setToSlow();
-  blueLight.flash();
 }
 
 void setNight() {
-  redLight .off();
-  blueLight.on();
 }
 
 void setPreDawn() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.on();
 }
 
 void setMorning() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.off();
 }
 
 void setDay() {
-  redLight  .on();
-  blueLight.off();
 }
 
 void processKey(uint32_t key) {
@@ -261,7 +245,4 @@ void setupLightingAndMotorChannels()
   light1.setup(hw.o1, ON);
   light5.setup(hw.o5, ON);
   light6.setup(hw.o6, ON);
-  
-  blueLight.setup(hw.o8 , ON, ON);
-  redLight .setup(hw.o13, ON, ON);
 }

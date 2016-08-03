@@ -41,7 +41,7 @@ uint32_t * collisionTauInMilliseconds  = NULL;     // On/Off, no decay
 
 // Decay settings for taxi lights during day and night
 uint32_t taxiDayOnLengths[1]           = {300000}; // On 5 minutes
-uint32_t taxiDayDecayLengths[1]        = {300000}; // Off for 5 minutes
+uint32_t taxiDayDecayLengths[1]        = { 60000}; // Off for 1 minute (changed 7/18/2016, was 5 min)
 uint8_t  taxiDayMaxLightLevels[1]      = {ON};  
 uint32_t * taxiDayTauInMilliseconds    = NULL;     // On/Off, no decay
 
@@ -79,9 +79,6 @@ void updateAll() {
   position .update();
   collision.update();
   floods   .update();
-  
-  blueLight.update();
-  redLight .update();
 }
 
 void allOff() {
@@ -90,10 +87,6 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  redLight .off();
-  blueLight.setToSlow();
-  blueLight.flash();
-  
   taxi     .on();
   position .flash();
   collision.flash();
@@ -101,17 +94,10 @@ void setEvening() {
 }
 
 void setNight() {
-  redLight .off();
-  blueLight.on();
-  
   allOff();
 }
 
 void setPreDawn() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.on();
-  
   taxi     .on();
   position .flash();
   collision.flash();
@@ -119,10 +105,6 @@ void setPreDawn() {
 }
 
 void setMorning() {
-  redLight .setToSlow();
-  redLight .flash();
-  blueLight.off();
-  
   taxi     .on();
   position .flash();
   collision.flash();
@@ -130,9 +112,6 @@ void setMorning() {
 }
 
 void setDay() {
-  redLight  .on();
-  blueLight.off();
-  
   taxi     .flash();
   position .flash();
   collision.flash();
@@ -255,7 +234,4 @@ void setupLightingAndMotorChannels()
   collision.setup(hw.o6, ON, 2, collisionOnLengths, collisionDecayLengths,
                   collisionMaxLightLevels, collisionTauInMilliseconds);
   floods   .setup(hw.o7, ON);
-
-  blueLight.setup(hw.o8 , ON, ON);
-  redLight .setup(hw.o13, ON, ON);
 }

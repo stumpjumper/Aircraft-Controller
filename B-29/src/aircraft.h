@@ -103,8 +103,53 @@ void setBatteryLow() {
   redLight .flash();
   blueLight.setToSlow();
   blueLight.flash();
-
+  
   allOff();
+}
+
+void setEveningInit() {
+  redLight .off();
+  blueLight.setToSlow();
+  blueLight.flash();
+  
+  setEvening();
+}
+
+void setNightInit() {
+  redLight .off();
+  blueLight.on();
+  
+  setNight();
+}
+
+void setPreDawnInit() {
+  redLight .setToSlow();
+  redLight .flash();
+  blueLight.on();
+  
+  setPreDawn();
+}
+
+void setMorningInit() {
+  redLight .setToSlow();
+  redLight .flash();
+  blueLight.off();
+  
+  setMorning();
+}
+
+void setDayInit() {
+  redLight  .on();
+  blueLight.off();
+  
+  setDay();
+}
+
+void updateAllInit() {
+  blueLight.update();
+  redLight .update();
+
+  updateAll();
 }
 
 void updateChannels() {
@@ -112,8 +157,8 @@ void updateChannels() {
   const uint32_t time = millis();
   if (time > timeoutUpdateLights) {
     timeoutUpdateLights = time + 10;
-
-    updateAll();
+    
+    updateAllInit();
   }
 }
 
@@ -125,7 +170,7 @@ void setToMode( int targetMode) {
       setOverride();
     }
     mode = MODE_OVERRIDE;
-
+    
     resetTimeoutOverride();
     break;
   case MODE_BATTERYLOW:
@@ -133,36 +178,36 @@ void setToMode( int targetMode) {
       setBatteryLow();
     }
     mode = MODE_BATTERYLOW;
-
+    
     resetTimeoutBatteryLow();
     break;
   case MODE_EVENING:
     if (MODE_EVENING != mode) {
-      setEvening();
+      setEveningInit();
     }
     mode = MODE_EVENING;
     break;
   case MODE_NIGHT:
     if (MODE_NIGHT != mode) {
-      setNight();
+      setNightInit();
     }
     mode = MODE_NIGHT;
     break;
   case MODE_PREDAWN:
     if (MODE_PREDAWN != mode) {
-      setPreDawn();
+      setPreDawnInit();
     }
     mode = MODE_PREDAWN;
     break;
   case MODE_MORNING:
     if (MODE_MORNING != mode) {
-      setMorning();
+      setMorningInit();
     }
     mode = MODE_MORNING;
     break;
   case MODE_DAY:
     if (MODE_DAY != mode) {
-      setDay();
+      setDayInit();
     }
     mode = MODE_DAY;
     break;
@@ -266,14 +311,20 @@ void status() {
     }
 }
 
+void setupStatusLights() {
+  blueLight.setup(hw.o8 , ON, ON); // Setup status light blue
+  redLight .setup(hw.o13, ON, ON); // and red
+}
+
 void setup() {
     Serial.begin(115200);
     serialPrintBanner();
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
 
+    setupStatusLights();
     setupLightingAndMotorChannels();
-      
+     
     timeoutStatus = 0;
     timeoutOverride = 0;
     timeoutUpdateLights = 0;

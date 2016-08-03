@@ -82,23 +82,18 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 # House-keeping build targets.
 
-all : $(TESTS) B-29.o F-16.o Adjustable.o AllLightsBlinking.o
+all : $(TESTS) B-29.o F-16.o B-52a.o B-52b.o Adjustable.o AllLightsBlinking.o
 
 MY_TESTEXE_A=B29_unittest
-MY_TEST_A1=B29Test.ResetTimeoutOverride
-MY_TEST_A2=B29Test.ResetTimeoutBatteryLow
-MY_TEST_A3=B29Test.Statemap
-MY_TEST_A4=B29Test.Setup
-MY_TEST_A5=B29Test.UpdateLights
-MY_TEST_A6=B29Test.ProcessKey
+MY_TEST_A1=B29Test.Statemap
 
 MY_TESTEXE_B=light_unittest
 MY_TEST_B1=DecayLight.Update2
 
 MY_TESTEXE_C=integration_test
 MY_TEST_C1=Integration.CycleThroughDay
-mytest: $(TESTS)
-	./$(MY_TESTEXE_B) --gtest_filter=$(MY_TEST_B1)
+mytest : $(TESTS)
+	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1)
 
 test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 	for t in $(UNIT_TESTS); do ./$$t; done;
@@ -182,13 +177,19 @@ B-29.o : $(SRC_DIR)/B-29.cpp
 F-16.o : $(SRC_DIR)/F-16.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
+B-52a.o : B-52a/B-52a.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
+B-52b.o : $(SRC_DIR)/B-52b.cpp
+	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
 Adjustable.o : $(SRC_DIR)/Adjustable.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 AllLightsBlinking.o : $(SRC_DIR)/AllLightsBlinking.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-29.a : lucky7.o B-29.o F-16.o Adjustable.o AllLightsBlinking.o
+B-29.a : lucky7.o B-29.o F-16.o B-52a.o B-52b.o Adjustable.o AllLightsBlinking.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
