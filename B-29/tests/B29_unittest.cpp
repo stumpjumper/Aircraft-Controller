@@ -793,6 +793,130 @@ TEST_F(B29Test, SetEvening) {
   releaseArduinoMock();
 }
 
+TEST_F(B29Test, SetEveningInit) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(5);
+
+  setupStatusLights();
+  setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
+  setEveningInit();
+
+  arduinoMock->setMillisRaw(11);
+  updateChannels();
+
+  checkEveningStatusLights();
+
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, SetNightInit) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(5);
+
+  setupStatusLights();
+  setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
+  setNightInit();
+
+  arduinoMock->setMillisRaw(11);
+  updateChannels();
+
+  checkNightStatusLights();
+
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, SetPreDawnInit) {
+
+  setupStatusLights();
+  setupLightingAndMotorChannels();
+  timeoutUpdateLights = 0;
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
+  setPreDawnInit();
+
+  checkPreDawnStatusLights();
+}
+
+TEST_F(B29Test, SetMorningInit) {
+
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(4);
+
+  allLightsOff();
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
+  setMorningInit();
+  updateAllInit();
+
+  checkMorningStatusLights();
+
+  releaseArduinoMock();
+}
+
+TEST_F(B29Test, SetDayInit) {
+  ArduinoMock * arduinoMock = arduinoMockInstance();
+  EXPECT_CALL(*arduinoMock, millis())
+    .Times(4);
+
+  setupStatusLights();
+
+  redLight.off();
+  blueLight.off();
+
+  EXPECT_EQ(OFF, redLight());
+  EXPECT_EQ(OFF, blueLight());
+  EXPECT_EQ(Light::LIGHT_OFF, redLight.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, blueLight.getLightMode());
+
+  setDayInit();
+  updateAllInit();
+
+  checkDayStatusLights();
+
+  releaseArduinoMock();
+}
+
 TEST_F(B29Test, SetNight) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
