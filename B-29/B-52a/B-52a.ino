@@ -33,12 +33,12 @@ DecayLight      collision;       // Anti-Collision lights on lft & rht top befor
 
 
 // Flashing settings for taxi lights during day and night
-const uint8_t  taxiMaxLightLevelDay    = uint8_t(.8*ON); // 80% Max
-const uint8_t  taxiMaxLightLevelNight  = uint8_t(.6*ON); // 60% Max
-uint32_t taxiDayOnLengths[1]           = {180000}; // On 3 minutes
-uint32_t taxiDayDecayLengths[1]        = { 60000}; // Off for 1 minute
-uint8_t  taxiDayMaxLightLevels[1]      = {taxiMaxLightLevelDay};  
-uint32_t * taxiDayTauInMilliseconds    = NULL;     // On/Off, no decay
+const uint8_t  taxiMaxLightLevelDay   = uint8_t(.8*ON); // 80% Max
+const uint8_t  taxiMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
+uint32_t taxiOnLengths[1]             = {180000}; // On 3 minutes
+uint32_t taxiDecayLengths[1]          = { 60000}; // Off for 1 minute
+uint8_t  taxiMaxLightLevels[1]        = {taxiMaxLightLevelDay};  
+uint32_t * taxiTauInMilliseconds      = NULL;     // On/Off, no decay
 
 // Flashing settings for navigation lights
 uint32_t navigationOnLengths[1]          = {100};  // On for .1 seconds
@@ -47,8 +47,8 @@ uint8_t  navigationMaxLightLevels[1]     = {ON};
 uint32_t navigationTauInMilliseconds[1]  = {100};  // Half-life = .1 seconds
 
 // Flashing settings for collision lights
-uint32_t collisionOnLengths[1]         = {50};   // On : .05s, .05s
-uint32_t collisionDecayLengths[1]      = {1500}; // Off: .25s, then 1.75 s
+uint32_t collisionOnLengths[1]         = {50};   // On : .05s
+uint32_t collisionDecayLengths[1]      = {1500}; // Off: 1.5 s
 uint8_t  collisionMaxLightLevels[1]    = {ON};   // Full power
 uint32_t * collisionTauInMilliseconds  = NULL;   // On/Off, no decay
 
@@ -91,7 +91,7 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  taxiDayMaxLightLevels[0] = taxiMaxLightLevelNight;  
+  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
   taxi        .flash();
   landing     .on();
   terrain     .off();
@@ -104,7 +104,7 @@ void setNight() {
 }
 
 void setPreDawn() {
-  taxiDayMaxLightLevels[0] = taxiMaxLightLevelNight;  
+  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
   taxi        .flash();
   landing     .on();
   terrain     .off();
@@ -113,7 +113,7 @@ void setPreDawn() {
 }
 
 void setMorning() {
-  taxiDayMaxLightLevels[0] = taxiMaxLightLevelDay;  
+  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
   taxi        .flash();
   landing     .on();
   terrain     .off();
@@ -122,7 +122,7 @@ void setMorning() {
 }
 
 void setDay() {
-  taxiDayMaxLightLevels[0] = taxiMaxLightLevelDay;  
+  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
   taxi        .flash();
   landing     .on();
   terrain     .off();
@@ -236,9 +236,8 @@ void serialPrintCustomStatus()
 
 void setupLightingAndMotorChannels()
 {
-  taxi       .setup(hw.o1, taxiMaxLightLevelDay, 
-                    1, taxiDayOnLengths, taxiDayDecayLengths,
-                    taxiDayMaxLightLevels, taxiDayTauInMilliseconds);
+  taxi       .setup(hw.o1, taxiMaxLightLevelDay, 1, taxiOnLengths,   taxiDecayLengths,
+                    taxiMaxLightLevels, taxiTauInMilliseconds);
   landing    .setup(hw.o2, ON);
   terrain    .setup(hw.o3, ON);
   navigation .setup(hw.o5, ON, 1, navigationOnLengths, navigationDecayLengths,
