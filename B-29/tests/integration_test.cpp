@@ -1,6 +1,6 @@
 #include "integration_test.h"
 #include "pins_arduino.h"
-#include "B-29.ino"
+#include "B-52a.ino"
 #include <IRremote.h>
 
 using ::testing::_;
@@ -112,6 +112,7 @@ TEST_F(Integration, CycleThroughDay) {
     arduinoMock->addMillisRaw(1);
     loop();
   }
+
   EXPECT_EQ(MODE_DAY, mode);
   // Go for 1 hours
   for (uint32_t i = 0; i < 360000; i++) {
