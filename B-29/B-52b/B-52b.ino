@@ -50,7 +50,7 @@ uint32_t * loaderDayTauInMilliseconds    = NULL;     // On/Off, no decay
 const uint8_t  tailFloodsMaxLightLevel   = uint8_t(0.8*ON); // 80% Max
 
 void serialPrintBanner() {
-    Serial.println(F("NMNSH B-52 Lighting Controller B"));
+    Serial.println(F("NMNSH B-52 Lighting Controller B v1.0"));
 }
 
 bool overrideBatteryLow() {
@@ -226,8 +226,7 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  char buffer[75];
-  sprintf(buffer,
+  sprintf(sprintfBuffer,
           "|1:%1i:%3d|2:%3d|3:%3d|5:%1i:%3d|6:%1i:%3d,r:%3d|b:%3d|",
           int(catwalk.getLightMode()), hw.o1,
           hw.o2,
@@ -235,7 +234,7 @@ void serialPrintCustomStatus()
           int(loader.getLightMode()), hw.o5,
           int(tailFloods.getLightMode()), hw.o6,
           hw.o13,hw.o8);
-  Serial.print(buffer);
+  Serial.print(sprintfBuffer);
 }
 
 void setupLightingAndMotorChannels()

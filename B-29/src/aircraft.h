@@ -22,8 +22,8 @@ void serialPrintCustomStatus();
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
-// MODE_OVERRIDE   = 'O'  slow blink   fast blink
-// MODE_BATTERYLOW = 'B'  fast blink   slow blink
+// MODE_OVERRIDE   = 'O'  slow blink   slow blink   was slow blink   fast blink   
+// MODE_BATTERYLOW = 'B'  fast blink   fast blink   was fast blink   slow blink
 // MODE_EVENING    = 'E'  off          slow blink
 // MODE_NIGHT      = 'N'  off          on
 // MODE_PREDAWN    = 'P'  slow blink   on
@@ -61,6 +61,8 @@ uint32_t timeoutBatteryLow = 0;
 uint32_t timeoutOverride = 0;
 uint32_t timeoutUpdateLights = 0;
 
+char sprintfBuffer[75]; // Buffer to put sprintf text into
+
 uint8_t  mode = MODE_NOTSET;
 
 Lucky7    hw        = Lucky7();
@@ -92,7 +94,7 @@ void setOverride() {
   Serial.println(F("In setOverride()"));
   redLight .setToSlow();
   redLight .flash();
-  blueLight.setToFast();
+  blueLight.setToSlow();
   blueLight.flash();
 
   allOff();
@@ -101,7 +103,7 @@ void setOverride() {
 void setBatteryLow() {
   redLight .setToFast();
   redLight .flash();
-  blueLight.setToSlow();
+  blueLight.setToFast();
   blueLight.flash();
   
   allOff();
@@ -316,8 +318,18 @@ void setupStatusLights() {
   redLight .setup(hw.o13, ON, ON); // and red
 }
 
+void serialPrintTimeStamp ()
+{
+  #ifndef DOING_UNIT_TESTING
+  Serial.print(F(__DATE__));
+  Serial.print(F(" "));
+  Serial.println(F(__TIME__));
+  #endif
+}
+
 void setup() {
     Serial.begin(115200);
+    serialPrintTimeStamp();
     serialPrintBanner();
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %

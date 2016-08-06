@@ -43,7 +43,9 @@ class Lucky7;
 
 // Light class hierarchy
 // class Light
-// class DecayLight        : public Light
+// class RotatingLight     : public Light
+
+// class DecayLight        : public Light            
 // class FlashingLight     : public DecayLight
 // class BlinkingLight     : public FlashingLight
 // class FastBlinkingLight : public BlinkingLight
@@ -101,6 +103,48 @@ public:
 
   uint8_t & operator()(void) {return *p_lightLevel;};
   //  Light & operator=(const uint8_t value) {lightLevel = value; return *this;}
+};
+
+
+class RotatingLight: public Light
+{
+  // In this class the light level rises and then decays based on a sign wave such that
+  // light level = (maxLightLevel-minLightLevel)*abs(sin(time*(Pi/pulseLength))) + minLightLevel
+
+
+private:
+  FRIEND_TEST(RotatingLight, Constructor);
+  FRIEND_TEST(RotatingLight, Update);
+  FRIEND_TEST(RotatingLight, Update2);
+  FRIEND_TEST(RotatingLight, UpdateWithTauNULL);
+  FRIEND_TEST(RotatingLight, UpdateCalledInfrequently);
+
+protected:
+  uint32_t flatLength;     // Time light is sitting at light level flatLightLevel, between sine-wave based pulses.
+  uint8_t  flatLightLevel; // The light level where the light sits for time flatLength between pulses.
+  uint32_t pulseLength;    // The half-period of the sine-wave. The total time the light is on and the value is first increasing then decreasing.
+  uint8_t  minLightLevel;  // Value at which the pulsing light begins.
+  uint8_t  maxLightLevel;  // Max value of the pulsing light.
+
+  uint32_t changeTime;     // Keep track of when its time to change modes
+  bool     pulsing;        // Flag if in pulse or non-pulse mode
+  uint32_t pulseStartTime; // Keep track of when pulse started.
+
+public:
+  RotatingLight();
+  ~RotatingLight();
+
+  void setup(uint8_t & lightLevelVariable,    
+             const uint8_t  onLightLevelValue,
+             const uint32_t flatLengthValue,           
+             const uint8_t  flatLightLevelValue,       
+             const uint32_t pulseLengthValue,     
+             const uint8_t  minLightLevelValue,
+             const uint8_t  maxLightLevelValue);
+  
+  void flash() { on(); *p_lightLevel = minLightLevel; lightMode = LIGHT_FLASHING;}
+  void update();
+  bool getPulsing() {return pulsing;};
 };
 
 
@@ -165,7 +209,7 @@ public:
              uint8_t  * maxLightLevelValues,
              uint32_t * tauInMilliseconds);
   
-  void flash() {lightMode = LIGHT_FLASHING;}
+  void flash() { on(); *p_lightLevel = maxLightLevel[intervalIndex]; lightMode = LIGHT_FLASHING;}
   void update();
   bool getDecaying() {return decaying;};
 };

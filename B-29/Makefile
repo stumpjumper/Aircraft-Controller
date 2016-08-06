@@ -93,13 +93,13 @@ MY_TEST_B1=DecayLight.Update2
 MY_TESTEXE_C=integration_test
 MY_TEST_C1=Integration.CycleThroughDay
 mytest : $(TESTS)
-	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1)
+	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1); if [ $? == '1' ]; then exit 1; fi
 
 test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
-	for t in $(UNIT_TESTS); do ./$$t; done;
+	failed_test=""; for t in $(UNIT_TESTS); do ./$$t; if [ $$? == '1' ]; then failed_test="true"; fi; done; if [ "$$failed_test" == "true" ]; then exit 1; fi
 
 itest : $(UNIT_TESTS) $(INTEGRATION_TESTS)
-	for t in $(INTEGRATION_TESTS); do ./$$t; done;
+	failed_test=""; for t in $(INTEGRATION_TESTS); do ./$$t; if [ $$? == '1' ]; then failed_test="true"; fi; done; if [ "$$failed_test" == "true" ]; then exit 1; fi
 
 clean :
 	rm -f $(TESTS) gmock.a gtest_main.a gmock_main.a \

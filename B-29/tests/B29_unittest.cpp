@@ -8,6 +8,9 @@ using ::testing::_;
 using ::testing::An;
 using ::testing::TypedEq;
 using ::testing::Return;
+using ::testing::StartsWith;
+using ::testing::StrEq;
+using ::testing::Matcher;
 
 void B29Test::SetUp()
 {
@@ -15,6 +18,8 @@ void B29Test::SetUp()
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
+//   EXPECT_CALL(*serialMock, StartsWith<type const char *>("Compiled: "))
+//     .Times(1);
   EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
     .Times(1);
   
@@ -574,7 +579,7 @@ void checkOverrideStatusLights() {
 
   EXPECT_EQ(FastSlowBlinkingLight::SLOW, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
-  EXPECT_EQ(FastSlowBlinkingLight::FAST, blueLight.getSpeed());
+  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, blueLight.getLightMode());
 }
 
@@ -584,7 +589,7 @@ void checkBatteryLowStatusLights() {
 
   EXPECT_EQ(FastSlowBlinkingLight::FAST, redLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, redLight.getLightMode());
-  EXPECT_EQ(FastSlowBlinkingLight::SLOW, blueLight.getSpeed());
+  EXPECT_EQ(FastSlowBlinkingLight::FAST, blueLight.getSpeed());
   EXPECT_EQ(Light::LIGHT_FLASHING, blueLight.getLightMode());
 }
 

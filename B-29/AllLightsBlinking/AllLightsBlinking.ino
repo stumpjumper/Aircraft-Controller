@@ -163,8 +163,7 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  char buffer[75];
-  sprintf(buffer,
+  sprintf(sprintfBuffer,
           "|1:%1i:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
           int(light1.getLightMode()), hw.o1,
           hw.o2,
@@ -175,7 +174,7 @@ void serialPrintCustomStatus()
           hw.o7,
           hw.o13,hw.o8);
   
-  Serial.print(buffer);
+  Serial.print(sprintfBuffer);
 }
 
 void setupLightingAndMotorChannels()

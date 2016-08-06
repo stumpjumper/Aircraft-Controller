@@ -28,7 +28,7 @@ Light           landing;         // Landing lights on rht-fwd landing gear lft &
 Light           terrain;         // Terrain light just ahead of most fwd landing gear (1)
 // UpDownMotor  terrainMotor;    // Terrain light up-down motor just ahead of most fwd landing gear (1)
 DecayLight      navigation;      // Navigation lights on lft & right wing tips, two on vertical stab and on on rht bomb-bay door (5)
-DecayLight      collision;       // Anti-Collision lights on lft & rht top before vertical stab and bottom under 47 section (6)
+RotatingLight   collision;       // Anti-Collision lights on lft & rht top before vertical stab and bottom under 47 section (6)
 // UpdDownMotor collisionMotor;  // Anti-Collision motor: On/Off motor that rotates Anti-Collision lights (3)
 
 
@@ -47,13 +47,16 @@ uint8_t  navigationMaxLightLevels[1]     = {ON};
 uint32_t navigationTauInMilliseconds[1]  = {100};  // Half-life = .1 seconds
 
 // Flashing settings for collision lights
-uint32_t collisionOnLengths[1]         = {50};   // On : .05s
-uint32_t collisionDecayLengths[1]      = {1500}; // Off: 1.5 s
-uint8_t  collisionMaxLightLevels[1]    = {ON};   // Full power
-uint32_t * collisionTauInMilliseconds  = NULL;   // On/Off, no decay
+const uint8_t  collisionOnLightLevel   = ON;  // When light is not "rotating", just on, this is its intensity
+const uint32_t collisionFlatLength     = 0;   // Time between 1/2 sine waves.  250 = 1/4 sec
+const uint8_t  collisionFlatLightLevel = 0;   // Light level when between 1/2 sine waves
+const uint32_t collisionPulseLength    = 736; // 1/2 period of sine wave. 1000 = 1 sec
+// Value based on that found here: https://www.youtube.com/watch?v=PSKxUBRD40E. (35 flashes in 25.2 sec =.72, 35 in 26.21=.748, 36 in 26.67=.741)
+const uint8_t  collisionMinLightLevel  = 20;  // Light level when sine wave starts
+const uint8_t  collisionMaxLightLevel  = ON;  // Light level at peak of sine wave
 
 void serialPrintBanner() {
-    Serial.println(F("NMNSH B-52 Lighting Controller A"));
+    Serial.println(F("NMNSH B-52 Lighting Controller A v1.0"));
 }
 
 bool overrideBatteryLow() {
@@ -222,8 +225,7 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  char buffer[75];
-  sprintf(buffer,
+  sprintf(sprintfBuffer,
           "|1:%1i:%3d|2:%3d|3:%3d|5:%1i:%3d|6:%1i:%3d,r:%3d|b:%3d|",
           int(taxi.getLightMode()), hw.o1,
           hw.o2,
@@ -231,17 +233,18 @@ void serialPrintCustomStatus()
           int(navigation.getLightMode()), hw.o5,
           int(collision.getLightMode()), hw.o6,
           hw.o13,hw.o8);
-  Serial.print(buffer);
+  Serial.print(sprintfBuffer);
 }
 
 void setupLightingAndMotorChannels()
 {
-  taxi       .setup(hw.o1, taxiMaxLightLevelDay, 1, taxiOnLengths,   taxiDecayLengths,
+  taxi       .setup(hw.o1, ON, 1, taxiOnLengths, taxiDecayLengths,
                     taxiMaxLightLevels, taxiTauInMilliseconds);
   landing    .setup(hw.o2, ON);
   terrain    .setup(hw.o3, ON);
   navigation .setup(hw.o5, ON, 1, navigationOnLengths, navigationDecayLengths,
                     navigationMaxLightLevels, navigationTauInMilliseconds);
-  collision  .setup(hw.o6,  ON, 1, collisionOnLengths, collisionDecayLengths,
-                    collisionMaxLightLevels, collisionTauInMilliseconds);
+  collision  .setup(hw.o6, collisionOnLightLevel, collisionFlatLength,          
+                    collisionFlatLightLevel, collisionPulseLength,
+                    collisionMinLightLevel, collisionMaxLightLevel);
 }

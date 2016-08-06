@@ -111,6 +111,8 @@ void FastSlowBlinkingLight::setup(uint8_t & lightLevelVariable,
 }
 
 DecayLight::DecayLight() :
+  changeTime(0), decaying(false), decayStartTime(0), intervalIndex(0), 
+  numIntervals(0), 
   onLength(NULL), decayLength(NULL), maxLightLevel(NULL), tau(NULL) {;}
 DecayLight::~DecayLight() {;}
 void DecayLight::setup(uint8_t  & lightLevelVariable,
@@ -196,6 +198,100 @@ void DecayLight::update()
   //           << " intervalIndex = " << int(intervalIndex)
   //           << " j = " << int(j) << std::endl
   //           << "decaying = " << decaying
+  //           << " lightLevel = " << int(lightLevel)
+  //           << " tau  = " << (tau != NULL ? int(tau[j]) : 0)
+  //           << std::endl;
+}
+
+RotatingLight::RotatingLight() :
+  flatLength(0), 
+  flatLightLevel(0), 
+  pulseLength(0), 
+  minLightLevel(0), 
+  maxLightLevel(0), 
+  changeTime(0),
+  pulsing(LIGHT_MODE_NOTSET),
+  pulseStartTime(0) {;}
+
+RotatingLight::~RotatingLight() {;}
+void RotatingLight::setup(uint8_t & lightLevelVariable,    
+                          const uint8_t  onLightLevelValue,
+                          const uint32_t flatLengthValue,           
+                          const uint8_t  flatLightLevelValue,       
+                          const uint32_t pulseLengthValue,     
+                          const uint8_t  minLightLevelValue,
+                          const uint8_t  maxLightLevelValue)
+{
+  Light::setup(lightLevelVariable, onLightLevelValue);
+
+  // Overide call to off() made in Light::setup since we want this light
+  // to be in flashing mode right away
+  *p_lightLevel = OFF; // Set the initial light level
+  lightMode = LIGHT_FLASHING;
+
+  flatLength      = flatLengthValue;
+  flatLightLevel  = flatLightLevelValue;
+  pulseLength     = pulseLengthValue;
+  minLightLevel   = minLightLevelValue;
+  maxLightLevel   = maxLightLevelValue;
+
+  changeTime     = 0;    // Change right away
+  pulsing        = true; // Will cause us to go to pulsing mode right away
+  pulseStartTime = 0;   
+}
+
+
+void RotatingLight::update()
+{
+
+  uint32_t changeTimeDelta = 0;
+  
+  const uint32_t now = millis();
+  
+  if (now >= changeTime) {
+    if (pulsing) {
+      pulsing = false;
+      if (lightMode == LIGHT_FLASHING) {
+        *p_lightLevel = flatLightLevel;
+      }
+      changeTimeDelta = flatLength;
+    } else {
+      pulsing = true;
+      changeTimeDelta = pulseLength;
+    }
+    pulseStartTime = changeTime;
+    changeTime = changeTime + changeTimeDelta;
+    // Check if time between calls to update() is > offLength or pulseLength
+    if (now >= changeTime) { 
+      pulseStartTime = now;
+      changeTime = now + changeTimeDelta;
+      // std::cerr << "pulseStartTime, changeTime, pulsing = " << pulseStartTime << ", " << changeTime << ", " <<  pulsing << std::endl;
+    }
+  }
+
+  if (pulsing && lightMode == LIGHT_FLASHING) {
+    //std::cerr << "A" << std::endl;
+    if (pulseLength == 0) {
+      //std::cerr << "B" << std::endl;
+      *p_lightLevel = maxLightLevel;
+    } else {
+      //std::cerr << "C" << std::endl;
+      const uint32_t time = now - pulseStartTime;
+      //std::cerr << "now " << int(now) << std::endl;
+      //std::cerr << "time " << int(time) << std::endl;
+      // T = dT*e(-t/tau)  // T = Dt @ t=0, T = 0 @ t = infinity
+      *p_lightLevel =
+        uint8_t(float(maxLightLevel-minLightLevel)*fabs(sin(float(time)*3.1415926536/float(pulseLength)))) + minLightLevel;
+      //std::cerr << "lightLevel " << int(lightLevel) << std::endl;
+    }
+  }
+
+  // std::cerr << "now = " << now
+  //           << " pulseStartTime = " << pulseStartTime
+  //           << " changeTime  = " << changeTime
+  //           << " numIntervals = " << int(numIntervals)
+  //           << " intervalIndex = " << int(intervalIndex)
+  //           << "pulsing = " << pulsing
   //           << " lightLevel = " << int(lightLevel)
   //           << " tau  = " << (tau != NULL ? int(tau[j]) : 0)
   //           << std::endl;
