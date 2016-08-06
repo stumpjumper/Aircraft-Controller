@@ -20,7 +20,7 @@
 // b4  Cockpit Floods: Interior Cockpit Floods (nd, 2) 
 // b5~ Loader~: (d, 4) 
 // b6~ Tail Flood: Flood lights on tail flash~ (d, 2) 
-// b7 Future
+// b7  Future
 
 // Light objects to control each channel
 DecayLight catwalk;       // Bomb Bay and Wheel Well lights, mostly on the catwalk (13)

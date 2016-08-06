@@ -22,8 +22,8 @@ void serialPrintCustomStatus();
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
-// MODE_OVERRIDE   = 'O'  slow blink   slow blink   was slow blink   fast blink   
-// MODE_BATTERYLOW = 'B'  fast blink   fast blink   was fast blink   slow blink
+// MODE_OVERRIDE   = 'O'  slow blink   slow blink
+// MODE_BATTERYLOW = 'B'  fast blink   fast blink
 // MODE_EVENING    = 'E'  off          slow blink
 // MODE_NIGHT      = 'N'  off          on
 // MODE_PREDAWN    = 'P'  slow blink   on
