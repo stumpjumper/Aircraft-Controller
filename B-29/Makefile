@@ -114,6 +114,12 @@ format :
 kill:
 	echo "" > /dev/null
 
+make_cpp_links:
+	current_dir="$(CURDIR)"; for arg in F-16 B-29 B-52a B-52b Adjustable AllLightsBlinking; do cd "$${current_dir}/$${arg}"; if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" $${arg}.ino ; ln -s "$${arg}.ino" "$${arg}.cpp"; fi; done
+
+rm_cpp_links:
+	current_dir="$(CURDIR)"; for arg in F-16 B-29 B-52a B-52b Adjustable AllLightsBlinking; do cd "$${current_dir}/$${arg}"; if [ -f "$${arg}.cpp" ]; then echo removing: $${arg}.cpp; rm "$${arg}.cpp"; fi; done
+
 depends : 
 	pwd
 	makedepend -f depend --  -I$(SRC_DIR) -Itests -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(GTEST_DIR)/include \
