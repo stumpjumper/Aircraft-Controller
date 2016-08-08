@@ -55,6 +55,11 @@ void serialPrintBanner() {
     Serial.println(F("NMNSH F-16 Lighting Controller"));
 }
 
+float getBatteryLowValue() {
+  // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
+  return BATTERYLOWDEFAULT;
+}
+
 bool overrideBatteryLow() {
   //Not used on F-16.  See B-29 for sample usage
   return false;

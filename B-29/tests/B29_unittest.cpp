@@ -1647,7 +1647,7 @@ TEST_F(B29Test, Statemap) {
 
 
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t((BATTERYLOW/2.0)/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t((getBatteryLowValue()/2.0)/float(BVSCALE) + .5);
   }
 
   for (i = 0; i < numDayParts; i++) {
@@ -1736,7 +1736,7 @@ TEST_F(B29Test, Statemap) {
   hw.o3 = ON;
   // Set battery so batteryVoltage <= BATTERYLOW
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t((BATTERYLOW/2)/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t((getBatteryLowValue()/2)/float(BVSCALE) + .5);
   }
   for (i = 0; i < numDayParts; i++) {
     mode = dayParts[i];
@@ -1771,7 +1771,7 @@ TEST_F(B29Test, Statemap) {
   hw.o7 = OFF;
   // Set battery so batteryVoltage <= BATTERYLOW
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t((BATTERYLOW/2)/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t((getBatteryLowValue()/2)/float(BVSCALE) + .5);
   }
   for (i = 0; i < numDayParts; i++) {
     mode = dayParts[i];

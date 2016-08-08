@@ -19,6 +19,7 @@ void setupLightingAndMotorChannels();
 void setBatteryLow();
 void updateAll();
 void serialPrintCustomStatus();
+float getBatteryLowValue();
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
@@ -52,7 +53,7 @@ enum Mode {
 
 #define TIMEOUTBATTERYLOW         30000  //  30 sec
 #define TIMEOUTBATTERYLOWFLASH      100  //  .1 sec
-#define BATTERYLOW                 11.8  // Volts  
+#define BATTERYLOWDEFAULT          11.8  // Volts  
 #define MILLISIN30DAYS       2592000000U //  30 days
 //                        2,592,000,000
  
@@ -220,7 +221,7 @@ void statemap() {
   const float batteryVoltage = hw.batteryVoltage();
   if ((mode != MODE_BATTERYLOW) &&
       ! overrideBatteryLow()    &&
-      batteryVoltage <= BATTERYLOW) {
+      batteryVoltage <= getBatteryLowValue()) {
     setToMode(MODE_BATTERYLOW);
   }
 
@@ -230,7 +231,7 @@ void statemap() {
   switch (mode) {
   case MODE_BATTERYLOW:
     if (millis() > timeoutBatteryLow) {
-      if (batteryVoltage <= BATTERYLOW) {
+      if (batteryVoltage <= getBatteryLowValue()) {
         resetTimeoutBatteryLow();
       } else {
         setToMode(dayPart);

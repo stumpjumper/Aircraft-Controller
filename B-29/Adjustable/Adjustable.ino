@@ -26,6 +26,11 @@ void serialPrintBanner() {
     Serial.println(F("Adjustable Lights"));
 }
 
+float getBatteryLowValue() {
+  // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
+  return BATTERYLOWDEFAULT;
+}
+
 bool overrideBatteryLow() {
   // Not used for these lights.  See B-29 for sample usage
   return false;

@@ -64,6 +64,11 @@ Light      formation; // Formation     : Wing Top (6), Fuselage Top (3)
 DecayLight landing  ; // Landing       : Wing Bot Retractable Landing Lights (2)
 Light      illum    ; // Illumination  : Wheel Wells (3)
 
+float getBatteryLowValue() {
+  // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
+  return BATTERYLOWDEFAULT;
+}
+
 bool overrideBatteryLow() {
   // If either of these is on, battery may read as low, so don't check battery voltage.
   return hw.o3 || hw.o7;

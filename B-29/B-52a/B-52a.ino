@@ -59,6 +59,11 @@ void serialPrintBanner() {
     Serial.println(F("NMNSH B-52 Lighting Controller A v1.0"));
 }
 
+float getBatteryLowValue() {
+  // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
+  return 11.0;
+}
+
 bool overrideBatteryLow() {
   //Not used yet.  May be used when we have motors.  See B-29 for sample usage.
   return false;
