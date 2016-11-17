@@ -1,1 +1,0 @@
-../src/lucky7.cpp
