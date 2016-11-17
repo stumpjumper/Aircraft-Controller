@@ -27,7 +27,7 @@ SlowBlinkingLight  light6;
 SlowBlinkingLight  light7;
 
 void serialPrintBanner() {
-    Serial.println(F("AllLightsBlinking Lights"));
+    Serial.println(F("AllLightsBlinking Lights v1.0"));
 }
 
 float getBatteryLowValue() {
@@ -63,16 +63,19 @@ void allLightsOff() {
 }
 
 void updateAll() {
+  //  Serial.println(F("In updateAll()"));
   light1.update();
   light2.update();
-  light3.update();
+  light3.update(); // If comment this out, works without a delay
   light4.update();
   light5.update();
   light6.update();
   light7.update();
+  delay(10);       // If comment out this and not 3, will not work 
 }
 
 void allLightsFlash() {
+  Serial.println(F("In allLightsFlash()"));
   light1.flash();
   light2.flash();
   light3.flash();
@@ -82,7 +85,6 @@ void allLightsFlash() {
   light7.flash();
 }
 
-
 void allOff() {
   Serial.println(F("In allOff()"));
   allLightsOff();
@@ -90,26 +92,31 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
+  Serial.println(F("In setEvening()"));
   allLightsFlash();
 }
 
 void setNight() {
+  Serial.println(F("In setNight()"));
   allLightsFlash();
 }
 
 void setPreDawn() {
+  Serial.println(F("In setPreDawn()"));
   allLightsFlash();
 }
 
 void setMorning() {
+  Serial.println(F("In setMorning()"));
   allLightsFlash();
 }
 
 void setDay() {
+  Serial.println(F("In setDay()"));
   allLightsFlash();
 }
 
-void processKey(uint32_t key) {
+void processKey(const uint32_t key) {
   Serial.print(F("key "));
   Serial.println(key, HEX);
   switch (key) {
@@ -168,18 +175,8 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  sprintf(sprintfBuffer,
-          "|1:%1i:%3d|2:%3d|3:%3d|4:%3d|5:%3d|6:%3d|7:%3d,r:%3d|b:%3d|",
-          int(light1.getLightMode()), hw.o1,
-          hw.o2,
-          hw.o3,
-          hw.o4,
-          hw.o5,
-          hw.o6,
-          hw.o7,
-          hw.o13,hw.o8);
-  
-  Serial.print(sprintfBuffer);
+   serialPrintCustomStatusDefault(&light1, &light2, &light3, 
+                                  &light4, &light5, &light6, &light7);
 }
 
 void setupLightingAndMotorChannels()
