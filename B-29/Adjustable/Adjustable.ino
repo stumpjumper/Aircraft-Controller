@@ -77,7 +77,7 @@ void setMorning() {
 void setDay() {
 }
 
-void processKey(uint32_t key) {
+void processKey(const uint32_t key) {
   Serial.print(F("key "));
   Serial.println(key, HEX);
   switch (key) {
