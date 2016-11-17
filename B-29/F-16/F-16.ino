@@ -52,7 +52,7 @@ DecayLight collision; // Collision     : Top of tail (2)
 Light      floods   ; // Floods        : Tail Illumination (2)
 
 void serialPrintBanner() {
-    Serial.println(F("NMNSH F-16 Lighting Controller"));
+    Serial.println(F("NMNSH F-16 Lighting Controller v1.0"));
 }
 
 float getBatteryLowValue() {
@@ -123,7 +123,7 @@ void setDay() {
   floods   .off();
 }
 
-void processKey(uint32_t key) {
+void processKey(const uint32_t key) {
   Serial.print(F("key "));
   Serial.println(key, HEX);
   switch (key) {
@@ -215,18 +215,8 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  sprintf(sprintfBuffer,
-          "|1:%3d|2:%1i:%3d|3:%3d|4:%3d|5:%1i:%3d|6:%1i:%3d|7:%3d,r:%3d|b:%3d|",
-          hw.o1,
-          int(taxi.getLightMode()), hw.o2,
-          hw.o3,
-          hw.o4,
-          int(position.getLightMode()), hw.o5,
-          int(collision.getLightMode()), hw.o6,
-          hw.o7,
-          hw.o13,hw.o8);
-  
-  Serial.print(sprintfBuffer);
+  //                              1     2    3    4       5         66        7
+  serialPrintCustomStatusDefault(NULL,&taxi,NULL,NULL,&position,&collision,&floods);
 }
 
 void setupLightingAndMotorChannels()

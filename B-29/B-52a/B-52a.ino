@@ -138,10 +138,17 @@ void setDay() {
   collision   .flash();
 }
 
-void processKey(uint32_t key) {
-  Serial.print(F("key "));
-  Serial.println(key, HEX);
+void processKey(const uint32_t key) {
   switch (key) {
+  case '?': // Print a single line of status
+    status();
+    break;
+  case 'c': // Put into continuous status print mode
+    status();
+    break;
+  case 's': // If on, stop continuous status print mode
+    status();
+    break;
   case '0':
   case RC65X_KEY0:
   case RC65X_KEYDOWN: // Control wheel down
@@ -230,15 +237,10 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  sprintf(sprintfBuffer,
-          "|1:%1i:%3d|2:%3d|3:%3d|5:%1i:%3d|6:%1i:%3d,r:%3d|b:%3d|",
-          int(taxi.getLightMode()), hw.o1,
-          hw.o2,
-          hw.o3,
-          int(navigation.getLightMode()), hw.o5,
-          int(collision.getLightMode()), hw.o6,
-          hw.o13,hw.o8);
-  Serial.print(sprintfBuffer);
+  //                               1      2        3      4       5
+  serialPrintCustomStatusDefault(&taxi,&landing,&terrain,NULL,&navigation,
+                                 &collision,NULL);
+  //                                 6       7
 }
 
 void setupLightingAndMotorChannels()

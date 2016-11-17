@@ -64,6 +64,10 @@ Light      formation; // Formation     : Wing Top (6), Fuselage Top (3)
 DecayLight landing  ; // Landing       : Wing Bot Retractable Landing Lights (2)
 Light      illum    ; // Illumination  : Wheel Wells (3)
 
+void serialPrintBanner() {
+    Serial.println(F("NMNSH B-29 Lighting Controller v1.0"));
+}
+
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
   return BATTERYLOWDEFAULT;
@@ -72,10 +76,6 @@ float getBatteryLowValue() {
 bool overrideBatteryLow() {
   // If either of these is on, battery may read as low, so don't check battery voltage.
   return hw.o3 || hw.o7;
-}
-
-void serialPrintBanner() {
-    Serial.println(F("NMNSH B-29 Lighting Controller"));
 }
 
 void allLightsOn() {
@@ -145,7 +145,7 @@ void setDay() {
   formation.on();
 }
 
-void processKey(uint32_t key) {
+void processKey(const uint32_t key) {
   Serial.print(F("key "));
   Serial.println(key, HEX);
   switch (key) {
@@ -247,18 +247,10 @@ void processKey(uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  sprintf(sprintfBuffer,
-          "|1:%1i:%3d|2:%1i:%3d|3:%3d|4:%1i:%3d|5:%1i:%3d|6:%1i:%3d|7:%3d,r:%3d|b:%3d|",
-          int(ident.getLightMode()), hw.o1,
-          int(landing.getLightMode()), hw.o2,
-          hw.o3,
-          int(illum.getLightMode()), hw.o4,
-          int(position.getLightMode()), hw.o5,
-          int(formation.getLightMode()), hw.o6,
-          hw.o7,
-          hw.o13,hw.o8);
-
-  Serial.print(sprintfBuffer);
+  //                             1      2        3    4      5         6
+  serialPrintCustomStatusDefault(&ident,&landing,NULL,&illum,&position,&formation,
+                                 NULL);
+  //                             7
 }
 
 void setupLightingAndMotorChannels()
