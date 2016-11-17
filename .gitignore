@@ -9,3 +9,5 @@ depend.bak
 Makefile.bak
 integration_test
 Icon
+**/build-uno
+
