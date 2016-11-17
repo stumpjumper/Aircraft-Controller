@@ -55,7 +55,7 @@ void serialPrintBanner() {
 
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
-  return 11.0;
+  return 10.0;
 }
 
 bool overrideBatteryLow() {
