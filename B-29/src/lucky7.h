@@ -95,7 +95,7 @@ public:
   
   void update() {;};
 
-  Light::MODE getLightMode() {return lightMode;};
+  Light::MODE getLightMode() const {return lightMode;};
   
   void on() {*p_lightLevel = onLightLevel; lightMode = LIGHT_ON;};
   void off() {*p_lightLevel = OFF; lightMode = LIGHT_OFF;};
