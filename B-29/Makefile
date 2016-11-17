@@ -62,7 +62,13 @@ TESTS = $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
 TEST_SRCS = integration_test.cpp F16_unittest.cpp B29_unittest.cpp \
 	timeofday_unittest.cpp updownmotor_unittest.cpp lucky7_unittest.cpp \
-	light_unittest.cpp 
+	light_unittest.cpp
+PROGRAM_DIRS = B-29 F-16 B-52a B-52b Adjustable AllLightsBlinking
+
+PROGRAM_CPPS = $(PROGRAM_DIRS:%=%.cpp)
+PROGRAM_INOS = $(PROGRAM_DIRS:%=%.ino)
+PROGRAM_OBJS = $(PROGRAM_DIRS:%=%.o)
+
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -82,7 +88,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 # House-keeping build targets.
 
-all : $(TESTS) B-29.o F-16.o B-52a.o B-52b.o Adjustable.o AllLightsBlinking.o
+all : $(TESTS) $(PROGRAM_OBJS)
 
 MY_TESTEXE_A=B29_unittest
 MY_TEST_A1=B29Test.SetDayInit
@@ -95,7 +101,7 @@ MY_TEST_C1=Integration.CycleThroughDay
 mytest : $(TESTS)
 	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1); if [ $? == '1' ]; then exit 1; fi
 
-test : $(UNIT_TESTS) $(INTEGRATION_TESTS)
+test : $(TESTS)
 	failed_test=""; for t in $(UNIT_TESTS); do ./$$t; if [ $$? == '1' ]; then failed_test="true"; fi; done; if [ "$$failed_test" == "true" ]; then exit 1; fi
 
 itest : $(UNIT_TESTS) $(INTEGRATION_TESTS)
@@ -114,11 +120,14 @@ format :
 kill:
 	echo "" > /dev/null
 
-make_cpp_links:
-	current_dir="$(CURDIR)"; for arg in F-16 B-29 B-52a B-52b Adjustable AllLightsBlinking; do cd "$${current_dir}/$${arg}"; if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" $${arg}.ino ; ln -s "$${arg}.ino" "$${arg}.cpp"; fi; done
+rm_links:
+	find . -type l -exec rm -v {} \;
 
-rm_cpp_links:
-	current_dir="$(CURDIR)"; for arg in F-16 B-29 B-52a B-52b Adjustable AllLightsBlinking; do cd "$${current_dir}/$${arg}"; if [ -f "$${arg}.cpp" ]; then echo removing: $${arg}.cpp; rm "$${arg}.cpp"; fi; done
+cpp_links:
+	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" $${arg}.ino ; ln -s "$${arg}.ino" "$${arg}.cpp"; fi; done
+
+arduino_compile_links: rm_links
+	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; ln -vs ../src/*.h .; ln -vs ../src/*.cpp .; done
 
 depends : 
 	pwd
@@ -183,7 +192,7 @@ B-29.o : $(SRC_DIR)/B-29.cpp
 F-16.o : $(SRC_DIR)/F-16.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-52a.o : B-52a/B-52a.cpp
+B-52a.o : $(SRC_DIR)/B-52a.cpp
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 B-52b.o : $(SRC_DIR)/B-52b.cpp
