@@ -5,6 +5,7 @@
 #include "RMYD065.h"
 
 void serialPrintBanner();
+void serialPrintHelp();
 void setOverride();
 void setBatteryLow();
 void allOff();
@@ -14,7 +15,9 @@ void setPreDawn();
 void setMorning();
 void setDay();
 bool overrideBatteryLow();
-void processKey(uint32_t irKey);
+void processKey(const uint32_t irKey);
+void processKeyInit(const uint32_t irKey);
+void status(const bool override);
 void setupLightingAndMotorChannels();
 void setBatteryLow();
 void updateAll();
@@ -63,6 +66,7 @@ uint32_t timeoutOverride = 0;
 uint32_t timeoutUpdateLights = 0;
 
 char sprintfBuffer[75]; // Buffer to put sprintf text into
+bool printContinuousStatus = false;
 
 uint8_t  mode = MODE_NOTSET;
 
@@ -250,60 +254,115 @@ void statemap() {
 }
 
 void input() {
-    uint32_t irKey;
-    irKey = hw.loop();
+  uint32_t irKey;
+  irKey = hw.loop();
 #ifdef DOING_UNIT_TESTING
-    if (myIRKey != 0) {
-      irKey = myIRKey;
-    }
+  if (myIRKey != 0) {
+    irKey = myIRKey;
+  }
 #endif
-    if (irKey) {
-      processKey(irKey);
-    }
+  if (irKey) {
+    processKeyInit(irKey);
+  }
 
-    if (Serial.available()) {
-      processKey(Serial.read()); 
-    }
+  if (Serial.available()) {
+    processKeyInit(Serial.read()); 
+  }
 }
 
-void status() {
+void serialPrintHelp() {
+    Serial.println(F("To print status: ?=Print single line, c=Continuous status, s=Stop continuous status"));
+}
+
+void processKeyInit(const uint32_t key) {
+  Serial.println(F("key ="));
+  Serial.println(key, HEX);
+  switch (key) {
+  case 'h': // Print a single line of status
+    serialPrintHelp();
+    break;
+  case '?': // Print a single line of status
+    Serial.println(F("status..."));
+    status(true);
+    break;
+  case 'c': // Put into continuous status print mode
+    Serial.println(F("Continuous status..."));
+    printContinuousStatus = true;
+    break;
+  case 's': // If on, stop continuous status print mode
+    Serial.println(F("Stopping status..."));
+    printContinuousStatus = false;
+    break;
+  default:
+    processKey(key);
+  }
+}
+
+void serialPrintCustomStatusDefault(const Light * light1,
+                                    const Light * light2,
+                                    const Light * light3,
+                                    const Light * light4,
+                                    const Light * light5,
+                                    const Light * light6,
+                                    const Light * light7 ) {
+  const Light * lights[7] = {light1,light2,light3,light4,light5,light6,light7};
+  const uint8_t values[7] = {hw.o1,hw.o2,hw.o3,hw.o4,hw.o5,hw.o6,hw.o7};
+  uint8_t i;
+  int8_t  lightMode;
+  for (i = 0; i < 7; i++) {
+    lightMode = -1;
+    if (lights[i])
+    {
+      lightMode = lights[i]->getLightMode();
+    }
+    sprintf(sprintfBuffer,",%1i:[%2i,%3d]",
+            int(i+1),int(lightMode), values[i]);
+    Serial.print(sprintfBuffer);
+  }
+}
+
+
+void status(const bool override = false) {
     const uint32_t time = millis();
-    if (time > timeoutStatus) {
+    if (override || (printContinuousStatus && time > timeoutStatus)) {
         timeoutStatus = time + TIMEOUTSTATUS;
         // Serial.print(F("\x1B[0;0f\x1B[K")); // home
         // Serial.print(F("\x1B[0J")); // clear
 
+        Serial.print(F("{\'t\':"));
         Serial.print(time);
-        Serial.print(F(" p:"));
+        Serial.print(F(",\'p\':"));
         Serial.print(hw.photocell2());
-        Serial.print(F(" pMx:"));
+        Serial.print(F(",\'pMx\':"));
         Serial.print(timeOfDay.getPhotocellAvgValueMax());
-        Serial.print(F(" pMn:"));
+        Serial.print(F(",\'pMn\':"));
         Serial.print(timeOfDay.getPhotocellAvgValueMin());
-        Serial.print(F(" pAv:"));
+        Serial.print(F(",\'pAv\':"));
         Serial.print(timeOfDay.getPhotocellAvgValueCurrent());
-        Serial.print(F(" lN:"));
+        Serial.print(F(",\'lN\':"));
         Serial.print(timeOfDay.getLengthOfNight()/3600000);
-        Serial.print(F(" m:"));
+        Serial.print(F(",\'m\':\'"));
         Serial.print((char)mode);
+        Serial.print(F("\'"));
         if (mode == MODE_BATTERYLOW) {
-          Serial.print(F(" tBL: "));
+          Serial.print(F(",\'tBL\':"));
           Serial.print(uint32_t(timeoutBatteryLow-time));
         }
         if (mode == MODE_OVERRIDE) {
-          Serial.print(F(" tOr: "));
+          Serial.print(F(",\'tOr\':"));
           Serial.print(uint32_t(timeoutOverride)-time);
         }
 
         serialPrintCustomStatus();        
 
-        Serial.print(F(" r:"));
+        Serial.print(F(",\'r\':"));
         Serial.print(redLight.getLightMode());
-        Serial.print(F(" b:"));
+        Serial.print(F(",\'b\':"));
         Serial.print(blueLight.getLightMode());
 
-        Serial.print(F(" v:"));
+        Serial.print(F(",\'v\':"));
         Serial.print(hw.batteryVoltage(),2);
+        Serial.print(F("}"));
 
         Serial.println();
     }
@@ -332,6 +391,7 @@ void setup() {
     Serial.begin(115200);
     serialPrintTimeStamp();
     serialPrintBanner();
+    serialPrintHelp();
     hw.setup(); // Currently zeros out everything, and initializes some stuff.
     timeOfDay.setup(500,500,10); // photocell value min, max and night/day threshhold %
 
