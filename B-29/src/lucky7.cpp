@@ -144,6 +144,7 @@ void DecayLight::setup(uint8_t  & lightLevelVariable,
 
 void DecayLight::update()
 {
+  //Serial.println(F("In update() A"));
   uint8_t j;
 
   uint32_t changeTimeDelta = 0;
@@ -153,6 +154,7 @@ void DecayLight::update()
   
   if (now >= changeTime) {
     if (decaying) {
+      //Serial.println(F("In update() B"));
       decaying = false;
       intervalIndex++;
       j = intervalIndex % numIntervals;
@@ -161,6 +163,7 @@ void DecayLight::update()
       }
       changeTimeDelta = onLength[j];
     } else {
+      //Serial.println(F("In update() C"));
       decaying = true;
       changeTimeDelta = decayLength[j];
     }
@@ -168,18 +171,21 @@ void DecayLight::update()
     changeTime = changeTime + changeTimeDelta;
     // Check if time between calls to update() is > onLength[j] or decayLength[j]
     if (now >= changeTime) { 
+      //Serial.println(F("In update() D"));
       decayStartTime = now;
       changeTime = now + changeTimeDelta;
       // std::cerr << "decayStartTime, changeTime, decaying = " << decayStartTime << ", " << changeTime << ", " <<  decaying << std::endl;
     }
   }
 
+  //Serial.println(F("In update() E"));
   if (decaying && lightMode == LIGHT_FLASHING) {
     //std::cerr << "A" << std::endl;
     if (tau == NULL || tau[j] == 0) {
       //std::cerr << "B" << std::endl;
       *p_lightLevel = OFF;
     } else {
+      //Serial.println(F("In update() F"));
       //std::cerr << "C" << std::endl;
       const uint32_t time = now - decayStartTime;
       //std::cerr << "now " << int(now) << std::endl;
@@ -189,6 +195,7 @@ void DecayLight::update()
         uint8_t(float(maxLightLevel[j])*exp(-float(time)/float(tau[j]))+.5);
       //std::cerr << "lightLevel " << int(lightLevel) << std::endl;
     }
+    //Serial.println(F("In update() G"));
   }
 
   // std::cerr << "now = " << now
