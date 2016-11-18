@@ -125,6 +125,8 @@ rm_links:
 
 cpp_links:
 	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" $${arg}.ino ; ln -s "$${arg}.ino" "$${arg}.cpp"; fi; done
+	current_dir="$(CURDIR)"; cd $(SRC_DIR); for arg in $(PROGRAM_DIRS); do if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" "../$${arg}/$${arg}.cpp" ; ln -s "../$${arg}/$${arg}.cpp" "$${arg}.cpp"; fi; done
+	current_dir="$(CURDIR)"; cd $(SRC_DIR); for arg in $(PROGRAM_DIRS); do if [ ! -f "$${arg}.ino" ]; then echo creating: $${arg}.ino "->" "../$${arg}/$${arg}.ino" ; ln -s "../$${arg}/$${arg}.ino" "$${arg}.ino"; fi; done
 
 arduino_compile_links: rm_links
 	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; ln -vs ../src/*.h .; ln -vs ../src/*.cpp .; done
@@ -186,23 +188,23 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
 		$(SRC_DIR)/lucky7.cpp
 
-B-29.o : $(SRC_DIR)/B-29.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+B-29.o : B-29/B-29.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-F-16.o : $(SRC_DIR)/F-16.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+F-16.o : F-16/F-16.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-52a.o : $(SRC_DIR)/B-52a.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+B-52a.o : B-52a/B-52a.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-52b.o : $(SRC_DIR)/B-52b.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+B-52b.o : B-52b/B-52b.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-Adjustable.o : $(SRC_DIR)/Adjustable.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+Adjustable.o : Adjustable/Adjustable.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-AllLightsBlinking.o : $(SRC_DIR)/AllLightsBlinking.cpp
-	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+AllLightsBlinking.o : AllLightsBlinking/AllLightsBlinking.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 B-29.a : lucky7.o B-29.o F-16.o B-52a.o B-52b.o Adjustable.o AllLightsBlinking.o
 	$(AR) $(ARFLAGS) $@ $^
