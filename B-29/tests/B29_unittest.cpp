@@ -1578,8 +1578,33 @@ TEST_F(B29Test, Statemap) {
   setup();
   timeOfDay.setUpdateAverageTestMode(true); // Allows us to test statemap easily
 
+  // Get batter level to one that is less than reset value but higher than battery low value
+  // Only in startup mode would this kick the state out of low-battery mode
+  for (i = 0; i < AVECNT; i++) {
+    hw.bc[i] = uint16_t(((getBatteryLowValue()+getBatteryLowResetValue())/2.0)/float(BVSCALE) + .5);
+  }
+
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+  EXPECT_EQ(true, inStartup);
+
+  arduinoMock->setMillisRaw(1000);
+  statemap();
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+  EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+  EXPECT_EQ(true, inStartup);
+
+  arduinoMock->setMillisRaw(2000);
+  statemap();
+  EXPECT_EQ(MODE_BATTERYLOW, mode);
+  EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+  EXPECT_EQ(true, inStartup);
+
+  arduinoMock->setMillisRaw(2001);  // Here is where we should be timed out of startup mode
+  statemap();
+  EXPECT_EQ(MODE_DAY, mode);
+  EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
+  EXPECT_EQ(false, inStartup);
 
   //----------------------------------------------------------------------------
   // Normal path where state set on basis of timeOfDay.updateAverage(lightLevel)
@@ -1593,7 +1618,7 @@ TEST_F(B29Test, Statemap) {
 
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
 
-  arduinoMock->addMillisRaw(3000);
+  arduinoMock->setMillisRaw(3000);
   timeOfDay.update5minTimeout = arduinoMock->getMillis() + LUCKY7_TIME5MIN;
 
   for (i = 0; i < numDayParts; i++) {
