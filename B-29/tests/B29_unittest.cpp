@@ -20,7 +20,11 @@ void B29Test::SetUp()
     .Times(1);
 //   EXPECT_CALL(*serialMock, StartsWith<type const char *>("Compiled: "))
 //     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println(
+                "To print status: ?=Print single line"
+                ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -43,7 +47,6 @@ void B29Test::SetUp()
   releaseSerialMock();
   releaseArduinoMock();
   releaseIRrecvMock();
-
 }
 
 TEST_F(B29Test, ArduinoMockMillis) {
@@ -54,7 +57,6 @@ TEST_F(B29Test, ArduinoMockMillis) {
 
   unsigned long currentValue = 0;
   unsigned long addValue = 0;
-  
 
   EXPECT_EQ(0, millis());
 
@@ -505,7 +507,11 @@ TEST_F(B29Test, Setup) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println(
+                "To print status: ?=Print single line"
+                ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -1553,7 +1559,11 @@ TEST_F(B29Test, Statemap) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller"))
+  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+    .Times(1);
+  EXPECT_CALL(*serialMock, println(
+                "To print status: ?=Print single line"
+                ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
   EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
     .Times(0);
