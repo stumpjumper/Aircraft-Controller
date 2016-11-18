@@ -65,9 +65,10 @@ enum Mode {
 //                        2,592,000,000
  
 uint32_t timeoutStatus = 0;
-uint32_t timeoutBatteryLow = 0;
 uint32_t timeoutOverride = 0;
+uint32_t timeoutBatteryLow = 0;
 uint32_t timeoutUpdateLights = 0;
+bool inStartup = true;
 
 char sprintfBuffer[75]; // Buffer to put sprintf text into
 bool printContinuousStatus = false;
@@ -239,9 +240,14 @@ void statemap() {
   switch (mode) {
   case MODE_BATTERYLOW:
     if (millis() > timeoutBatteryLow) {
-      if (batteryVoltage <= getBatteryLowResetValue()) {
+      float batteryLowValue = getBatteryLowResetValue();
+      if (inStartup) {
+	batteryLowValue = getBatteryLowValue();
+      }
+      if (batteryVoltage <= batteryLowValue) {
         resetTimeoutBatteryLow();
       } else {
+	inStartup = false;
         setToMode(dayPart);
       }
     }
@@ -407,12 +413,14 @@ void setup() {
     timeoutUpdateLights = 0;
     timeoutBatteryLow = 2000; 
 
-    // Initial put in battery low mode to let levels settle down
-    // but set timout short so will statup almost right away.
+    // Initially put in battery low mode to let voltage levels settle down,
+    // but set timout short so will statup almost right away.  Also, flag that
+    // we are in startup mode
     timeoutBatteryLow = 2000; // 2 Seconds to "warm up"
     setBatteryLow();
     mode = MODE_BATTERYLOW;
-}
+    inStartup = true;
+  }
 
 void loop() {
     input();        // 1) Call hw.loop() and ask Lucky7 hardware to set all
