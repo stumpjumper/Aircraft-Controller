@@ -1588,7 +1588,7 @@ TEST_F(B29Test, Statemap) {
   for (i = 0; i < AVECNT; i++) {
     hw.pc1[i] = 1000;
     hw.pc2[i] = 1000;
-    hw.bc[i] = uint16_t(12.0/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t(13.0/float(BVSCALE) + .5);
   }
 
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
@@ -1690,7 +1690,7 @@ TEST_F(B29Test, Statemap) {
 
 
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t(12.0/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t(13.0/float(BVSCALE) + .5);
   }
 
   for (i = 0; i < numDayParts; i++) {
@@ -1729,7 +1729,7 @@ TEST_F(B29Test, Statemap) {
   hw.o3 = ON;
   // Set battery so batteryVoltage >= BATTERYLOW
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t((12.0)/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t((13.0)/float(BVSCALE) + .5);
   }
   for (i = 0; i < numDayParts; i++) {
     mode = dayParts[i];
@@ -1764,7 +1764,7 @@ TEST_F(B29Test, Statemap) {
   hw.o7 = OFF;
   // Set battery so batteryVoltage >= BATTERYLOW
   for (i = 0; i < AVECNT; i++) {
-    hw.bc[i] = uint16_t((12.0)/float(BVSCALE) + .5);
+    hw.bc[i] = uint16_t((13.0)/float(BVSCALE) + .5);
   }
   for (i = 0; i < numDayParts; i++) {
     mode = dayParts[i];

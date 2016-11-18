@@ -22,7 +22,10 @@ void setupLightingAndMotorChannels();
 void setBatteryLow();
 void updateAll();
 void serialPrintCustomStatus();
-float getBatteryLowValue();
+// When voltage drops at or below this value, mode will switch to MODE_BATTERYLOW
+float getBatteryLowValue(); 
+// Will switch out of MODE_BATTERYLOW only after voltage rises at or above this value
+float getBatteryLowResetValue();
 
 //         Mode              Red          Blue
 // ---------------------  ----------   ----------
@@ -56,7 +59,8 @@ enum Mode {
 
 #define TIMEOUTBATTERYLOW         30000  //  30 sec
 #define TIMEOUTBATTERYLOWFLASH      100  //  .1 sec
-#define BATTERYLOWDEFAULT          11.8  // Volts  
+#define BATTERYLOWDEFAULT          11.0  // Volts  
+#define BATTERYLOWRESETDEFAULT     12.1  // Volts  
 #define MILLISIN30DAYS       2592000000U //  30 days
 //                        2,592,000,000
  
@@ -235,7 +239,7 @@ void statemap() {
   switch (mode) {
   case MODE_BATTERYLOW:
     if (millis() > timeoutBatteryLow) {
-      if (batteryVoltage <= getBatteryLowValue()) {
+      if (batteryVoltage <= getBatteryLowResetValue()) {
         resetTimeoutBatteryLow();
       } else {
         setToMode(dayPart);
