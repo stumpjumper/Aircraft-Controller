@@ -188,25 +188,25 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
 		$(SRC_DIR)/lucky7.cpp
 
-B-29.o : B-29/B-29.cpp
+%.o : B-29/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-F-16.o : F-16/F-16.cpp
+%.o : F-16/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-52a.o : B-52a/B-52a.cpp
+%.o : B-52a/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-52b.o : B-52b/B-52b.cpp
+%.o : B-52b/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-Adjustable.o : Adjustable/Adjustable.cpp
+%.o : Adjustable/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-AllLightsBlinking.o : AllLightsBlinking/AllLightsBlinking.cpp
+%.o : AllLightsBlinking/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-29.a : lucky7.o B-29.o F-16.o B-52a.o B-52b.o Adjustable.o AllLightsBlinking.o
+B-29.a : lucky7.o $(PROGRAM_DIRS:=.o)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
