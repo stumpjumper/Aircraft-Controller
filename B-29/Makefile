@@ -91,7 +91,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 all : $(TESTS) $(PROGRAM_OBJS)
 
 MY_TESTEXE_A=B29_unittest
-MY_TEST_A1=B29Test.SetDayInit
+MY_TEST_A1=B29Test.Statemap
 
 MY_TESTEXE_B=light_unittest
 MY_TEST_B1=DecayLight.Update2
