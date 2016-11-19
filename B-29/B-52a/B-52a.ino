@@ -68,7 +68,7 @@ float getBatteryLowValue() {
 float getBatteryLowResetValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWRESETDEFAULT
   // Will switch out of MODE_BATTERYLOW only after voltage rises at or above this value
-  return 11.5;
+  return 13.0;
 }
 
 bool overrideBatteryLow() {
