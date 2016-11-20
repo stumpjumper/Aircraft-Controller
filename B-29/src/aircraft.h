@@ -281,14 +281,14 @@ void input() {
 }
 
 void serialPrintHelp() {
-    Serial.println(F("To print status: ?=Print single line, c=Continuous status, s=Stop continuous status"));
+    Serial.println(F("To print status: ?=Print single line, c=Continuous status, s=Stop continuous status, b=Go to MODE_BATTERYLOW"));
 }
 
 void processKeyInit(const uint32_t key) {
   Serial.println(F("key ="));
   Serial.println(key, HEX);
   switch (key) {
-  case 'h': // Print a single line of status
+  case 'h': // Print help string
     serialPrintHelp();
     break;
   case '?': // Print a single line of status
@@ -302,6 +302,10 @@ void processKeyInit(const uint32_t key) {
   case 's': // If on, stop continuous status print mode
     Serial.println(F("Stopping status..."));
     printContinuousStatus = false;
+    break;
+  case 'b': // Go to battery low mode
+    Serial.println(F("Going to battery low..."));
+    setToMode(MODE_BATTERYLOW)
     break;
   default:
     processKey(key);
