@@ -305,7 +305,7 @@ void processKeyInit(const uint32_t key) {
     break;
   case 'b': // Go to battery low mode
     Serial.println(F("Going to battery low..."));
-    setToMode(MODE_BATTERYLOW)
+    setToMode(MODE_BATTERYLOW);
     break;
   default:
     processKey(key);
