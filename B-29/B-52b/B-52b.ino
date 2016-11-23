@@ -32,9 +32,11 @@ Light      tailFloods;    // Two flood lighs on horizontal that illuminate the t
 
 // Decay settings for catwalk lights during day and night
 const uint8_t  catwalkMaxLightLevelDay   = uint8_t(.8*ON); // 80% Max
-const uint8_t  catwalkMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
+//const uint8_t  catwalkMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
+const uint8_t  catwalkMaxLightLevelNight = uint8_t(.5*ON);
 uint32_t catwalkDayOnLengths[1]          = {180000}; // On 3 minutes
-uint32_t catwalkDayDecayLengths[1]       = { 61000}; // Off for 1 minute, 10 seconds to keep out of sync
+//uint32_t catwalkDayDecayLengths[1]       = { 61000}; // Off for 1 minute, plus 1 sec to keep out of sync
+uint32_t catwalkDayDecayLengths[1]       = { 91000}; // Off for 90 seconds, plus 1 sec to keep out of sync
 uint8_t  catwalkDayMaxLightLevels[1]     = {catwalkMaxLightLevelDay};  
 uint32_t * catwalkDayTauInMilliseconds   = NULL;     // On/Off, no decay
 
@@ -56,7 +58,7 @@ void serialPrintBanner() {
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
   // When voltage drops at or below this value, mode will switch to MODE_BATTERYLOW
-  return 10.0;
+  return 10.5;
 }
 
 float getBatteryLowResetValue() {
@@ -106,7 +108,8 @@ void setEvening() {
   catwalkDayMaxLightLevels[0] = catwalkMaxLightLevelNight;  
   catwalk       .flash();
   interiorWhite .off();
-  interiorRed   .on();
+  // interiorRed   .on();
+  interiorRed   .off();
   cockpitFloods .off();
   loaderDayMaxLightLevels[0] = loaderMaxLightLevelNight;
   loader        .flash();
@@ -117,8 +120,8 @@ void setNight() {
   allOff();
 }
 
-void setPreDawn() {
-  catwalk       .off();
+void setPreDwn() {
+  catwalk       .flash();
   interiorWhite .off();
   interiorRed   .off();
   cockpitFloods .off();
