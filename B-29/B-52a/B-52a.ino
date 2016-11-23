@@ -62,7 +62,7 @@ void serialPrintBanner() {
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
   // When voltage drops at or below this value, mode will switch to MODE_BATTERYLOW
-  return 10.0;
+  return 10.5;
 }
 
 float getBatteryLowResetValue() {
@@ -107,7 +107,8 @@ void allOff() {
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
-  taxi        .flash();
+  //  taxi        .flash();
+  taxi        .off();
   landing     .on();
   terrain     .off();
   navigation  .flash();
@@ -120,7 +121,8 @@ void setNight() {
 
 void setPreDawn() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
-  taxi        .flash();
+  //  taxi        .flash();
+  taxi        .off();
   landing     .on();
   terrain     .off();
   navigation  .flash();
@@ -129,7 +131,8 @@ void setPreDawn() {
 
 void setMorning() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  taxi        .flash();
+  //  taxi        .flash();
+  taxi        .off();
   landing     .on();
   terrain     .off();
   navigation  .flash();
@@ -138,7 +141,8 @@ void setMorning() {
 
 void setDay() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  taxi        .flash();
+  //  taxi        .flash();
+  taxi        .off();
   landing     .on();
   terrain     .off();
   navigation  .flash();
