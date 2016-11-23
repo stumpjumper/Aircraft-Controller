@@ -119,7 +119,8 @@ void allOff() {
 void setEvening() {
   ident.on();
   landing.on();
-  illum.on();
+  //  illum.on();
+  illum.off();
   position.flash();
   formation.on();
 }
@@ -131,7 +132,8 @@ void setNight() {
 void setPreDawn() {
   ident.on();
   landing.on();
-  illum.on();
+  //  illum.on();
+  illum.off();
   position.flash();
   formation.on();
 }
@@ -139,7 +141,8 @@ void setPreDawn() {
 void setMorning() {
   ident.on();
   landing.on();
-  illum.on();
+  //  illum.on();
+  illum.off();
   position.flash();
   formation.on();
 }
