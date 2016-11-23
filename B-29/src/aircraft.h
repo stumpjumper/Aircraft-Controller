@@ -286,8 +286,8 @@ void serialPrintHelp() {
 }
 
 void processKeyInit(const uint32_t key) {
-  Serial.print(F("key ="));
-  Serial.println(key, HEX);
+  Serial.print(F("key = "));
+  Serial.println(key);
   switch (key) {
   case 'i': // Print info string
     serialPrintBanner();
