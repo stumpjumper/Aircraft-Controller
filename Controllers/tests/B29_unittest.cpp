@@ -26,6 +26,10 @@ void B29Test::SetUp()
                 "To print status: ?=Print single line"
                 ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
+  EXPECT_CALL(*serialMock, println(
+                "To print other:  i=Print info string, "
+                "b=Go to MODE_BATTERYLOW"))
+    .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
   EXPECT_CALL(*arduinoMock, pinMode(_,_))
@@ -513,6 +517,10 @@ TEST_F(B29Test, Setup) {
                 "To print status: ?=Print single line"
                 ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
+  EXPECT_CALL(*serialMock, println(
+                "To print other:  i=Print info string, "
+                "b=Go to MODE_BATTERYLOW"))
+    .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
   EXPECT_CALL(*arduinoMock, pinMode(_,_))
@@ -791,13 +799,15 @@ TEST_F(B29Test, SetEvening) {
   EXPECT_EQ(ON, position());
   EXPECT_EQ(ON, formation());
   EXPECT_EQ(ON, landing());
-  EXPECT_EQ(ON, illum());
+  //-// EXPECT_EQ(ON, illum());
+  EXPECT_EQ(OFF, illum());
 
   EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
   EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
-  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  //-//EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   checkEveningStatusLights();
 
@@ -1025,13 +1035,15 @@ TEST_F(B29Test, SetPreDawn) {
   EXPECT_EQ(ON, position());
   EXPECT_EQ(ON, formation());
   EXPECT_EQ(ON, landing());
-  EXPECT_EQ(ON, illum());
+  //-//EXPECT_EQ(ON, illum());
+  EXPECT_EQ(OFF, illum());
 
   EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
   EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
-  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  //-//EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
   checkPreDawnStatusLights();
 
@@ -1079,13 +1091,15 @@ TEST_F(B29Test, SetMorning) {
   EXPECT_EQ(ON, position());
   EXPECT_EQ(ON, formation());
   EXPECT_EQ(ON, landing());
-  EXPECT_EQ(ON, illum());
+  //-//EXPECT_EQ(ON, illum());
+  EXPECT_EQ(OFF, illum());
 
   EXPECT_EQ(Light::LIGHT_ON, ident.getLightMode());
   EXPECT_EQ(Light::LIGHT_FLASHING, position.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, formation.getLightMode());
   EXPECT_EQ(Light::LIGHT_ON, landing.getLightMode());
-  EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  //-//EXPECT_EQ(Light::LIGHT_ON, illum.getLightMode());
+  EXPECT_EQ(Light::LIGHT_OFF, illum.getLightMode());
 
 
   checkMorningStatusLights();
@@ -1565,7 +1579,13 @@ TEST_F(B29Test, Statemap) {
                 "To print status: ?=Print single line"
                 ", c=Continuous status, s=Stop continuous status"))
     .Times(1);
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
+  EXPECT_CALL(*serialMock, println(
+                "To print other:  i=Print info string, "
+                "b=Go to MODE_BATTERYLOW"))
+    .Times(1);
+  EXPECT_CALL(*serialMock, print(
+                TypedEq<const char *>("ERROR: Detected uint32_t overflow "
+                                      "in resetTimeoutBatteryLow()\n")))
     .Times(0);
   EXPECT_CALL(*serialMock, println("In setOverride()"))
     .Times(5);
