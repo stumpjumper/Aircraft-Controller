@@ -18,11 +18,11 @@
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 #-#GTEST_DIR = ./googletest
-GTEST_DIR = $(HOME)/Google\ Drive/GDrive\ projects/gtest-1.7.0
+GTEST_DIR = ../googletest/googletest/
 
 # Points to the root of Google Mock, relative to where this file is.
 # Remember to tweak this if you move this file
-GMOCK_DIR = $(HOME)/Google\ Drive/GDrive\ projects/gmock-1.7.0
+GMOCK_DIR = ../googletest/googlemock
 
 # Points to the root of Arduino mock, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -91,7 +91,7 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 all : $(TESTS) $(PROGRAM_OBJS)
 
 MY_TESTEXE_A=B29_unittest
-MY_TEST_A1=B29Test.Statemap
+MY_TEST_A1=B29Test.ArduinoMockMillis
 
 MY_TESTEXE_B=light_unittest
 MY_TEST_B1=DecayLight.Update2
@@ -123,12 +123,12 @@ kill:
 rm_links:
 	find . -type l -exec rm -v {} \;
 
-cpp_links:
+cpp_links: rm_links
 	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" $${arg}.ino ; ln -s "$${arg}.ino" "$${arg}.cpp"; fi; done
 	current_dir="$(CURDIR)"; cd $(SRC_DIR); for arg in $(PROGRAM_DIRS); do if [ ! -f "$${arg}.cpp" ]; then echo creating: $${arg}.cpp "->" "../$${arg}/$${arg}.cpp" ; ln -s "../$${arg}/$${arg}.cpp" "$${arg}.cpp"; fi; done
 	current_dir="$(CURDIR)"; cd $(SRC_DIR); for arg in $(PROGRAM_DIRS); do if [ ! -f "$${arg}.ino" ]; then echo creating: $${arg}.ino "->" "../$${arg}/$${arg}.ino" ; ln -s "../$${arg}/$${arg}.ino" "$${arg}.ino"; fi; done
 
-arduino_compile_links: rm_links
+arduino_links: rm_links
 	current_dir="$(CURDIR)"; for arg in $(PROGRAM_DIRS); do cd "$${current_dir}/$${arg}"; ln -vs ../src/*.h .; ln -vs ../src/*.cpp .; done
 
 depends : 
