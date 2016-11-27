@@ -236,7 +236,7 @@ TEST(Light, FunctionCallOperatorGetValue) {
   EXPECT_EQ(OFF, light1());
   EXPECT_EQ(OFF, lightVariable);
 
-  for (uint8_t i = 0; i < OFF; i++) {
+  for (uint8_t i = 0; i < ON; i++) {
     *light1.p_lightLevel = i;
     EXPECT_EQ(i, light1());
     EXPECT_EQ(i, lightVariable);
@@ -260,7 +260,7 @@ TEST(Light, FunctionCallOperatorSetValue) {
   EXPECT_EQ(OFF, *light1.p_lightLevel);
   EXPECT_EQ(OFF, lightVariable);
 
-  for (uint8_t i = 0; i < OFF; i++) {
+  for (uint8_t i = 0; i < ON; i++) {
     light1() = i;
     EXPECT_EQ(i, *light1.p_lightLevel);
     EXPECT_EQ(i, lightVariable);
@@ -1527,7 +1527,7 @@ TEST(FastSlowBlinkingLight, FunctionCallOperatorGetValue) {
   EXPECT_EQ(OFF, light1());
   EXPECT_EQ(OFF, lightVariable);
 
-  for (uint8_t i = 0; i < OFF; i++) {
+  for (uint8_t i = 0; i < ON; i++) {
     *light1.p_currentLight->p_lightLevel = i;
     EXPECT_EQ(i, light1());
     EXPECT_EQ(i, lightVariable);
