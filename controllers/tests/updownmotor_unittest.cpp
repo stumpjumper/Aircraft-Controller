@@ -288,9 +288,9 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
     .Times(testing::AtLeast(1));
 
 
-  EXPECT_CALL(*serialMock, print("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n"))
+  EXPECT_CALL(*serialMock, println("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))"))
     .Times(2);
-  EXPECT_CALL(*serialMock, print("       Calling motorUpStop() and motorDownStop()\n"))
+  EXPECT_CALL(*serialMock, println("       Calling motorUpStop() and motorDownStop()"))
     .Times(2);
 
   uint32_t startTime = 9283*60*60;
