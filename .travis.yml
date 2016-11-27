@@ -9,6 +9,7 @@ before_install:
  - git submodule update --init --recursive
 compiler:
  - gcc
+ - clang
 install:
  - cd controllers
  - touch depend
