@@ -1,7 +1,8 @@
 lighting-controller [![Build Status](https://travis-ci.org/stumpjumper/lighting-controller.svg?branch=master)](https://travis-ci.org/stumpjumper/lighting-controller)
 ===================
 
-A GMock stub library for a mock of Arduino libraries.
+Aurduino code written in C++ to control lights via the "Lucky7" custom shield. 
+The code is currently being used at The National Museum of Nuclear Science and History in Albuquerque, NM. 
 
 How it works
 ============
