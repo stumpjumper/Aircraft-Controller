@@ -20,15 +20,15 @@ void B29Test::SetUp()
     .Times(1);
 //   EXPECT_CALL(*serialMock, StartsWith<type const char *>("Compiled: "))
 //     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("NMNSH B-29 Lighting Controller v1.0"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
                 "To print status: ?=Print single line"
-                ", c=Continuous status, s=Stop continuous status"))
+                ", c=Continuous status, s=Stop continuous status"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
                 "To print other:  i=Print info string, "
-                "b=Go to MODE_BATTERYLOW"))
+                "b=Go to MODE_BATTERYLOW"))))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -124,7 +124,7 @@ TEST_F(B29Test, ArduinoMockMillis) {
 TEST_F(B29Test, ResetTimeoutBatteryLow) {
   
   SerialMock  * serialMock  = serialMockInstance();
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n")))
+  EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("ERROR: Detected uint32_t overflow in resetTimeoutBatteryLow()\n"))))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -156,7 +156,7 @@ TEST_F(B29Test, ResetTimeoutBatteryLow) {
 
 TEST_F(B29Test, ResetTimeoutOverride) {
   SerialMock  * serialMock  = serialMockInstance();
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n")))
+  EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("ERROR: Detected uint32_t overflow in resetTimeoutOverride()\n"))))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -511,15 +511,16 @@ TEST_F(B29Test, Setup) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
+              "NMNSH B-29 Lighting Controller v1.0"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
-                "To print status: ?=Print single line"
-                ", c=Continuous status, s=Stop continuous status"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
+              "To print status: ?=Print single line"
+              ", c=Continuous status, s=Stop continuous status"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
-                "To print other:  i=Print info string, "
-                "b=Go to MODE_BATTERYLOW"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
+              "To print other:  i=Print info string, "
+              "b=Go to MODE_BATTERYLOW"))))
     .Times(1);
   
   ArduinoMock * arduinoMock = arduinoMockInstance();
@@ -649,7 +650,8 @@ TEST_F(B29Test, SetOverride) {
 
   ArduinoMock * arduinoMock = arduinoMockInstance();
   SerialMock  * serialMock  = serialMockInstance();
-  EXPECT_CALL(*serialMock, println("In setOverride()"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
+              "In setOverride()"))))
     .Times(1);
 
 
@@ -1171,7 +1173,7 @@ TEST_F(B29Test, SetToMode) {
     .Times(AtLeast(1));
 
   SerialMock  * serialMock  = serialMockInstance();
-  EXPECT_CALL(*serialMock, println("In setOverride()"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("In setOverride()"))))
     .Times(1);
   
   setupStatusLights();
@@ -1253,36 +1255,36 @@ TEST_F(B29Test, ProcessKey) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("In setOverride()"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("In setOverride()"))))
     .Times(11);
 
   EXPECT_CALL(*serialMock, println(_,_))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("key ")))
+  EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("key "))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"0\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"0\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"1\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"1\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"2\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"2\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"4\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"4\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"5\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"5\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"6\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"6\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"8\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"8\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"B\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"B\"\n"))))
     .Times(AtLeast(1));
-  // EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"R\"\n")))
-  //   .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"U\"\n")))
+//EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"R\"\n"))))
+//  .Times(AtLeast(1));
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"U\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"D\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"D\"\n"))))
     .Times(AtLeast(1));
-  EXPECT_CALL(*serialMock, print(TypedEq<const char *>("Got remote \"P\"\n")))
+              EXPECT_CALL(*serialMock, print(Matcher<const char *>(StrEq("Got remote \"P\"\n"))))
     .Times(AtLeast(1));
 
   // EEPROMMock * eepromMock  = EEPROMMockInstance();
@@ -1573,21 +1575,22 @@ TEST_F(B29Test, Statemap) {
   SerialMock  * serialMock  = serialMockInstance();
   EXPECT_CALL(*serialMock, begin(_))
     .Times(1);
-  EXPECT_CALL(*serialMock, println("NMNSH B-29 Lighting Controller v1.0"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("NMNSH B-29 Lighting Controller v1.0"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
                 "To print status: ?=Print single line"
-                ", c=Continuous status, s=Stop continuous status"))
+                ", c=Continuous status, s=Stop continuous status"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, println(
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq(
                 "To print other:  i=Print info string, "
-                "b=Go to MODE_BATTERYLOW"))
+                "b=Go to MODE_BATTERYLOW"))))
     .Times(1);
-  EXPECT_CALL(*serialMock, print(
-                TypedEq<const char *>("ERROR: Detected uint32_t overflow "
-                                      "in resetTimeoutBatteryLow()\n")))
+  EXPECT_CALL(*serialMock, print(Matcher<const char *>
+                                 (StrEq("ERROR: Detected uint32_t overflow "
+                                         "in resetTimeoutBatteryLow()\n"))))
     .Times(0);
-  EXPECT_CALL(*serialMock, println("In setOverride()"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>
+                                   (StrEq("In setOverride()"))))
     .Times(5);
 
   IRrecvMock * irrecvMock = irrecvMockInstance();
