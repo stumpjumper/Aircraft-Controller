@@ -1,5 +1,8 @@
 #include "updownmotor_unittest.h"
 
+using ::testing::StrEq;
+using ::testing::Matcher;
+
 void UpDownMotorTest::SetUp()
 {
   uint8_t p_oUpArrayTmp  [4] = {ON, ON , OFF, OFF};
@@ -288,7 +291,7 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
     .Times(testing::AtLeast(1));
 
 
-  EXPECT_CALL(*serialMock, println("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))"))))
     .Times(2);
   EXPECT_CALL(*serialMock, println("       Calling motorUpStop() and motorDownStop()"))
     .Times(2);
