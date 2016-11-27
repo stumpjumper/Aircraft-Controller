@@ -1,5 +1,6 @@
 #ifndef INTEGRATION_TEST_H
 #define INTEGRATION_TEST_H
+#include <stdint.h>
 #include <gtest/gtest.h>
 
 class Integration: public ::testing::Test {
