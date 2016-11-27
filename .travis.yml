@@ -12,8 +12,8 @@ compiler:
 install:
  - cd controllers
  - touch depend
- - make cpp_links
+ - gmake cpp_links
 script:
  - cd controllers
- - make
- - make test
+ - gmake
+ - gmake test
