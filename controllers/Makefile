@@ -102,10 +102,10 @@ mytest : $(TESTS)
 	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1); if [ "$$?" == '1' ]; then exit 1; fi
 
 test : $(TESTS)
-	failed_test=""; for t in $(UNIT_TESTS); do ./$$t; if [ $$? -ne 0 ]; then failed_test="true"; fi; done; if [ -n "$$failed_test" ]; then exit 1; fi
+	failed_test=""; for t in $(UNIT_TESTS); do ./$$t; if [ $$? -ne 0 ]; then failed_test="true"; fi; done; if [ -n "$$failed_test" ]; then echo "Had at least one test failure"; exit 1; else echo "All tests passed :-)"; fi
 
 itest : $(UNIT_TESTS) $(INTEGRATION_TESTS)
-	failed_test=""; for t in $(INTEGRATION_TESTS); do ./$$t; if [ $$? -ne 0 ]; then failed_test="true"; fi; done; if [ -n "$$failed_test" ]; then exit 1; fi
+	failed_test=""; for t in $(INTEGRATION_TESTS); do ./$$t; if [ $$? -ne 0 ]; then failed_test="true"; fi; done; if [ -n "$$failed_test" ]; then echo "Had at least one test failure"; exit 1; else echo "All tests passed :-)"; fi
 
 clean :
 	rm -f $(TESTS) gmock.a gtest_main.a gmock_main.a \
