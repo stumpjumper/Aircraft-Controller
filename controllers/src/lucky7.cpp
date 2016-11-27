@@ -514,7 +514,7 @@ void UpDownMotor::motorUpdate() {
     if ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown) )
     {
       Serial.print(F("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))\n"));
-      Serial.print(F("       Calling motorUpStop() and  motorDownStop()\n"));
+      Serial.print(F("       Calling motorUpStop() and motorDownStop()\n"));
       motorUpStop();
       motorDownStop();
       return;
