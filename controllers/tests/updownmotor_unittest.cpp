@@ -293,7 +293,7 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
 
   EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("ERROR: In UpDownMotor::motorUpdate() found ((inMotorUpMode && inMotorDownMode) || (*p_outputUp && *p_outputDown))"))))
     .Times(2);
-  EXPECT_CALL(*serialMock, println("       Calling motorUpStop() and motorDownStop()"))
+  EXPECT_CALL(*serialMock, println(Matcher<const char *>(StrEq("       Calling motorUpStop() and motorDownStop()"))))
     .Times(2);
 
   uint32_t startTime = 9283*60*60;
