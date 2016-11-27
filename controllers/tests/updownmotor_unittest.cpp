@@ -35,8 +35,8 @@ TEST_F(UpDownMotorTest, Setup) {
     EXPECT_EQ(&oDown        , udm.p_outputDown      );
     EXPECT_EQ(p_oUpArray[i]  , *udm.p_outputUp       ) << "oUp = " << int(oUp) << ",p_oUpArray[" << int(i) << "] = " << int(p_oUpArray[i]);
     EXPECT_EQ(p_oDownArray[i], *udm.p_outputDown     ) << "oDown = " << int(oDown) << ", p_oDownArray[" << int(i) << "] = " << int(p_oDownArray[i]);
-    EXPECT_EQ(false          , udm.inMotorUpMode     );
-    EXPECT_EQ(false          , udm.inMotorDownMode   );
+    EXPECT_FALSE(udm.inMotorUpMode     );
+    EXPECT_FALSE(udm.inMotorDownMode   );
     EXPECT_EQ(0              , udm.motorUpStartTime  );
     EXPECT_EQ(0              , udm.motorDownStartTime);
   }
@@ -50,13 +50,13 @@ TEST_F(UpDownMotorTest, GetInMotorUpDownMode) {
 
     udm.inMotorUpMode = true;
     udm.inMotorDownMode = true;
-    EXPECT_EQ(true, udm.getInMotorUpMode()   );
-    EXPECT_EQ(true, udm.getInMotorDownMode() );
+    EXPECT_TRUE(udm.getInMotorUpMode()   );
+    EXPECT_TRUE(udm.getInMotorDownMode() );
 
     udm.inMotorUpMode = false;
     udm.inMotorDownMode = false;
-    EXPECT_EQ(false, udm.getInMotorUpMode()   );
-    EXPECT_EQ(false, udm.getInMotorDownMode() );
+    EXPECT_FALSE(udm.getInMotorUpMode()   );
+    EXPECT_FALSE(udm.getInMotorDownMode() );
 
 }
 
@@ -73,8 +73,8 @@ TEST_F(UpDownMotorTest, MotorUpStop) {
 
     udm.motorUpStop();
     EXPECT_EQ(OFF  , *udm.p_outputUp);
-    EXPECT_EQ(false, udm.inMotorUpMode );
-    EXPECT_EQ(false, udm.inMotorDownMode );
+    EXPECT_FALSE(udm.inMotorUpMode );
+    EXPECT_FALSE(udm.inMotorDownMode );
   }
 }
 
@@ -92,8 +92,8 @@ TEST_F(UpDownMotorTest, MotorDownStop) {
 
     udm.motorDownStop();
     EXPECT_EQ(OFF  , *udm.p_outputDown);
-    EXPECT_EQ(false, udm.inMotorUpMode );
-    EXPECT_EQ(false, udm.inMotorDownMode );
+    EXPECT_FALSE(udm.inMotorUpMode );
+    EXPECT_FALSE(udm.inMotorDownMode );
   }
 }
 
@@ -122,7 +122,7 @@ TEST_F(UpDownMotorTest, MotorUpStart) {
 
     udm.motorUpStart();
     EXPECT_EQ(millisSet, udm.motorUpStartTime);
-    EXPECT_EQ(true, udm.inMotorUpMode);
+    EXPECT_TRUE(udm.inMotorUpMode);
   }
 
   releaseArduinoMock();
@@ -153,7 +153,7 @@ TEST_F(UpDownMotorTest, MotorDownStart) {
 
     udm.motorDownStart();
     EXPECT_EQ(millisSet, udm.motorDownStartTime);
-    EXPECT_EQ(true, udm.inMotorDownMode);
+    EXPECT_TRUE(udm.inMotorDownMode);
   }
 
   releaseArduinoMock();
@@ -197,7 +197,7 @@ TEST_F(UpDownMotorTest, MotorUpUpdate) {
   udm.motorUpUpdate();
   EXPECT_EQ(oUp, *udm.p_outputUp);
   EXPECT_EQ(OFF, oUp);
-  EXPECT_EQ(false, udm.inMotorUpMode);
+  EXPECT_FALSE(udm.inMotorUpMode);
 
   // State (2a)
   udm.inMotorUpMode = true;
@@ -205,21 +205,21 @@ TEST_F(UpDownMotorTest, MotorUpUpdate) {
   udm.motorUpUpdate();
   EXPECT_EQ(oUp, *udm.p_outputUp);
   EXPECT_EQ(OFF, oUp);
-  EXPECT_EQ(true, udm.inMotorUpMode);
+  EXPECT_TRUE(udm.inMotorUpMode);
 
   // State (2b)
   arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY + 1);
   udm.motorUpUpdate();
   EXPECT_EQ(oUp, *udm.p_outputUp);
   EXPECT_EQ(ON, oUp);
-  EXPECT_EQ(true, udm.inMotorUpMode);
+  EXPECT_TRUE(udm.inMotorUpMode);
 
   // State (2c)
   arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEOUTMOTORUPDOWN + 1);
   udm.motorUpUpdate();
   EXPECT_EQ(oUp, *udm.p_outputUp);
   EXPECT_EQ(OFF, oUp);
-  EXPECT_EQ(false, udm.inMotorUpMode);
+  EXPECT_FALSE(udm.inMotorUpMode);
 
   releaseArduinoMock();
 }
@@ -252,7 +252,7 @@ TEST_F(UpDownMotorTest, MotorDownUpdate) {
   udm.motorDownUpdate();
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(OFF, oDown);
-  EXPECT_EQ(false, udm.inMotorDownMode);
+  EXPECT_FALSE(udm.inMotorDownMode);
 
   // State (2a)
   udm.inMotorDownMode = true;
@@ -260,21 +260,21 @@ TEST_F(UpDownMotorTest, MotorDownUpdate) {
   udm.motorDownUpdate();
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(OFF, oDown);
-  EXPECT_EQ(true, udm.inMotorDownMode);
+  EXPECT_TRUE(udm.inMotorDownMode);
 
   // State (2b)
   arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEMOTORDELAY + 1);
   udm.motorDownUpdate();
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(ON, oDown);
-  EXPECT_EQ(true, udm.inMotorDownMode);
+  EXPECT_TRUE(udm.inMotorDownMode);
 
   // State (2c)
   arduinoMock->setMillisRaw(startTime + LUCKY7_TIMEOUTMOTORUPDOWN + 1);
   udm.motorDownUpdate();
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(OFF, oDown);
-  EXPECT_EQ(false, udm.inMotorDownMode);
+  EXPECT_FALSE(udm.inMotorDownMode);
 
   releaseArduinoMock();
 }
@@ -330,8 +330,8 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(ON, oUp);
   EXPECT_EQ(OFF, oDown);
-  EXPECT_EQ(true, udm.inMotorUpMode);
-  EXPECT_EQ(false, udm.inMotorDownMode);
+  EXPECT_TRUE(udm.inMotorUpMode);
+  EXPECT_FALSE(udm.inMotorDownMode);
 
   // Case: Motor down
   oUp   = OFF;
@@ -346,8 +346,8 @@ TEST_F(UpDownMotorTest, MotorUpdate) {
   EXPECT_EQ(oDown, *udm.p_outputDown);
   EXPECT_EQ(OFF, oUp);
   EXPECT_EQ(ON, oDown);
-  EXPECT_EQ(false, udm.inMotorUpMode);
-  EXPECT_EQ(true, udm.inMotorDownMode);
+  EXPECT_FALSE(udm.inMotorUpMode);
+  EXPECT_TRUE(udm.inMotorDownMode);
 
 
   releaseSerialMock();

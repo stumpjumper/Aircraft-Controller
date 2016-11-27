@@ -227,19 +227,19 @@ TEST_F(B29Test, OverrideBatteryLow) {
 
   hw.o3 = ON;
   hw.o7 = ON;
-  EXPECT_EQ(true, overrideBatteryLow());
+  EXPECT_TRUE(overrideBatteryLow());
 
   hw.o3 = ON;
   hw.o7 = OFF;
-  EXPECT_EQ(true, overrideBatteryLow());
+  EXPECT_TRUE(overrideBatteryLow());
 
   hw.o3 = OFF;
   hw.o7 = ON;
-  EXPECT_EQ(true, overrideBatteryLow());
+  EXPECT_TRUE(overrideBatteryLow());
 
   hw.o3 = OFF;
   hw.o7 = OFF;
-  EXPECT_EQ(false, overrideBatteryLow());
+  EXPECT_FALSE(overrideBatteryLow());
   
   releaseArduinoMock();
   releaseIRrecvMock();
@@ -1510,39 +1510,39 @@ TEST_F(B29Test, ProcessKey) {
   // 'U' : motor Up
   //-------------------------------------------------------
 
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
   processKey('U');
   updateChannels();
-  EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_TRUE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
   updateChannels();
-  EXPECT_EQ(true, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_TRUE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
   updateChannels();
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
   
   //-------------------------------------------------------
   // 'D' : motor Down
   //-------------------------------------------------------
 
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
   processKey('D');
   updateChannels();
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_TRUE(upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN/2); 
   updateChannels();
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(true, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_TRUE(upDownMotor.getInMotorDownMode());
   arduinoMock->addMillisRaw(LUCKY7_TIMEOUTMOTORUPDOWN+1); 
   updateChannels();
-  EXPECT_EQ(false, upDownMotor.getInMotorUpMode());
-  EXPECT_EQ(false, upDownMotor.getInMotorDownMode());
+  EXPECT_FALSE(upDownMotor.getInMotorUpMode());
+  EXPECT_FALSE(upDownMotor.getInMotorDownMode());
 
   releaseSerialMock();
   releaseArduinoMock();
@@ -1606,25 +1606,25 @@ TEST_F(B29Test, Statemap) {
 
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
-  EXPECT_EQ(true, inStartup);
+  EXPECT_TRUE(inStartup);
 
   arduinoMock->setMillisRaw(1000);
   statemap();
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
-  EXPECT_EQ(true, inStartup);
+  EXPECT_TRUE(inStartup);
 
   arduinoMock->setMillisRaw(2000);
   statemap();
   EXPECT_EQ(MODE_BATTERYLOW, mode);
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
-  EXPECT_EQ(true, inStartup);
+  EXPECT_TRUE(inStartup);
 
   arduinoMock->setMillisRaw(2001);  // Here is where we should be timed out of startup mode
   statemap();
   EXPECT_EQ(MODE_DAY, mode);
   EXPECT_EQ(TimeOfDay::DAY, timeOfDay.getDayPart());
-  EXPECT_EQ(false, inStartup);
+  EXPECT_FALSE(inStartup);
 
   //----------------------------------------------------------------------------
   // Normal path where state set on basis of timeOfDay.updateAverage(lightLevel)
