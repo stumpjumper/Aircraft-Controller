@@ -99,7 +99,7 @@ MY_TEST_B1=DecayLight.Update2
 MY_TESTEXE_C=integration_test
 MY_TEST_C1=Integration.CycleThroughDay
 mytest : $(TESTS)
-	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1); if [ "$$?" == '1' ]; then exit 1; fi
+	./$(MY_TESTEXE_A) --gtest_filter=$(MY_TEST_A1); if [ $$? -ne 0 ]; then exit 1; fi
 
 test : $(TESTS)
 	failed_test=""; for t in $(UNIT_TESTS); do ./$$t; if [ $$? -ne 0 ]; then failed_test="true"; fi; done; if [ -n "$$failed_test" ]; then echo "Had at least one test failure"; exit 1; else echo "All tests passed :-)"; fi
