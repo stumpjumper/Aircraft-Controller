@@ -456,7 +456,7 @@ void TimeOfDay::updateTimeOfDay()
 
 uint16_t TimeOfDay::getNightDayThreshold()
 {
-  float percentage = nightDayThresholdPercentage/100.0;
+  const float percentage = nightDayThresholdPercentage/100.0;
   return (uint16_t)photocellAvgValueMin + percentage*(photocellAvgValueMax - photocellAvgValueMin);
 }
 
