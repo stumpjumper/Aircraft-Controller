@@ -1,6 +1,5 @@
 #include "integration_test.h"
 #include "pins_arduino.h"
-#include "B-52a.ino"
 #include <IRremote.h>
 
 using ::testing::_;
@@ -101,6 +100,8 @@ TEST_F(Integration, CycleThroughDay) {
   setAnalogReadVoltageValue(12.0);
   
   arduinoMock->setMillisRaw(0);
+
+  printContinuousStatus = true; // We want status sent to stdout
   
   setup();
   for (uint32_t i = 0; i < 2000; i++) {
