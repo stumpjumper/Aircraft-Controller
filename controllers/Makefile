@@ -117,6 +117,11 @@ cleandepend :
 format :
 	../script/codeformatter.sh
 
+help:
+	@echo "Available Targets"
+	@echo "-----------------"
+	@grep "^[a-zA-Z\-_ ]*:" Makefile | sed -n -e 's#:.*$$##p'
+
 kill:
 	echo "" > /dev/null
 
