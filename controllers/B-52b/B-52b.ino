@@ -112,7 +112,7 @@ void setEvening() {
   // interiorRed   .on();
   interiorRed   .off();
   cockpitFloods .off();
-  loaderDayMaxLightLevels[0] = loaderMaxLightLevelNight;
+  loaderDayMaxLightLevels[0] = loaderMaxLightLevelNiqght;
   // loader        .flash(); 2/18/17
   loader        .off();
   //tailFloods    .on(); 2/18/17
@@ -123,7 +123,7 @@ void setNight() {
   allOff();
 }
 
-void setPreDwn() {
+void setPreDawn() {
   //  catwalk       .flash(); 2/18/17
   catwalk       .off();
   interiorWhite .off();
