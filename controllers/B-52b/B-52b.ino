@@ -106,14 +106,17 @@ void allOff() {
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
   catwalkDayMaxLightLevels[0] = catwalkMaxLightLevelNight;  
-  catwalk       .flash();
+  //  catwalk       .flash(); 2/18/17
+  catwalk       .off();
   interiorWhite .off();
   // interiorRed   .on();
   interiorRed   .off();
   cockpitFloods .off();
   loaderDayMaxLightLevels[0] = loaderMaxLightLevelNight;
-  loader        .flash();
-  tailFloods    .on();
+  // loader        .flash(); 2/18/17
+  loader        .off();
+  //tailFloods    .on(); 2/18/17
+  tailFloods    .off();
 }
 
 void setNight() {
@@ -121,12 +124,14 @@ void setNight() {
 }
 
 void setPreDwn() {
-  catwalk       .flash();
+  //  catwalk       .flash(); 2/18/17
+  catwalk       .off();
   interiorWhite .off();
   interiorRed   .off();
   cockpitFloods .off();
   loader        .off();
-  tailFloods    .on();
+  //  tailFloods    .on(); 2/18/17
+  tailFloods    .off();
 }
 
 void setMorning() {

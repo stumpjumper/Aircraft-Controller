@@ -109,7 +109,8 @@ void setEvening() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
   //  taxi        .flash();
   taxi        .off();
-  landing     .on();
+  //  landing     .on();  2/18/17
+  landing     .off();
   terrain     .off();
   navigation  .flash();
   collision   .flash();
@@ -123,7 +124,8 @@ void setPreDawn() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
   //  taxi        .flash();
   taxi        .off();
-  landing     .on();
+  //landing     .on(); 2/18/17
+  landing     .off();
   terrain     .off();
   navigation  .flash();
   collision   .flash();
