@@ -48,7 +48,7 @@ uint32_t navigationTauInMilliseconds[1]  = {100};  // Half-life = .1 seconds
 
 // Flashing settings for collision lights
 const uint8_t  collisionOnLightLevel   = ON;  // When light is not "rotating", just on, this is its intensity
-const uint32_t collisionFlatLength     = 0;   // Time between 1/2 sine waves.  250 = 1/4 sec
+const uint32_t collisionFlatLength     = 250;   // Time between 1/2 sine waves.  250 = 1/4 sec  NOTE: Changed from 0 to 250 on 2/18/17 to slow things down
 const uint8_t  collisionFlatLightLevel = 0;   // Light level when between 1/2 sine waves
 const uint32_t collisionPulseLength    = 736; // 1/2 period of sine wave. 1000 = 1 sec
 // Value based on that found here: https://www.youtube.com/watch?v=PSKxUBRD40E. (35 flashes in 25.2 sec =.72, 35 in 26.21=.748, 36 in 26.67=.741)
