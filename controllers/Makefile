@@ -18,7 +18,7 @@
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 #-#GTEST_DIR = ./googletest
-GTEST_DIR = ../googletest/googletest/
+GTEST_DIR = ../googletest/googletest
 
 # Points to the root of Google Mock, relative to where this file is.
 # Remember to tweak this if you move this file
@@ -55,14 +55,15 @@ CXXFLAGS += -g -D DOING_UNIT_TESTING \
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 #-# TESTS = Arduino_unittest Wire_unittest Serial_unittest Spark_unittest EEPROM_unittest WiFi_unittest serialHelper_unittest
-UNIT_TESTS = F16_unittest B29_unittest timeofday_unittest \
-	updownmotor_unittest lucky7_unittest light_unittest
-INTEGRATION_TESTS = integration_test
+UNIT_TESTS_CPPS = $(wildcard $(TEST_DIR)/*_unittest.cpp)
+UNIT_TESTS = $(UNIT_TESTS_CPPS:$(TEST_DIR)/%.cpp=%)
+
+INTEGRATION_TESTS_CPPS = $(wildcard $(TEST_DIR)/integration_test_*.cpp)
+INTEGRATION_TESTS = $(INTEGRATION_TESTS_CPPS:$(TEST_DIR)/%.cpp=%)
+
+#integration_test_F16 integration_test_B29 integration_test_B52a integration_test_B52b
 TESTS = $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
-TEST_SRCS = integration_test.cpp F16_unittest.cpp B29_unittest.cpp \
-	timeofday_unittest.cpp updownmotor_unittest.cpp lucky7_unittest.cpp \
-	light_unittest.cpp
 PROGRAM_DIRS = B-29 F-16 B-52a B-52b Adjustable AllLightsBlinking
 
 PROGRAM_CPPS = $(PROGRAM_DIRS:%=%.cpp)
@@ -223,43 +224,19 @@ controllers.a : lucky7.o $(PROGRAM_DIRS:=.o)
 	@echo "----------------"
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(SRC_DIR) $(CXXFLAGS) -c $<
 
-integration_test : integration_test.o \
+integration_test_% : integration_test_%.o \
 				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
+	@echo "----------------"
+	@echo Building $@
+	@echo "----------------"
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-F16_unittest : F16_unittest.o controllers.a gmock_main.a arduino_mock_all.a
+
+%_unittest : %_unittest.o controllers.a gmock_main.a arduino_mock_all.a
+	@echo "----------------"
+	@echo Building $@
+	@echo "----------------"
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-B29_unittest : B29_unittest.o controllers.a gmock_main.a arduino_mock_all.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-timeofday_unittest : timeofday_unittest.o \
-				controllers.a \
-				gmock_main.a  \
-				arduino_mock_all.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-updownmotor_unittest : updownmotor_unittest.o \
-				controllers.a \
-				gmock_main.a  \
-				arduino_mock_all.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-lucky7_unittest : lucky7_unittest.o \
-				controllers.a \
-				gmock_main.a  \
-				arduino_mock_all.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-light_unittest : light_unittest.o \
-				controllers.a \
-				gmock_main.a  \
-				arduino_mock_all.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-#----------
-light_unittest.o : $(TEST_DIR)/light_unittest.cpp $(SRC_DIR)/lucky7.h \
-				$(GTEST_HEADERS)
 
 include depend
