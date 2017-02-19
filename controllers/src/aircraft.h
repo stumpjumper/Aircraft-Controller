@@ -71,11 +71,7 @@ uint32_t timeoutUpdateLights = 0;
 bool inStartup = true;
 
 char sprintfBuffer[75]; // Buffer to put sprintf text into
-#ifndef DOING_UNIT_TESTING
-  bool printContinuousStatus = false;
-#else
-  bool printContinuousStatus = true;
-#endif
+bool printContinuousStatus = false;
 
 uint8_t  mode = MODE_NOTSET;
 
