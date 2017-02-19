@@ -11,3 +11,4 @@ integration_test
 Icon
 **/build-uno
 **/build-atmega328
+controllers/integration_test_*
