@@ -109,7 +109,7 @@ itest : $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
 clean :
 	rm -f $(TESTS) gmock.a gtest_main.a gmock_main.a \
-	arduino_mock_all.a B-29.a *.o
+	arduino_mock_all.a controllers.a *.o
 
 cleandepend :
 	rm -f depend; touch depend
@@ -188,7 +188,6 @@ ArduinoMockAll.o : $(ARDUINO_MOCK_SRCS_)
 arduino_mock_all.a : ArduinoMockAll.o
 	$(AR) $(ARFLAGS) $@ $^
 
-
 lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c \
 		$(SRC_DIR)/lucky7.cpp
@@ -211,7 +210,7 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 %.o : AllLightsBlinking/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
-B-29.a : lucky7.o $(PROGRAM_DIRS:=.o)
+controllers.a : lucky7.o $(PROGRAM_DIRS:=.o)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a test.  A test should link with either gtest.a or
@@ -225,37 +224,37 @@ B-29.a : lucky7.o $(PROGRAM_DIRS:=.o)
 	$(CXX) $(CPPFLAGS) -I$(ARDUINO_MOCK_INCLUDE_DIR) -I$(SRC_DIR) $(CXXFLAGS) -c $<
 
 integration_test : integration_test.o \
-				B-29.a \
+				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
-F16_unittest : F16_unittest.o B-29.a gmock_main.a arduino_mock_all.a
+F16_unittest : F16_unittest.o controllers.a gmock_main.a arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
-B29_unittest : B29_unittest.o B-29.a gmock_main.a arduino_mock_all.a
+B29_unittest : B29_unittest.o controllers.a gmock_main.a arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
 timeofday_unittest : timeofday_unittest.o \
-				B-29.a \
+				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
 updownmotor_unittest : updownmotor_unittest.o \
-				B-29.a \
+				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
 lucky7_unittest : lucky7_unittest.o \
-				B-29.a \
+				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 #----------
 light_unittest : light_unittest.o \
-				B-29.a \
+				controllers.a \
 				gmock_main.a  \
 				arduino_mock_all.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
