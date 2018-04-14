@@ -15,5 +15,6 @@ Before loading onto an Aurduino, you may first want to test the code by doing th
     $ cd controller
     $ touch depend
     $ make cpp_links
+    $ make depends
     $ make
     $ make test
