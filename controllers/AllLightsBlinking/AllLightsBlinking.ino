@@ -35,6 +35,12 @@ float getBatteryLowValue() {
   return BATTERYLOWDEFAULT;
 }
 
+float getBatteryLowResetValue() {
+  // Provide a non-default value if needed.  Default is BATTERYLOWRESETDEFAULT
+  // Will switch out of MODE_BATTERYLOW only after voltage rises at or above this value
+  return BATTERYLOWRESETDEFAULT;
+}
+
 bool overrideBatteryLow() {
   // Not used for these lights.  See B-29 for sample usage
   return false;
