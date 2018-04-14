@@ -24,7 +24,7 @@ Before loading onto an Aurduino, you may first want to test the code by doing th
     # If you need makedepend on your Mac, you get install
     # using HomeBrew: http://macappstore.org/makedepend/
     $ make depends
-    # Copile, then test
+    # Compile, then test
     $ make
     $ make test
 
