@@ -17,11 +17,12 @@ Before loading onto an Aurduino, you may first want to test the code by doing th
     $ touch depend
     # To be able to compile stand alone and to be used as an Aurdiono sketch, some file location
     # gymnastics are neccessary via symbolic links
-    # On a Mac you are going to need to first install XCode, then it will ask you to install the command line tools
-    # the first time you run make
+    # On a Mac you are going to need to first install XCode, then it will ask you to install
+    # the command line tools the first time you run make
     $ make cpp_links
     # Get all the paths so dependencies can be resolved
-    # If you need makedepend on your Mac, you get install using HomeBrew: http://macappstore.org/makedepend/
+    # If you need makedepend on your Mac, you get install
+    # using HomeBrew: http://macappstore.org/makedepend/
     $ make depends
     # Copile, then test
     $ make
@@ -31,7 +32,8 @@ To load the code as a Sketch in the Aurduino IDE, do the following.
 
     #If you havn't already cloned the git repository
     $ git clone https://github.com/stumpjumper/lighting-controller.git
-    # Then you need to set up symbolic links so that all needed files are in the right place for the Aurduino IDE
+    # Then you need to set up symbolic links so that all needed files are in 
+    # the right place for the Aurduino IDE
     $ cd lighting-controller
     $ cd controller
     $ make arduino_links
