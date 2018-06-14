@@ -64,7 +64,7 @@ INTEGRATION_TESTS = $(INTEGRATION_TESTS_CPPS:$(TEST_DIR)/%.cpp=%)
 #integration_test_F16 integration_test_B29 integration_test_B52a integration_test_B52b
 TESTS = $(UNIT_TESTS) $(INTEGRATION_TESTS)
 
-PROGRAM_DIRS = B-29 F-16 B-52a B-52b Adjustable AllLightsBlinking
+PROGRAM_DIRS = B-29 F-16 B-52a B-52b B-52c A-7 Adjustable AllLightsBlinking
 
 PROGRAM_CPPS = $(PROGRAM_DIRS:%=%.cpp)
 PROGRAM_INOS = $(PROGRAM_DIRS:%=%.ino)
@@ -203,6 +203,12 @@ lucky7.o : $(SRC_DIR)/lucky7.cpp  $(SRC_DIR)/lucky7.h
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 %.o : B-52b/%.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
+%.o : B-52c/%.cpp
+	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
+
+%.o : A-7/%.cpp
 	$(CXX) $(CPPFLAGS) -I$(SRC_DIR) -I$(ARDUINO_MOCK_INCLUDE_DIR) $(CXXFLAGS) -c $<
 
 %.o : Adjustable/%.cpp
