@@ -13,7 +13,7 @@ Before loading onto an Aurduino, you may first want to test the code by doing th
     $ cd lighting-controller
     # Get the needed Google Test files
     $ git submodule update --init --recursive
-    $ cd controller
+    $ cd controllers
     $ touch depend
     # To be able to compile stand alone and to be used as an Aurdiono sketch, some file location
     # gymnastics are neccessary via symbolic links
@@ -35,7 +35,7 @@ To load the code as a Sketch in the Aurduino IDE, do the following.
     # Then you need to set up symbolic links so that all needed files are in 
     # the right place for the Aurduino IDE
     $ cd lighting-controller
-    $ cd controller
+    $ cd controllers
     $ make arduino_links
     
 Now you can run the Arduino IDE and go to the directory of whatever controller you want to load and simply open the .ino file.  For example open lighting-controller/controllers/B-29/B-29.ino from the IDE to create the B-29 sketch
