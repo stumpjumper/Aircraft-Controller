@@ -21,6 +21,22 @@
 // a5~   Navigation: Wing Tip, Vertical Stab, Bomb Bay (d,5)
 // a6~   (Anti-)Collision: (d,6)
 // a7    (Anti-)Collision Motor: (nd, motor) Not yet used
+// 
+// 
+// Wing Tip-Front 1 Steady
+// Formation      2 Steady
+// Wing Tip-Edge  3 Blink
+// Anti-Smash     4 Pulse
+// Tail           5 Steady
+// Approach       6 Steady
+// Landing        7 Steady
+
+
+
+
+
+
+
 
 // Light objects to control each channel
 DecayLight      taxi;            // Taxi lights on right-fwd landing gear and lft & rht wing landing gear (3)
