@@ -14,59 +14,39 @@
 // 
 // Output types: (d)  = dimable, (nd) = not dimable
 //
-// a1~   Taxi: Wings and Landing Gear (d,3)
-// a2    Landing: Gear Doors, Rt Gear (nd,3)
-// a3    Terrain: (nd,1)
-// a4    Terrain Motor: (nd, motor) Not yet used
-// a5~   Navigation: Wing Tip, Vertical Stab, Bomb Bay (d,5)
-// a6~   (Anti-)Collision: (d,6)
-// a7    (Anti-)Collision Motor: (nd, motor) Not yet used
-// 
-// 
-// Wing Tip-Front 1 Steady
-// Formation      2 Steady
-// Wing Tip-Edge  3 Blink
-// Anti-Smash     4 Pulse
-// Tail           5 Steady
-// Approach       6 Steady
-// Landing        7 Steady
-
-
-
-
-
-
+// a1~ Landing/Taxi                          Steady
+// a2  Formation: Wing Tip-Front, Formation  Steady
+// a3  Approach                              Steady
+// a5~ Position: Wing Tip-Edge, Tail         Blink
+// a6~ Anti-Smash                            Pulse
 
 
 // Light objects to control each channel
-DecayLight      taxi;            // Taxi lights on right-fwd landing gear and lft & rht wing landing gear (3)
-Light           landing;         // Landing lights on rht-fwd landing gear lft & rht fwd gear doors and (3)
-Light           terrain;         // Terrain light just ahead of most fwd landing gear (1)
-// UpDownMotor  terrainMotor;    // Terrain light up-down motor just ahead of most fwd landing gear (1)
-DecayLight      navigation;      // Navigation lights on lft & right wing tips, two on vertical stab and on on rht bomb-bay door (5)
-RotatingLight   collision;       // Anti-Collision lights on lft & rht top before vertical stab and bottom under 47 section (6)
-// UpdDownMotor collisionMotor;  // Anti-Collision motor: On/Off motor that rotates Anti-Collision lights (3)
-
+DecayLight      taxi;            // Landing/Taxi light
+Light           formation;       // On fuselage, front of wings and tail flood (according to manual)
+Light           approach;        // green, yellow, red lights on front wheel
+DecayLight      position ;       // Position lights on lft & right wing tips and tail
+RotatingLight   collision;       // Anti-Collision lights on top and bottom
 
 // Flashing settings for taxi lights during day and night
-const uint8_t  taxiMaxLightLevelDay   = uint8_t(.8*ON); // 80% Max
+const uint8_t  taxiMaxLightLevelDay   = uint8_t(ON); // 100% Max
 const uint8_t  taxiMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
 uint32_t taxiOnLengths[1]             = {180000}; // On 3 minutes
 uint32_t taxiDecayLengths[1]          = { 60000}; // Off for 1 minute
 uint8_t  taxiMaxLightLevels[1]        = {taxiMaxLightLevelDay};  
 uint32_t * taxiTauInMilliseconds      = NULL;     // On/Off, no decay
 
-// Flashing settings for navigation lights
-uint32_t navigationOnLengths[1]          = {100};  // On for .1 seconds
-uint32_t navigationDecayLengths[1]       = {1100}; // Decay for 1.1
-uint8_t  navigationMaxLightLevels[1]     = {ON};  
-uint32_t navigationTauInMilliseconds[1]  = {100};  // Half-life = .1 seconds
+// Flashing settings for position lights
+uint32_t positionOnLengths[1]         = {100};  // On for .1 seconds
+uint32_t positionDecayLengths[1]      = {1100}; // Decay for 1.1
+uint8_t  positionMaxLightLevels[1]    = {ON};  
+uint32_t positionTauInMilliseconds[1] = {100};  // Half-life = .1 seconds
 
 // Flashing settings for collision lights
 const uint8_t  collisionOnLightLevel   = ON;  // When light is not "rotating", just on, this is its intensity
-const uint32_t collisionFlatLength     = 250;   // Time between 1/2 sine waves.  250 = 1/4 sec  NOTE: Changed from 0 to 250 on 2/18/17 to slow things down
+const uint32_t collisionFlatLength     = 500;   // Time between 1/2 sine waves.  1000 = 1 sec
 const uint8_t  collisionFlatLightLevel = 0;   // Light level when between 1/2 sine waves
-const uint32_t collisionPulseLength    = 736; // 1/2 period of sine wave. 1000 = 1 sec
+const uint32_t collisionPulseLength    = 900; // 1/2 period of sine wave. 1000 = 1 sec
 // Value based on that found here: https://www.youtube.com/watch?v=PSKxUBRD40E. (35 flashes in 25.2 sec =.72, 35 in 26.21=.748, 36 in 26.67=.741)
 const uint8_t  collisionMinLightLevel  = 20;  // Light level when sine wave starts
 const uint8_t  collisionMaxLightLevel  = ON;  // Light level at peak of sine wave
@@ -94,25 +74,26 @@ bool overrideBatteryLow() {
 
 void allLightsOn() {
   taxi        .on();
-  landing     .on();
-  terrain     .on();
-  navigation  .on();
+  formation   .on();
+  approach    .on();
+  position    .on();
   collision   .on();
+  
 }
 
 void allLightsOff() {
   taxi        .off();
-  landing     .off();
-  terrain     .off();
-  navigation  .off();
+  formation   .off();
+  approach    .off();
+  position    .off();
   collision   .off();
 }
 
 void updateAll() {
   taxi        .update();
-  landing     .update();
-  terrain     .update();
-  navigation  .update();
+  formation   .update();
+  approach    .update();
+  position    .update();
   collision   .update();
 }
 
@@ -122,13 +103,11 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
-  //  taxi        .flash();
-  taxi        .off();
-  //  landing     .on();  2/18/17
-  landing     .off();
-  terrain     .off();
-  navigation  .flash();
+  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;
+  taxi        .flash();
+  formation   .on();
+  approach    .on();
+  position    .flash();
   collision   .flash();
 }
 
@@ -138,32 +117,28 @@ void setNight() {
 
 void setPreDawn() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
-  //  taxi        .flash();
-  taxi        .off();
-  //landing     .on(); 2/18/17
-  landing     .off();
-  terrain     .off();
-  navigation  .flash();
+  taxi        .flash();
+  formation   .on();
+  approach    .on();
+  position    .flash();
   collision   .flash();
 }
 
 void setMorning() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  //  taxi        .flash();
-  taxi        .off();
-  landing     .on();
-  terrain     .off();
-  navigation  .flash();
+  taxi        .flash();
+  formation   .on();
+  approach    .on();
+  position    .flash();
   collision   .flash();
 }
 
 void setDay() {
   taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  //  taxi        .flash();
-  taxi        .off();
-  landing     .on();
-  terrain     .off();
-  navigation  .flash();
+  taxi        .flash();
+  formation   .on();
+  approach    .on();
+  position    .flash();
   collision   .flash();
 }
 
@@ -199,14 +174,14 @@ void processKey(const uint32_t key) {
   case RM_YD065_KEY2:
     Serial.print(F("Got remote \"2\"\n"));
     setToMode(MODE_OVERRIDE);
-    landing.toggle();
+    formation.toggle();
     break;
   case '3':
   case RC65X_KEY3:
   case RM_YD065_KEY3:
     Serial.print(F("Got remote \"3\"\n"));
     setToMode(MODE_OVERRIDE);
-    terrain.toggle();
+    approach.toggle();
     break;
   // case '4':
   // case RC65X_KEY4:
@@ -220,7 +195,7 @@ void processKey(const uint32_t key) {
   case RM_YD065_KEY5:
     Serial.print(F("Got remote \"5\"\n"));
     setToMode(MODE_OVERRIDE);
-    navigation.toggle();
+    position.toggle();
     break;
   case '6':
   case RC65X_KEY6:
@@ -266,20 +241,20 @@ void processKey(const uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  //                               1      2        3      4       5
-  serialPrintCustomStatusDefault(&taxi,&landing,&terrain,NULL,&navigation,
+  //                              1     2          3        4     5
+  serialPrintCustomStatusDefault(&taxi,&formation,&approach,NULL,&position,
                                  &collision,NULL);
-  //                                 6       7
+  //                              6         7
 }
 
 void setupLightingAndMotorChannels()
 {
   taxi       .setup(hw.o1, ON, 1, taxiOnLengths, taxiDecayLengths,
                     taxiMaxLightLevels, taxiTauInMilliseconds);
-  landing    .setup(hw.o2, ON);
-  terrain    .setup(hw.o3, ON);
-  navigation .setup(hw.o5, ON, 1, navigationOnLengths, navigationDecayLengths,
-                    navigationMaxLightLevels, navigationTauInMilliseconds);
+  formation  .setup(hw.o2, ON);
+  approach   .setup(hw.o3, ON);
+  position   .setup(hw.o5, ON, 1, positionOnLengths, positionDecayLengths,
+                    positionMaxLightLevels, positionTauInMilliseconds);
   collision  .setup(hw.o6, collisionOnLightLevel, collisionFlatLength,          
                     collisionFlatLightLevel, collisionPulseLength,
                     collisionMinLightLevel, collisionMaxLightLevel);
