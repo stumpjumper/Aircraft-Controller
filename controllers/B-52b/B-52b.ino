@@ -31,25 +31,25 @@ DecayLight loader;        // The four lighs on the loader (d, 4)
 Light      tailFloods;    // Two flood lighs on horizontal that illuminate the tail flash (2)
 
 // Decay settings for catwalk lights during day and night
-const uint8_t  catwalkMaxLightLevelDay   = uint8_t(.8*ON); // 80% Max
+const uint8_t  catwalkMaxLightLevelDay     = uint8_t(.8*ON); // 80% Max
 //const uint8_t  catwalkMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
-const uint8_t  catwalkMaxLightLevelNight = uint8_t(.5*ON);
-uint32_t catwalkDayOnLengths[1]          = {180000}; // On 3 minutes
-//uint32_t catwalkDayDecayLengths[1]       = { 61000}; // Off for 1 minute, plus 1 sec to keep out of sync
-uint32_t catwalkDayDecayLengths[1]       = { 91000}; // Off for 90 seconds, plus 1 sec to keep out of sync
-uint8_t  catwalkDayMaxLightLevels[1]     = {catwalkMaxLightLevelDay};  
-uint32_t * catwalkDayTauInMilliseconds   = NULL;     // On/Off, no decay
+const uint8_t  catwalkMaxLightLevelNight   = uint8_t(.5*ON);
+uint32_t       catwalkDayOnLengths[1]      = {180000};       // On 3 minutes
+//uint32_t catwalkDayDecayLengths[1]       = { 61000};       // Off for 1 minute, plus 1 sec to keep out of sync
+uint32_t       catwalkDayDecayLengths[1]   = { 91000};       // Off for 90 seconds, plus 1 sec to keep out of sync
+uint8_t        catwalkDayMaxLightLevels[1] = {catwalkMaxLightLevelDay};  
+uint32_t     * catwalkDayTauInMilliseconds = NULL;           // On/Off, no decay
 
 // Flashing settings for loader's lights
-const uint8_t  loaderMaxLightLevelDay    = uint8_t(.8*ON); // 80% Max
-const uint8_t  loaderMaxLightLevelNight  = uint8_t(.6*ON); // 60% Max
-uint32_t loaderDayOnLengths[1]           = {180000}; // On 3 minutes
-uint32_t loaderDayDecayLengths[1]        = { 61500}; // Off for 1 minute, 15 seconds to keep out of sync
-uint8_t  loaderDayMaxLightLevels[1]      = {loaderMaxLightLevelDay};  
-uint32_t * loaderDayTauInMilliseconds    = NULL;     // On/Off, no decay
+const uint8_t  loaderMaxLightLevelDay      = uint8_t(.8*ON);  // 80% Max
+const uint8_t  loaderMaxLightLevelNight    = uint8_t(.6*ON);  // 60% Max
+uint32_t       loaderDayOnLengths[1]       = {180000};        // On 3 minutes
+uint32_t       loaderDayDecayLengths[1]    = { 61500};        // Off for 1 minute, 15 seconds to keep out of sync
+uint8_t        loaderDayMaxLightLevels[1]  = {loaderMaxLightLevelDay};  
+uint32_t     * loaderDayTauInMilliseconds  = NULL;            // On/Off, no decay
 
 // Settings for tail floods
-const uint8_t  tailFloodsMaxLightLevel   = uint8_t(0.8*ON); // 80% Max
+const uint8_t  tailFloodsMaxLightLevel     = uint8_t(0.8*ON); // 80% Max
 
 void serialPrintBanner() {
     Serial.println(F("NMNSH B-52 Lighting Controller B v1.0"));
