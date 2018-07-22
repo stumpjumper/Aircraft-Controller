@@ -91,6 +91,8 @@ ARDUINO_MOCK_HEADERS = $(ARDUINO_MOCK_INCLUDE_DIR)/*.h
 
 all : $(TESTS) $(PROGRAM_OBJS)
 
+allclean : clean rm_links
+
 MY_TESTEXE_A=B29_unittest
 MY_TEST_A1=B29Test.ArduinoMockMillis
 
