@@ -58,7 +58,7 @@ void serialPrintBanner() {
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
   // When voltage drops at or below this value, mode will switch to MODE_BATTERYLOW
-  return BATTERYLOWDEFAULT;
+  return 10.0;
 }
 
 float getBatteryLowResetValue() {
