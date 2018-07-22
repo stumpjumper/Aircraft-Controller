@@ -14,45 +14,54 @@
 // 
 // Output types: (d)  = dimable, (nd) = not dimable
 //
-// b1~ Cat Walk: Bomb Bay and Wheel Wells (d 13) 
-// b2  Interior White: Flight Deck and Tail Gunner (nd, ??)  
-// b3  Interior Red: Flight Deck and Tail Gunner (nd, ??)  
-// b4  Cockpit Floods: Interior Cockpit Floods (nd, 2) 
-// b5~ Loader~: (d, 4) 
-// b6~ Tail Flood: Flood lights on tail flash~ (d, 2) 
-// b7  Future
+// a1~   Taxi: Wings and Landing Gear (d,3)
+// a2    Landing: Gear Doors, Rt Gear (nd,3)
+// a3    Cat Walk: Bomb Bay and Wheel Wells (d 13) 
+// a4    Terrain Motor: (nd, motor) Not yet used
+// a5~   Navigation: Wing Tip, Vertical Stab, Bomb Bay (d,5)
+// a6~   (Anti-)Collision: (d,6)
+// a7    (Anti-)Collision Motor: (nd, motor) Not yet used
 
 // Light objects to control each channel
-DecayLight catwalk;       // Bomb Bay and Wheel Well lights, mostly on the catwalk (13)
-Light      interiorWhite; // Interior White: Flight Deck and Tail Gunner (nd, ?
-Light      interiorRed;   // Interior Red: Flight Deck and Tail Gunner (nd, ??)
-Light      cockpitFloods; // Two lights behind the pilots (nd, 2)
-DecayLight loader;        // The four lighs on the loader (d, 4)
-Light      tailFloods;    // Two flood lighs on horizontal that illuminate the tail flash (2)
+DecayLight      taxi;           // Taxi lights on right-fwd landing gear and lft & rht wing landing gear (3)
+Light           landing;        // Landing lights on rht-fwd landing gear lft & rht fwd gear doors and (3)
+DecayLight      catwalk;        // Bomb Bay and Wheel Well lights, mostly on the catwalk (13)
+// UpDownMotor  terrainMotor;   // Terrain light up-down motor just ahead of most fwd landing gear (1)
+DecayLight      navigation;     // Navigation lights on lft & right wing tips, two on vertical stab and on on rht bomb-bay door (5)
+RotatingLight   collision;      // Anti-Collision lights on lft & rht top before vertical stab and bottom under 47 section (6)
+// UpdDownMotor collisionMotor; // Anti-Collision motor: On/Off motor that rotates Anti-Collision lights (3)
+
+// Flashing settings for taxi lights during day and night
+const uint8_t  taxiMaxLightLevelDay        = uint8_t(.8*ON); // 80% Max
+const uint8_t  taxiMaxLightLevelNight      = uint8_t(.6*ON); // 60% Max
+uint32_t       taxiOnLengths[1]            = {180000}; // On 3 minutes
+uint32_t       taxiDecayLengths[1]         = { 60000}; // Off for 1 minute
+uint8_t        taxiMaxLightLevels[1]       = {taxiMaxLightLevelDay};  
+uint32_t     * taxiTauInMilliseconds       = NULL;     // On/Off, no decay
 
 // Decay settings for catwalk lights during day and night
-const uint8_t  catwalkMaxLightLevelDay   = uint8_t(.8*ON); // 80% Max
-//const uint8_t  catwalkMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
-const uint8_t  catwalkMaxLightLevelNight = uint8_t(.5*ON);
-uint32_t catwalkDayOnLengths[1]          = {180000}; // On 3 minutes
-//uint32_t catwalkDayDecayLengths[1]       = { 61000}; // Off for 1 minute, plus 1 sec to keep out of sync
-uint32_t catwalkDayDecayLengths[1]       = { 91000}; // Off for 90 seconds, plus 1 sec to keep out of sync
-uint8_t  catwalkDayMaxLightLevels[1]     = {catwalkMaxLightLevelDay};  
-uint32_t * catwalkDayTauInMilliseconds   = NULL;     // On/Off, no decay
+uint32_t       catwalkDayOnLengths[1]      = {180000}; // On 3 minutes
+uint32_t       catwalkDayDecayLengths[1]   = { 91000}; // Off for 90 seconds, plus 1 sec to keep out of sync
+uint8_t        catwalkDayMaxLightLevels[1] = {ON};  
+uint32_t     * catwalkDayTauInMilliseconds = NULL;     // On/Off, no decay
 
-// Flashing settings for loader's lights
-const uint8_t  loaderMaxLightLevelDay    = uint8_t(.8*ON); // 80% Max
-const uint8_t  loaderMaxLightLevelNight  = uint8_t(.6*ON); // 60% Max
-uint32_t loaderDayOnLengths[1]           = {180000}; // On 3 minutes
-uint32_t loaderDayDecayLengths[1]        = { 61500}; // Off for 1 minute, 15 seconds to keep out of sync
-uint8_t  loaderDayMaxLightLevels[1]      = {loaderMaxLightLevelDay};  
-uint32_t * loaderDayTauInMilliseconds    = NULL;     // On/Off, no decay
+// Flashing settings for navigation lights
+uint32_t navigationOnLengths[1]            = { 100};   // On for .1 seconds
+uint32_t navigationDecayLengths[1]         = {1100};   // Decay for 1.1
+uint8_t  navigationMaxLightLevels[1]       = {ON};  
+uint32_t navigationTauInMilliseconds[1]    = { 100};   // Half-life = .1 seconds
 
-// Settings for tail floods
-const uint8_t  tailFloodsMaxLightLevel   = uint8_t(0.8*ON); // 80% Max
+// Flashing settings for collision lights
+const uint8_t  collisionOnLightLevel       = ON;  // When light is not "rotating", just on, this is its intensity
+const uint32_t collisionFlatLength         = 250; // Time between 1/2 sine waves.  250 = 1/4 sec  NOTE: Changed from 0 to 250 on 2/18/17 to slow things down
+const uint8_t  collisionFlatLightLevel     = 0;   // Light level when between 1/2 sine waves
+const uint32_t collisionPulseLength        = 736; // 1/2 period of sine wave. 1000 = 1 sec
+// Value based on that found here: https://www.youtube.com/watch?v=PSKxUBRD40E. (35 flashes in 25.2 sec =.72, 35 in 26.21=.748, 36 in 26.67=.741)
+const uint8_t  collisionMinLightLevel      = 20;  // Light level when sine wave starts
+const uint8_t  collisionMaxLightLevel      = ON;  // Light level at peak of sine wave
 
 void serialPrintBanner() {
-    Serial.println(F("NMNSH B-52 Lighting Controller B v1.0"));
+    Serial.println(F("NMNSH B-52 Lighting Controller A v1.0"));
 }
 
 float getBatteryLowValue() {
@@ -73,30 +82,27 @@ bool overrideBatteryLow() {
 }
 
 void allLightsOn() {
-  catwalk       .on();
-  interiorWhite .on();
-  interiorRed   .on();
-  cockpitFloods .on();
-  loader        .on();
-  tailFloods    .on();
+  taxi        .on();
+  landing     .on();
+  catwalk     .on();
+  navigation  .on();
+  collision   .on();
 }
 
 void allLightsOff() {
-  catwalk       .off();
-  interiorWhite .off();
-  interiorRed   .off();
-  cockpitFloods .off();
-  loader        .off();
-  tailFloods    .off();
+  taxi        .off();
+  landing     .off();
+  catwalk     .off();
+  navigation  .off();
+  collision   .off();
 }
 
 void updateAll() {
-  catwalk       .update();
-  interiorWhite .update();
-  interiorRed   .update();
-  cockpitFloods .update();
-  loader        .update();
-  tailFloods    .update();
+  taxi        .update();
+  landing     .update();
+  catwalk     .update();
+  navigation  .update();
+  collision   .update();
 }
 
 void allOff() {
@@ -105,18 +111,12 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  catwalkDayMaxLightLevels[0] = catwalkMaxLightLevelNight;  
-  //  catwalk       .flash(); 2/18/17
-  catwalk       .off();
-  interiorWhite .off();
-  // interiorRed   .on();
-  interiorRed   .off();
-  cockpitFloods .off();
-  loaderDayMaxLightLevels[0] = loaderMaxLightLevelNight;
-  // loader        .flash(); 2/18/17
-  loader        .off();
-  //tailFloods    .on(); 2/18/17
-  tailFloods    .off();
+  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
+  taxi        .off();
+  landing     .off();
+  catwalk     .off();
+  navigation  .flash();
+  collision   .flash();
 }
 
 void setNight() {
@@ -124,40 +124,43 @@ void setNight() {
 }
 
 void setPreDawn() {
-  //  catwalk       .flash(); 2/18/17
-  catwalk       .off();
-  interiorWhite .off();
-  interiorRed   .off();
-  cockpitFloods .off();
-  loader        .off();
-  //  tailFloods    .on(); 2/18/17
-  tailFloods    .off();
+  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
+  taxi        .off();
+  landing     .off();
+  catwalk     .off();
+  navigation  .flash();
+  collision   .flash();
 }
 
 void setMorning() {
-  catwalk       .off();
-  interiorWhite .off();
-  interiorRed   .off();
-  cockpitFloods .off();
-  loader        .off();
-  tailFloods    .off();
+  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
+  taxi        .off();
+  landing     .on();
+  catwalk     .off();
+  navigation  .flash();
+  collision   .flash();
 }
 
 void setDay() {
-  catwalkDayMaxLightLevels[0] = catwalkMaxLightLevelDay;  
-  catwalk       .flash();
-  interiorWhite .off();
-  interiorRed   .off();
-  cockpitFloods .off();
-  loaderDayMaxLightLevels[0] = loaderMaxLightLevelDay;
-  loader        .flash();
-  tailFloods    .off();
+  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
+  taxi        .off();
+  landing     .on();
+  catwalk     .flash();
+  navigation  .flash();
+  collision   .flash();
 }
 
 void processKey(const uint32_t key) {
-  Serial.print(F("key "));
-  Serial.println(key, HEX);
   switch (key) {
+  case '?': // Print a single line of status
+    status();
+    break;
+  case 'c': // Put into continuous status print mode
+    status();
+    break;
+  case 's': // If on, stop continuous status print mode
+    status();
+    break;
   case '0':
   case RC65X_KEY0:
   case RC65X_KEYDOWN: // Control wheel down
@@ -172,42 +175,42 @@ void processKey(const uint32_t key) {
   case RM_YD065_KEY1:
     Serial.print(F("Got remote \"1\"\n"));
     setToMode(MODE_OVERRIDE);
-    catwalk.toggle();
+    taxi.toggle();
     break;
   case '2':
   case RC65X_KEY2:
   case RM_YD065_KEY2:
     Serial.print(F("Got remote \"2\"\n"));
     setToMode(MODE_OVERRIDE);
-    interiorWhite.toggle();
+    landing.toggle();
     break;
   case '3':
   case RC65X_KEY3:
   case RM_YD065_KEY3:
     Serial.print(F("Got remote \"3\"\n"));
     setToMode(MODE_OVERRIDE);
-    interiorRed.toggle();
+    catwalk.toggle();
     break;
-  case '4':
-  case RC65X_KEY4:
-  case RM_YD065_KEY4:
-    Serial.print(F("Got remote \"4\"\n"));
-    setToMode(MODE_OVERRIDE);
-    cockpitFloods.toggle();
-    break;
+  // case '4':
+  // case RC65X_KEY4:
+  // case RM_YD065_KEY4:
+  //   Serial.print(F("Got remote \"4\"\n"));
+  //   setToMode(MODE_OVERRIDE);
+  //   something.toggle();
+  //   break;
   case '5':
   case RC65X_KEY5:
   case RM_YD065_KEY5:
     Serial.print(F("Got remote \"5\"\n"));
     setToMode(MODE_OVERRIDE);
-    loader.toggle();
+    navigation.toggle();
     break;
   case '6':
   case RC65X_KEY6:
   case RM_YD065_KEY6:
     Serial.print(F("Got remote \"6\"\n"));
     setToMode(MODE_OVERRIDE);
-    tailFloods.toggle();
+    collision.toggle();
     break;
 //   case '7':
 //   case RC65X_KEY7:
@@ -246,22 +249,22 @@ void processKey(const uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  //                             1        2              3      
-  serialPrintCustomStatusDefault(&catwalk,&interiorWhite,&interiorRed,
-                                 &cockpitFloods,&loader,&tailFloods,NULL);
-  //                             4              5       6           7
+  //                               1      2        3      4       5
+  serialPrintCustomStatusDefault(&taxi,&landing,&catwalk,NULL,&navigation,
+                                 &collision,NULL);
+  //                                 6       7
 }
 
 void setupLightingAndMotorChannels()
 {
-  catwalk      .setup(hw.o1, catwalkMaxLightLevelDay, 
-                      1, catwalkDayOnLengths, catwalkDayDecayLengths,
-                      catwalkDayMaxLightLevels, catwalkDayTauInMilliseconds);
-  interiorWhite.setup(hw.o2, ON);
-  interiorRed  .setup(hw.o3, ON);
-  cockpitFloods.setup(hw.o4, ON);
-  loader       .setup(hw.o5, loaderMaxLightLevelDay, 
-                      1, loaderDayOnLengths, loaderDayDecayLengths,
-                      loaderDayMaxLightLevels, loaderDayTauInMilliseconds);
-  tailFloods   .setup(hw.o6, tailFloodsMaxLightLevel);
+  taxi       .setup(hw.o1, ON, 1, taxiOnLengths, taxiDecayLengths,
+                    taxiMaxLightLevels, taxiTauInMilliseconds);
+  landing    .setup(hw.o2, ON);
+  catwalk    .setup(hw.o3, ON, 1, catwalkDayOnLengths, catwalkDayDecayLengths,
+                    catwalkDayMaxLightLevels, catwalkDayTauInMilliseconds);
+  navigation .setup(hw.o5, ON, 1, navigationOnLengths, navigationDecayLengths,
+                    navigationMaxLightLevels, navigationTauInMilliseconds);
+  collision  .setup(hw.o6, collisionOnLightLevel, collisionFlatLength,          
+                    collisionFlatLightLevel, collisionPulseLength,
+                    collisionMinLightLevel, collisionMaxLightLevel);
 }
