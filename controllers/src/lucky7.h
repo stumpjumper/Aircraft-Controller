@@ -150,6 +150,14 @@ public:
 
 class DecayLight: public Light
 {
+  // A light that is on, then switches off, but filament "cools" when light
+  // is switched off.
+  // For each interval, specify length of time 'onLength' light is on at
+  // 'maxLightLevel'.  Then, for each interval, specify 'decayLength' how long
+  // light will spend in decay mode, which is either moving to off or off.
+  // Length of time moving to off (i.e. decaying) is governed by 'tau' and
+  // Newton's law of cooling, as desribed below.
+  //
   // In this class the light level decays at a rate given by Newton's
   // law of cooling, which is
   // 
@@ -186,16 +194,19 @@ private:
   FRIEND_TEST(DecayLight, UpdateCalledInfrequently);
 
 protected:
+  uint32_t * onLength;      // Time to stay on before switching to decay mode,
+                            // for each interval
+  uint32_t * decayLength;   // Time to stay in decay mode, before starting next
+                            // interval, for each interval
+  uint8_t  * maxLightLevel; // Light level when on, for each interval
+  uint32_t * tau;           // Time constants.  See discussion above
+
   uint32_t changeTime;      // Keep track of when its time to change modes
   bool     decaying;        // Flag if in on or decay mode
   uint32_t decayStartTime;  // Keep track of when decay started.
   uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
   uint8_t  numIntervals;    // Length of onLenth, decayLength & maxLightLevels.
 
-  uint32_t * onLength;      // How long to stay on for, for each interval
-  uint32_t * decayLength;   // How long to decay for, for each interval
-  uint8_t  * maxLightLevel; // Light level when on, for each interval
-  uint32_t * tau;           // Time constants.  See discussion above
   
 public:
   DecayLight();
