@@ -83,7 +83,7 @@ public:
   virtual ~Light();
 
 protected:
-  uint8_t onLightLevel;
+  uint8_t onLightLevel;  // Value when light simply On, not decaying or blinking
   uint8_t * p_lightLevel;
   Light::MODE lightMode;
 
@@ -194,6 +194,12 @@ private:
   FRIEND_TEST(DecayLight, UpdateCalledInfrequently);
 
 protected:
+  uint32_t changeTime;      // Keep track of when its time to change modes
+  bool     decaying;        // Flag if in on or decay mode
+  uint32_t decayStartTime;  // Keep track of when decay started.
+  uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
+  uint8_t  numIntervals;    // Length of onLenth, decayLength & maxLightLevels.
+
   uint32_t * onLength;      // Time to stay on before switching to decay mode,
                             // for each interval
   uint32_t * decayLength;   // Time to stay in decay mode, before starting next
@@ -201,11 +207,6 @@ protected:
   uint8_t  * maxLightLevel; // Light level when on, for each interval
   uint32_t * tau;           // Time constants.  See discussion above
 
-  uint32_t changeTime;      // Keep track of when its time to change modes
-  bool     decaying;        // Flag if in on or decay mode
-  uint32_t decayStartTime;  // Keep track of when decay started.
-  uint8_t  intervalIndex;   // Keep track of which lighting inverval we are on
-  uint8_t  numIntervals;    // Length of onLenth, decayLength & maxLightLevels.
 
   
 public:
