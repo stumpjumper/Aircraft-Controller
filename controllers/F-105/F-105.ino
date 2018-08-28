@@ -14,39 +14,54 @@
 // 
 // Output types: (d)  = dimable, (nd) = not dimable
 //
-// a1~ Landing/Taxi                          Steady
-// a2  Formation: Wing Tip-Front, Formation  Steady
-// a3  Approach                              Steady
-// a5~ Position: Wing Tip-Edge, Tail         Blink
-// a6~ Anti-Smash                            Pulse
+// a1~ Formation                     Blink
+// a2  Tail Flash                    Steady
+// a3  Belly                         Steady
+// a5~ Position: Wing Tip, Tail Top  Blink (40 cycles/min)
+// a6~ Anti-Smash                    Pulse (80 rpm)
 
+// From the F-105D manual:
+//
+// Formation: Consisting of luna white lights, one each in the rudder fairing
+// and one each mounted on aft fuselage, on each side of the vertical stabilizer
+//
+// Position: Consist of red (left) and green (right) lights in the wing tips and
+// two white lights in the vertical fin tip, and white lights on the top, bottom
+// and sides of the forward fuselage. The top fuselage light is enclosed within
+// a transparent section of the turtledeck (back of cockpit to the fin).
+//
+// Position Light Switch: Switch has three positions: FLASH, OFF, and
+// STEADY. When in STEADY position, the wing and tail lights will be
+// illuminated.  When the switch is moved to FLASH position, the red, green, and
+// white tail lights flash alternately at the rate of 40 cycles per minute.
+
+// I think
+// front lights and top of tail are position lights,
+// back lights (exluding top of tail) are formation lights
 
 // Light objects to control each channel
-DecayLight      taxi;            // Landing/Taxi light
-Light           formation;       // On fuselage, front of wings and tail flood (according to manual)
-Light           approach;        // green, yellow, red lights on front wheel
-DecayLight      position ;       // Position lights on lft & right wing tips and tail
-RotatingLight   collision;       // Anti-Collision lights on top and bottom
+FlashingLight   formation;  // Not sure if these are formation or position
+Light           tailFlash;  // Think this is a non-blinking formation
+Light           belly    ;  // Think this is a position light
+DecayLight      position ;  // Left & right wing tips and tail top (40 cyc/sec)
+RotatingLight   collision;  // Anti-Collision lights on top and bottom (80 rpm)
 
-// Flashing settings for taxi lights during day and night
-const uint8_t  taxiMaxLightLevelDay   = uint8_t(ON); // 100% Max
-const uint8_t  taxiMaxLightLevelNight = uint8_t(.6*ON); // 60% Max
-uint32_t taxiOnLengths[1]             = {180000}; // On 3 minutes
-uint32_t taxiDecayLengths[1]          = { 60000}; // Off for 1 minute
-uint8_t  taxiMaxLightLevels[1]        = {taxiMaxLightLevelDay};  
-uint32_t * taxiTauInMilliseconds      = NULL;     // On/Off, no decay
+// Flashing settings for formation lights
+uint32_t formationOnLengths[1]         = {300000}; // On 5 minutes    
+uint32_t formationOffLengths[1]        = { 60000}; // Off for 1 minute
+uint8_t  formationMaxLightLevels[1]    = {ON};  
 
-// Flashing settings for position lights
+// Decay settings for position lights
 uint32_t positionOnLengths[1]         = {100};  // On for .1 seconds
-uint32_t positionDecayLengths[1]      = {1100}; // Decay for 1.1
+uint32_t positionDecayLengths[1]      = {1100}; // Decay for 1.4
 uint8_t  positionMaxLightLevels[1]    = {ON};  
 uint32_t positionTauInMilliseconds[1] = {100};  // Half-life = .1 seconds
 
-// Flashing settings for collision lights
+// Rotation settings for collision lights
 const uint8_t  collisionOnLightLevel   = ON;  // When light is not "rotating", just on, this is its intensity
-const uint32_t collisionFlatLength     = 500;   // Time between 1/2 sine waves.  1000 = 1 sec
+const uint32_t collisionFlatLength     = 375;   // Time between 1/2 sine waves.  1000 = 1 sec
 const uint8_t  collisionFlatLightLevel = 0;   // Light level when between 1/2 sine waves
-const uint32_t collisionPulseLength    = 900; // 1/2 period of sine wave. 1000 = 1 sec
+const uint32_t collisionPulseLength    = 375; // 1/2 period of sine wave. 1000 = 1 sec
 // Value based on that found here: https://www.youtube.com/watch?v=PSKxUBRD40E. (35 flashes in 25.2 sec =.72, 35 in 26.21=.748, 36 in 26.67=.741)
 const uint8_t  collisionMinLightLevel  = 20;  // Light level when sine wave starts
 const uint8_t  collisionMaxLightLevel  = ON;  // Light level at peak of sine wave
@@ -58,13 +73,13 @@ void serialPrintBanner() {
 float getBatteryLowValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWDEFAULT
   // When voltage drops at or below this value, mode will switch to MODE_BATTERYLOW
-  return 10.5;
+  return 10.0;
 }
 
 float getBatteryLowResetValue() {
   // Provide a non-default value if needed.  Default is BATTERYLOWRESETDEFAULT
   // Will switch out of MODE_BATTERYLOW only after voltage rises at or above this value
-  return 13.0;
+  return BATTERYLOWRESETDEFAULT;
 }
 
 bool overrideBatteryLow() {
@@ -73,28 +88,28 @@ bool overrideBatteryLow() {
 }
 
 void allLightsOn() {
-  taxi        .on();
-  formation   .on();
-  approach    .on();
-  position    .on();
-  collision   .on();
+  formation.on();
+  tailFlash.on();
+  belly    .on();
+  position .on();
+  collision.on();
   
 }
 
 void allLightsOff() {
-  taxi        .off();
-  formation   .off();
-  approach    .off();
-  position    .off();
-  collision   .off();
+  formation.off();
+  tailFlash.off();
+  belly    .off();
+  position .off();
+  collision.off();
 }
 
 void updateAll() {
-  taxi        .update();
-  formation   .update();
-  approach    .update();
-  position    .update();
-  collision   .update();
+  formation.update();
+  tailFlash.update();
+  belly    .update();
+  position .update();
+  collision.update();
 }
 
 void allOff() {
@@ -103,12 +118,11 @@ void allOff() {
 
 // -------------------- Time of Day Settings ----------------
 void setEvening() {
-  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;
-  taxi        .flash();
-  formation   .on();
-  approach    .on();
-  position    .flash();
-  collision   .flash();
+  formation.flash();
+  tailFlash.on();
+  belly    .on();
+  position .flash();
+  collision.flash();
 }
 
 void setNight() {
@@ -116,30 +130,27 @@ void setNight() {
 }
 
 void setPreDawn() {
-  taxiMaxLightLevels[0] = taxiMaxLightLevelNight;  
-  taxi        .flash();
-  formation   .on();
-  approach    .on();
-  position    .flash();
-  collision   .flash();
+  formation.flash();
+  tailFlash.on();
+  belly    .on();
+  position .flash();
+  collision.flash();
 }
 
 void setMorning() {
-  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  taxi        .flash();
-  formation   .on();
-  approach    .on();
-  position    .flash();
-  collision   .flash();
+  formation.flash();
+  tailFlash.on();
+  belly    .on();
+  position .flash();
+  collision.flash();
 }
 
 void setDay() {
-  taxiMaxLightLevels[0] = taxiMaxLightLevelDay;  
-  taxi        .flash();
-  formation   .on();
-  approach    .on();
-  position    .flash();
-  collision   .flash();
+  formation.flash();
+  tailFlash.on();
+  belly    .on();
+  position .flash();
+  collision.flash();
 }
 
 void processKey(const uint32_t key) {
@@ -167,21 +178,21 @@ void processKey(const uint32_t key) {
   case RM_YD065_KEY1:
     Serial.print(F("Got remote \"1\"\n"));
     setToMode(MODE_OVERRIDE);
-    taxi.toggle();
+    formation.toggle();
     break;
   case '2':
   case RC65X_KEY2:
   case RM_YD065_KEY2:
     Serial.print(F("Got remote \"2\"\n"));
     setToMode(MODE_OVERRIDE);
-    formation.toggle();
+    tailFlash.toggle();
     break;
   case '3':
   case RC65X_KEY3:
   case RM_YD065_KEY3:
     Serial.print(F("Got remote \"3\"\n"));
     setToMode(MODE_OVERRIDE);
-    approach.toggle();
+    belly.toggle();
     break;
   // case '4':
   // case RC65X_KEY4:
@@ -241,18 +252,18 @@ void processKey(const uint32_t key) {
 
 void serialPrintCustomStatus()
 {
-  //                              1     2          3        4     5
-  serialPrintCustomStatusDefault(&taxi,&formation,&approach,NULL,&position,
+  //                              1          2          3     4     5
+  serialPrintCustomStatusDefault(&formation,&tailFlash,&belly,NULL,&position,
                                  &collision,NULL);
   //                              6         7
 }
 
 void setupLightingAndMotorChannels()
 {
-  taxi       .setup(hw.o1, ON, 1, taxiOnLengths, taxiDecayLengths,
-                    taxiMaxLightLevels, taxiTauInMilliseconds);
-  formation  .setup(hw.o2, ON);
-  approach   .setup(hw.o3, ON);
+  formation  .setup(hw.o1, ON, 1, formationOnLengths, formationOffLengths,
+                    formationMaxLightLevels);
+  tailFlash  .setup(hw.o2, ON);
+  belly      .setup(hw.o3, ON);
   position   .setup(hw.o5, ON, 1, positionOnLengths, positionDecayLengths,
                     positionMaxLightLevels, positionTauInMilliseconds);
   collision  .setup(hw.o6, collisionOnLightLevel, collisionFlatLength,          
