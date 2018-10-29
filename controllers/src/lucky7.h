@@ -35,6 +35,7 @@
 #define LUCKY7_TIMEMOTORDELAY         2000  // 2 sec
 #define LUCKY7_TIME30SEC             30000  // 30 sec
 #define LUCKY7_TIME5MIN             300000  // 300 sec = 5 min
+#define LUCKY7_TIME1HOUR           3600000U // 1 hours
 #define LUCKY7_TIME2HOUR           7200000U // 2 hours
 #define LUCKY7_TIME4HOUR          14400000U // 4 hours
 #define LUCKY7_TIME12HOUR         43200000U // 12 hours
@@ -379,11 +380,14 @@ public:
   
   void setup(const uint16_t initialValueMin, const uint16_t initialValueMax,
              const uint8_t nightDayThresholdPercentageValue);
-  
-  void setStartTimes(const uint32_t dayStartIn, const uint32_t nightStartIn);
-  void setDayPartAndLenghts(const uint32_t           eveningLengthIn,
-                            const uint32_t           morningLengthIn,
-                            const uint32_t           predawnLengthIn,
+
+  // Hours from now that day and night will start
+  void setStartTimes(const uint8_t dayStartDeltaHrs,
+                     const uint8_t nightStartDeltaHrs);
+  // Lengths of these different parts of day in hours
+  void setDayPartAndLenghts(const uint8_t           eveningLengthHrs,
+                            const uint8_t           morningLengthHrs,
+                            const uint8_t           predawnLengthHrs,
                             const TimeOfDay::DayPart currentDayPartIn);
 
   uint32_t getDaySart        (){return dayStart;       };

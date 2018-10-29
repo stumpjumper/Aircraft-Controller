@@ -344,23 +344,37 @@ void TimeOfDay::setup(const uint16_t initialValueMin,
   updateAverageTestMode = false;
 }
 
-void TimeOfDay::setStartTimes(const uint32_t dayStartIn,
-                              const uint32_t nightStartIn)
+void TimeOfDay::setStartTimes(const uint8_t dayStartDeltaHrs,
+                              const uint8_t nightStartDeltaHrs)
 {
-  dayStart = dayStartIn;
-  nightStart = nightStartIn;
-  lengthOfNight = dayStart - nightStart;
   startTimesGiven = true;
+
+  const uint32_t currentMillis = millis();
+  
+  dayStart   = currentMillis + dayStartDeltaHrs  *LUCKY7_TIME1HOUR;
+  nightStart = currentMillis + nightStartDeltaHrs*LUCKY7_TIME1HOUR;
+  
+  if (dayStartDeltaHrs > nightStartDeltaHrs) {
+    lengthOfNight =
+      // hour of nighttime
+      (dayStartDeltaHrs - nightStartDeltaHrs) * LUCKY7_TIME1HOUR;
+  }
+  else {
+    lengthOfNight =
+      // 24hrs - (hours of daytime)
+      (24 - (nightStartDeltaHrs - dayStartDeltaHrs)) * LUCKY7_TIME1HOUR;
+  }
+
 }
 
-void TimeOfDay::setDayPartAndLenghts(const uint32_t           eveningLengthIn,
-                                     const uint32_t           morningLengthIn,
-                                     const uint32_t           predawnLengthIn,
+void TimeOfDay::setDayPartAndLenghts(const uint8_t           eveningLengthHrs,
+                                     const uint8_t           morningLengthHrs,
+                                     const uint8_t           predawnLengthHrs,
                                      const TimeOfDay::DayPart currentDayPartIn)
 {
-  eveningLength  = eveningLengthIn;
-  morningLength  = morningLengthIn;
-  predawnLength  = predawnLengthIn;
+  eveningLength  = eveningLengthHrs * LUCKY7_TIME1HOUR;
+  morningLength  = morningLengthHrs * LUCKY7_TIME1HOUR;
+  predawnLength  = predawnLengthHrs * LUCKY7_TIME1HOUR;
   currentDayPart = currentDayPartIn;
 }
 
