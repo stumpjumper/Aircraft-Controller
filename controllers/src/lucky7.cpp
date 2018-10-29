@@ -333,6 +333,7 @@ void TimeOfDay::setup(const uint16_t initialValueMin,
   nightStart = 0;
   dayStart = 0;
   currentDayPart = DAY;
+  startTimesGiven = false;
 
   nightDayThresholdPercentage = nightDayThresholdPercentageValue;
 
@@ -343,6 +344,25 @@ void TimeOfDay::setup(const uint16_t initialValueMin,
   updateAverageTestMode = false;
 }
 
+void TimeOfDay::setStartTimes(const uint32_t dayStartIn,
+                              const uint32_t nightStartIn)
+{
+  dayStart = dayStartIn;
+  nightStart = nightStartIn;
+  lengthOfNight = dayStart - nightStart;
+  startTimesGiven = true;
+}
+
+void TimeOfDay::setDayPartAndLenghts(const uint32_t           eveningLengthIn,
+                                     const uint32_t           morningLengthIn,
+                                     const uint32_t           predawnLengthIn,
+                                     const TimeOfDay::DayPart currentDayPartIn)
+{
+  eveningLength  = eveningLengthIn;
+  morningLength  = morningLengthIn;
+  predawnLength  = predawnLengthIn;
+  currentDayPart = currentDayPartIn;
+}
 
 TimeOfDay::DayPart TimeOfDay::updateAverage(const uint16_t lightLevel)
 {
@@ -434,7 +454,11 @@ void TimeOfDay::updateTimeOfDay()
     }
     // Yes, there is no break here.
   case PREDAWN:
-    if (photocellAvgValueCurrent > nightDayThreshold) {
+    if (getStartTimesGiven() && millis() > dayStart) {
+      currentDayPart = MORNING;
+    }
+    else if (!getStartTimesGiven() &&
+             photocellAvgValueCurrent > nightDayThreshold) {
       dayStart = millis();
       lengthOfNight = dayStart - nightStart;
       currentDayPart = MORNING;
@@ -446,7 +470,11 @@ void TimeOfDay::updateTimeOfDay()
     }
     break;
   case DAY:
-    if (photocellAvgValueCurrent < nightDayThreshold) {
+    if (getStartTimesGiven() && millis() > nightStart) {
+      currentDayPart = EVENING;
+    }
+    else if (!getStartTimesGiven() &&
+             photocellAvgValueCurrent < nightDayThreshold) {
       nightStart = millis();
       currentDayPart = EVENING;
     }

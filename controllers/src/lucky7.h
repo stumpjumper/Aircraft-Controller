@@ -380,8 +380,21 @@ public:
   void setup(const uint16_t initialValueMin, const uint16_t initialValueMax,
              const uint8_t nightDayThresholdPercentageValue);
   
-  DayPart updateAverage(const uint16_t lightLevel);
-  DayPart getDayPart();
+  void setStartTimes(const uint32_t dayStartIn, const uint32_t nightStartIn);
+  void setDayPartAndLenghts(const uint32_t           eveningLengthIn,
+                            const uint32_t           morningLengthIn,
+                            const uint32_t           predawnLengthIn,
+                            const TimeOfDay::DayPart currentDayPartIn);
+
+  uint32_t getDaySart        (){return dayStart;       };
+  uint32_t getNightStart     (){return nightStart;     };
+  uint32_t getEveningLength  (){return eveningLength;  };
+  uint32_t getMorningLength  (){return morningLength;  };
+  uint32_t getPredawnLength  (){return predawnLength;  };
+  bool     getStartTimesGiven(){return startTimesGiven;};
+
+  DayPart  getDayPart();
+  DayPart  updateAverage(const uint16_t lightLevel);
   uint16_t getNightDayThreshold();
   
   uint16_t getPhotocellAvgValueMin()    {return photocellAvgValueMin;};
@@ -399,9 +412,10 @@ private:
   uint16_t photocellAvgValueMin;
   uint16_t photocellAvgValueMax;
   uint8_t  nightDayThresholdPercentage;
-  uint32_t lengthOfNight;
   uint32_t nightStart;
   uint32_t dayStart;
+  uint32_t lengthOfNight;
+  bool     startTimesGiven;
   uint32_t update30secTimeout;
   uint32_t update5minTimeout;
   uint32_t eveningLength;
