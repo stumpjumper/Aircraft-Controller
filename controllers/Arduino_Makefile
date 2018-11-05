@@ -1,0 +1,34 @@
+# Code below comments from:
+# From https://www.raspberrypi.org/forums/viewtopic.php?t=170227
+#
+# NOTES:
+# 1) Need to do a
+#    make -f Arduino_Makefile ...
+#    since this file is not named "Makefile"
+# 2) Need to run make in the directory with the *.ino file
+#    So need to do a make arduino_links, cd to, say, F-6,  then do a
+#    ln -s ../Arduino_Makefile Makefile
+#    make
+# 3) To find the serial port do a 
+#    "dmesg | grep tty" and look at last serial port added.
+#    Usually looks something like /dev/ttyACM0 or /dev/ttyUSB0
+#    and is at the bottom of the grep output.
+# 4) From https://www.raspberrypi.org/forums/viewtopic.php?t=170227
+#   (adjust the board tag to suit your arduino)
+# 
+#   'make' will compile the sketch
+#   'make upload' will compile and upload
+#   'make monitor' will connect to the Arduino's serial port (^A-k gets you out!)
+#   'make help' will tell you other stuff
+#   reading /usr/share/arduino/Arduino.mk will tell you still more stuff.
+
+
+ARDUINO_DIR   = /usr/share/arduino
+ARDMK_DIR     = /usr/share/arduino
+
+ARDUINO_LIBS =
+BOARD_TAG    = nano328
+MONITOR_PORT = /dev/ttyACM0
+MONITOR_BAUDRATE = 115200
+
+include /usr/share/arduino/Arduino.mk
